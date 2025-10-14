@@ -28,7 +28,7 @@ export default async function Login(data, req, res) {
                 email: user.email,
                 login: user.login
             }, secret, {
-                expiresIn: "1h"
+                expiresIn: "7d"
             })
         });
     }

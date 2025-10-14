@@ -19,6 +19,7 @@ import oAuthRouter from "./src/oauth/index.js";
 import CodesRouter from "./src/codes/index.js";
 import UsersRouter from "./src/users/index.js";
 import GamesRouter from "./src/games/index.js";
+import CommentsRouter from "./src/comments/index.js";
 import Search from "./src/search.js";
 app.use(express.json());
 
@@ -26,6 +27,7 @@ app.use("/oauth", oAuthRouter);
 app.use("/codes", CodesRouter);
 app.use("/users", UsersRouter);
 app.use("/games", GamesRouter);
+app.use("/comments", CommentsRouter);
 
 app.get("/search", Search);
 
