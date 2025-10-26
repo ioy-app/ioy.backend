@@ -28,13 +28,9 @@ export default async function Search(req, res) {
             ORDER BY date_created DESC
         `, [ `%${search}%`, per_page ]);
 
-        // if (!result.rows.length)
-        //     throw new CustomError("Ничего не найдено");
-        //setTimeout(() => {
         res.status(200).json({
             content: result.rows || []
         });
-        //}, 5000);
     }
     catch(err) {
         console.error("[search]", err.toString());

@@ -30,6 +30,8 @@ export default async function Info(req, res) {
                 throw new CustomError("info", "Пользователя не существует");
 
             const data = result?.rows[0];
+            data.subscribers = parseInt(data.subscribers);
+
             if (token) {
                 try {
                     const info = jwt.verify(token, secret);
@@ -43,11 +45,8 @@ export default async function Info(req, res) {
                         is_subscribe: result?.rows?.length > 0,
                         is_me: data?.id == info?.id
                     }
-                    //console.log(token);
                 }
-                catch(err) {
-
-                }
+                catch(err) {}
             }
 
             res.status(200).json(data);
@@ -55,6 +54,8 @@ export default async function Info(req, res) {
         catch(err) {
             if (err instanceof CustomError)
                 throw err;
+
+            
 
             console.error("[info]", err.toString());
             throw "Неизвестная ошибка";

@@ -5,15 +5,11 @@ import { secret } from "../../index.js";
 
 export default async function Post(req, res) {
     try {
-        const authHeader = req?.headers?.authorization;
-        const token = authHeader && authHeader.split(" ")[1];
         const { gameid } = req.params;
+        if (!gameid)
+            throw new CustomError("comments, post", "Не указан id игры");
         try {
-            const { id } = jwt.verify(token, secret);
             const { comment, answer_id } = req.body;
-
-            if (!id)
-                throw new CustomError("comments, post", "Нет авторизации");
             if (!comment)
                 throw new CustomError("comments, post", "Пустое сообщение");
 
@@ -31,7 +27,7 @@ export default async function Post(req, res) {
                     $4
                 )
                 RETURNING id
-            `, [ id, answer_id || gameid, answer_id ? "comment" : "game", comment ]);
+            `, [ req.user_id, answer_id || gameid, answer_id ? "comment" : "game", comment ]);
 
 
             res.status(200).json({

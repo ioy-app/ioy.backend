@@ -6,12 +6,10 @@ import { secret } from "../../index.js";
 export default async function Subscribe(req, res) {
     try {
         const { login } = req?.params;
-        const authHeader = req?.headers?.authorization;
-        const token = authHeader && authHeader.split(" ")[1];
-        if (!token)
-            throw "Нет доступа";
+        if (!login)
+            throw new CustomError("subscribe", "Не указан пользователь");
+        
         try {
-            const user = jwt.verify(token, secret);
             const result = await DB.query(`
                 WITH target_user AS (
                     SELECT id FROM users WHERE login = $2
@@ -32,7 +30,7 @@ export default async function Subscribe(req, res) {
                 SELECT status FROM deleted
                 UNION ALL
                 SELECT status FROM inserted;
-            `, [ user?.id, login ]);
+            `, [ req.user_id, login ]);
 
             if (!result?.rows?.length)
                 throw new CustomError("subscribe", "Пользователя не существует");

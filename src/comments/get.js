@@ -1,12 +1,8 @@
 import { DB } from "../../index.js";
 import CustomError from "../customError.js";
-import jwt from "jsonwebtoken";
-import { secret } from "../../index.js";
 
 export default async function Get(req, res) {
     try {
-        const authHeader = req?.headers?.authorization;
-        const token = authHeader && authHeader.split(" ")[1];
         const { gameid } = req.params;
         const { offset, limit } = req.query;
         try {
