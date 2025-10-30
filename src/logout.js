@@ -7,7 +7,7 @@ export default async function Logout(req, res) {
             FROM "refresh_tokens"
             WHERE id=$1 AND uid=$2
             RETURNING 1
-        `, [ req.refresh_id, req.id ]);
+        `, [ req.refresh_id, req.user_id ]);
 
         res.clearCookie("refresh_token", {
             httpOnly: true,

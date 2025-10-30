@@ -2,6 +2,10 @@ import { DB } from "../../index.js";
 import CustomError from "../customError.js";
 import jwt from "jsonwebtoken";
 import { secret } from "../../index.js";
+import path from "path";
+import fs from "fs";
+
+const work_dir = path.resolve("disk", "users");
 
 export default async function Info(req, res) {
     try {
@@ -17,6 +21,7 @@ export default async function Info(req, res) {
                     u.date_deleted,
                     u.date_ban,
                     u.ban_count,
+                    u.privacy,
                     COUNT(s.target_id) AS subscribers
                 FROM "users" u
                 LEFT JOIN "subscribers" s
@@ -63,6 +68,26 @@ export default async function Info(req, res) {
     }
     catch(err) {
         console.error("[info]", err.toString());
+        res.status(422).json({
+            msg: err.toString()
+        });
+    }
+}
+
+export async function GetAvatar(req, res) {
+    try {
+        const { login } = req.params;
+        const user_dir = work_dir;
+        const is_avatar = fs.existsSync(path.join(user_dir, `${login}.png`));
+
+        if (!is_avatar)
+            throw new CustomError("users, get avatar", "avatar is not exists");
+
+        res.setHeader("Content-Type", "image/png");
+        fs.createReadStream(path.join(user_dir, `${login}.png`)).pipe(res);
+    }
+    catch(err) {
+        console.error("[users, avatar]", err.toString());
         res.status(422).json({
             msg: err.toString()
         });

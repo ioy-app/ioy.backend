@@ -14,7 +14,10 @@ export default async function Games(req, res) {
                 FROM "games" g
                 JOIN "users" u
                 ON g.creater_id = u.id
-                WHERE g.creater_id = u.id AND u.login = $1
+                WHERE
+                    g.creater_id = u.id AND
+                    u.login = $1
+                    AND u.privacy->'games' = 'true'::jsonb
                 ORDER BY g.date_created DESC
                 OFFSET 0 LIMIT $2
             `, [ login, limit || 5 ]);
