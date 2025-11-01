@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { secret } from "../../index.js";
 import path from "path";
 import fs from "fs";
+import { genAccessToken } from "../refresh.js";
 
 const work_dir = path.resolve("disk", "users");
 
@@ -38,20 +39,39 @@ export default async function Info(req, res) {
             data.subscribers = parseInt(data.subscribers);
 
             if (token) {
+                let info;
                 try {
-                    const info = jwt.verify(token, secret);
-                    const result = await DB.query(`
-                        SELECT *
-                        FROM "subscribers"
-                        WHERE source_id = $1 AND target_id = $2
-                    `, [ info?.id, data?.id ]);
-
-                    data.controls = {
-                        is_subscribe: result?.rows?.length > 0,
-                        is_me: data?.id == info?.id
+                    info = jwt.verify(token, secret);
+                    
+                }
+                catch(err) {
+                    try {
+                        info = jwt.verify(await genAccessToken(req, res), secret);
+                    }
+                    catch(err) {
+                        info = null;
                     }
                 }
-                catch(err) {}
+                finally {
+                    if (info) {
+                        const result = await DB.query(`
+                            SELECT *
+                            FROM "subscribers"
+                            WHERE source_id = $1 AND target_id = $2 AND target_type = 'user'
+                        `, [ info?.id, data?.id ]);
+
+                        data.controls = {
+                            is_subscribe: result?.rows?.length > 0,
+                            is_me: data?.id == info?.id
+                        }
+                    } else {
+                        data.controls = {
+                            is_subscribe: false,
+                            is_me: false
+                        }
+                    }
+                    
+                }
             }
 
             res.status(200).json(data);

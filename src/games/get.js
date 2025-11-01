@@ -1,12 +1,16 @@
-import { DB } from "../../index.js";
+import { DB, secret } from "../../index.js";
 import path from "path";
 import fs from "fs";
+import jwt from "jsonwebtoken";
 import CustomError from "../customError.js";
+import { genAccessToken } from "../refresh.js";
 
 const work_dir = path.resolve("disk", "games");
 
 export default async function Get(req, res) {
     try {
+        const authHeader = req?.headers?.authorization;
+        const token = authHeader && authHeader.split(" ")[1];
         const { id } = req.params;
         const result = await DB.query(`
             SELECT 
@@ -16,9 +20,13 @@ export default async function Get(req, res) {
                         'id', u.id,
                         'login', u.login
                     )
-                ) AS authors_data
+                ) AS authors_data,
+                COUNT(s.target_id) AS subscribers
             FROM "games" g
             JOIN "users" u ON u.id = ANY(g.authors)
+            LEFT JOIN "subscribers" s
+                ON s.target_id = g.id 
+                AND s.target_type = 'game'
             WHERE g.id = $1
             GROUP BY g.id;
         `, [ id ]);
@@ -93,13 +101,51 @@ export default async function Get(req, res) {
             SELECT id FROM final;         
         `, [ id ]);
 
-
-        res.status(200).json({
+        const data = {
             is_avatar,
             is_game,
             ...result.rows[0],
             recomendator: recomendator.rows
-        });
+        }
+
+        data.subscribers = parseInt(data.subscribers);
+
+        if (token) {
+            let info;
+            try {
+                info = jwt.verify(token, secret);
+                
+            }
+            catch(err) {
+                try {
+                    info = jwt.verify(await genAccessToken(req, res), secret);
+                }
+                catch(err) {
+                    info = null;
+                }
+            }
+            finally {
+                if (info) {
+                    const result = await DB.query(`
+                        SELECT *
+                        FROM "subscribers"
+                        WHERE source_id = $1 AND target_id = $2 AND target_type = 'game'
+                    `, [ info?.id, id ]);
+
+                    data.controls = {
+                        is_subscribe: result?.rows?.length > 0
+                    }
+                } else {
+                    data.controls = {
+                        is_subscribe: false
+                    }
+                }
+                
+            }
+        }
+
+
+        res.status(200).json(data);
     }
     catch(err) {
         console.error("[games, get]", err.toString());

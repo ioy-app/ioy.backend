@@ -31,7 +31,9 @@ export default async function Put(req, res) {
                 fs.writeFileSync(path.join(work_dir, `${req.body.login}.png`), req.file.buffer);
 
             }
-            res.status(200).end();
+            res.status(200).json({
+                login: req.body.login
+            });
         }
         catch(err) {
             if (err instanceof CustomError)
