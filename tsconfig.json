@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"],
+            "@controllers/*": ["src/controllers/*"],
+            "@lib/*": ["src/lib/*"],
+            "@middleware/*": ["src/middleware/*"],
+            "@routes/*": ["src/routes/*"],
+            "@services/*": ["src/services/*"],
+            "@types/*": ["src/types/*"],
+            "@utils/*": ["src/utils/*"],
+            "@schemas/*": ["src/schemas/*"]
+        },
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "esModuleInterop": true,
+        "outDir": "./dist"
+    }
+}

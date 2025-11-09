@@ -1,0 +1,17 @@
+import {
+    Login,
+    Logout,
+    Me,
+    Reg
+} from "@/controllers/auth";
+import { MiddlewareRequired } from "@/middleware/middleware";
+import express from "express";
+
+const Router = express.Router();
+
+Router.post("/login", Login);
+Router.post("/reg", Reg);
+Router.get("/logout", MiddlewareRequired, Logout);
+Router.get("/me", MiddlewareRequired, Me);
+
+export default Router;
