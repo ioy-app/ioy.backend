@@ -1,12 +1,18 @@
-import Get, { GetAvatar, GetFiles, GetGame } from "./get";
+import Get from "./get";
 import GetAll from "./getAll";
 import Subscribe from "./subscribe";
 
+import getGameFile from "./getGameFile";
+import getGameIcon from "./getGameIcon";
+import getGamePlay from "./getGamePlay";
+import getGameById from "./getGameById";
+
 export {
     Get,
-    GetAvatar,
-    GetFiles,
-    GetGame,
     GetAll,
-    Subscribe
+    Subscribe,
+    getGameFile,
+    getGameIcon,
+    getGamePlay,
+    getGameById
 }

@@ -2,21 +2,26 @@ import { Router as ExpressRouter } from "express";
 
 import {
     Get,
-    GetAvatar,
-    GetFiles,
-    GetGame,
     GetAll,
-    Subscribe
+    Subscribe,
+    getGameFile,
+    getGameIcon,
+    getGamePlay,
+    getGameById
 } from "@controllers/games";
-import { MiddlewareRequired } from "@/middleware/middleware.js";
+import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
 
 const Router = ExpressRouter();
 
 Router.get("/", GetAll);
-Router.get("/:id", Get);
-Router.get("/:id/icon", GetAvatar);
-Router.get("/:id/game", GetGame);
+Router.get("/:id", Middleware, getGameById);
+
+
 Router.post("/:id/subscribe", MiddlewareRequired, Subscribe);
-Router.get("/:id/:file", GetFiles);
+
+Router.get("/:id/game", getGamePlay);
+Router.get("/:id/icon", getGameIcon);
+Router.get("/:id/:file", getGameFile);
+
 
 export default Router;
