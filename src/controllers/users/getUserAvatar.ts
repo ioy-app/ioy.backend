@@ -1,4 +1,4 @@
-import getUserAvatar from "@services/users/getUserAvatar";
+import getUserAvatarService from "@services/users/getUserAvatar";
 import { Request, Response } from "express";
 
 /**
@@ -7,19 +7,19 @@ import { Request, Response } from "express";
  * @param {Request} req 
  * @param {Response} res 
 */
-const getAvatar = (req: Request, res: Response): void => {
+const getUserAvatar = (req: Request, res: Response): void => {
     const { login } = req.params;
-    const stream = getUserAvatar(login);
+    const stream = getUserAvatarService(login);
 
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");
 
     stream.on("error", () => {
         if (!res.headersSent)
-            res.status(404).end("Файл не доступен")
+            res.status(404).end("errors.exists");
     });
 
     stream.pipe(res);
 }
 
-export default getAvatar;
+export default getUserAvatar;

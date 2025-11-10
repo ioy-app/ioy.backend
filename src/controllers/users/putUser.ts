@@ -5,7 +5,7 @@ import fs from "fs";
 
 const work_dir = path.resolve("disk", "users");
 
-export default async function Put(req, res) {
+export default async function putUser(req, res) {
     try {
         const { login } = req.params;
         

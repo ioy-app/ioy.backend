@@ -2,7 +2,7 @@ import db from "@lib/db";
 import CustomError from "../../utils/CustomError.js";
 import redisClient from "@lib/redis";
 
-export default async function Subscribe(req, res) {
+export default async function postUserSubscribe(req, res) {
     try {
         const { login } = req?.params;
         if (!login)

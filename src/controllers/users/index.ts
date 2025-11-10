@@ -1,17 +1,19 @@
 import getUser from "./getUser";
-import Subscribe from "./postSubscribe";
-import Games from "./getGames";
-import getSubscribers from "./getSubscribers";
-import getFavorites from "./getFavorites";
-import Put from "./putUser";
-import getAvatar from "./getAvatar";
+import getUserSubscribe from "./postUserSubscribe";
+import getUserGames from "./getUserGames";
+import getUserSubscribers from "./getUserSubscribers";
+import getUserFavorites from "./getUserFavorites";
+import putUser from "./putUser";
+import getUserAvatar from "./getUserAvatar";
+import postUserSubscribe from "./postUserSubscribe";
 
 export {
     getUser,
-    getAvatar,
-    Subscribe,
-    Games,
-    getSubscribers,
-    getFavorites,
-    Put
+    getUserAvatar,
+    getUserSubscribe,
+    getUserGames,
+    getUserSubscribers,
+    getUserFavorites,
+    putUser,
+    postUserSubscribe
 }

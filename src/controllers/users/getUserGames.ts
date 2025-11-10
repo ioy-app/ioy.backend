@@ -1,7 +1,7 @@
 import db from "@lib/db";
 import CustomError from "../../utils/CustomError.js";
 
-export default async function Games(req, res) {
+export default async function getUserGames(req, res) {
     try {
         const { login } = req.params;
         const { limit } = req.query;
