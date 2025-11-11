@@ -6,6 +6,7 @@ import getUserFavorites from "./getUserFavorites";
 import putUser from "./putUser";
 import getUserAvatar from "./getUserAvatar";
 import postUserSubscribe from "./postUserSubscribe";
+import getUserLikes from "./getUserLikes";
 
 export {
     getUser,
@@ -15,5 +16,6 @@ export {
     getUserSubscribers,
     getUserFavorites,
     putUser,
-    postUserSubscribe
+    postUserSubscribe,
+    getUserLikes
 }

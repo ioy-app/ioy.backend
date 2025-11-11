@@ -9,7 +9,8 @@ import {
     getUserSubscribers,
     getUserFavorites,
     putUser,
-    postUserSubscribe
+    postUserSubscribe,
+    getUserLikes
 } from "@controllers/users";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 
@@ -22,6 +23,7 @@ Router.get("/:login/favorites", getUserFavorites);
 Router.get("/:login/subscribers", getUserSubscribers);
 Router.put("/:login", upload.single("avatar"), MiddlewareRequired, putUser);
 Router.get("/:login/games", getUserGames);
+Router.get("/:login/likes", getUserLikes);
 Router.get("/:login/subscribe", MiddlewareRequired, getUserSubscribe);
 Router.post("/:login/subscribe", MiddlewareRequired, postUserSubscribe);
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import getUserGamesService from "@/services/users/getUserGames";
+import getUserLikesService from "@/services/users/getUserLikes";
 import getUser from "@/services/users/getUser";
 
 /**
@@ -9,12 +9,12 @@ import getUser from "@/services/users/getUser";
  * @param {Response} res 
  * @returns 
 */
-const getUserGames = async (req: Request, res: Response): Promise<void> => {
+const getUserLikes = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
     const { offset, limit } = req.query;
 
     const user = await getUser(login);
-    if (!user?.privacy?.games) {
+    if (!user?.privacy?.likes) {
         res.status(200).json({
             items: [],
             offset,
@@ -24,7 +24,7 @@ const getUserGames = async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
-    const [ items, total ] = await getUserGamesService(Number(user.id), Number(offset || 0), Number(limit || 5));
+    const [ items, total ] = await getUserLikesService(Number(user.id), Number(offset || 0), Number(limit || 5));
 
     res.status(200).json({
         items,
@@ -34,4 +34,4 @@ const getUserGames = async (req: Request, res: Response): Promise<void> => {
     });
 }
 
-export default getUserGames;
+export default getUserLikes;

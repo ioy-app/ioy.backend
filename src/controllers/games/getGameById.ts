@@ -4,10 +4,14 @@ import getGameByIdService from "@/services/games/getGameById";
 import getUser from "@/services/users/getUser";
 import getUserLogin from "@/services/users/getUserLogin";
 import { UserDetails } from "@/types/user";
+import verify from "@/utils/verify";
+import checkLikeByGame from "@/services/likes/checkLikeByGame";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
     authors_data: UserDetails[];
+    /** Поставлен ли лайк на игру */
+    is_like?: boolean;
 }
 
 /**
@@ -26,10 +30,19 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         authors_data.push(await getUser(login));
     }
 
-    res.status(200).json({
+    let is_like: boolean;
+    if (req.token) {
+        const { id: user_id } = await verify(req.token);
+        is_like = await checkLikeByGame(Number(user_id), Number(id));
+    }
+
+    const obj = {
         ...data,
-        authors_data
-    } as GameResponse);
+        authors_data,
+        is_like
+    }
+
+    res.status(200).json(obj as GameResponse);
 }
 
 export default getGameById;

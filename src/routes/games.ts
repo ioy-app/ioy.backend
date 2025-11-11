@@ -1,13 +1,13 @@
 import { Router as ExpressRouter } from "express";
 
 import {
-    Get,
     GetAll,
     Subscribe,
     getGameFile,
     getGameIcon,
     getGamePlay,
-    getGameById
+    getGameById,
+    postGameLike
 } from "@controllers/games";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
 
@@ -18,6 +18,7 @@ Router.get("/:id", Middleware, getGameById);
 
 
 Router.post("/:id/subscribe", MiddlewareRequired, Subscribe);
+Router.post("/:id/like", MiddlewareRequired, postGameLike);
 
 Router.get("/:id/game", getGamePlay);
 Router.get("/:id/icon", getGameIcon);

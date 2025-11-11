@@ -6,6 +6,7 @@ import getGameFile from "./getGameFile";
 import getGameIcon from "./getGameIcon";
 import getGamePlay from "./getGamePlay";
 import getGameById from "./getGameById";
+import postGameLike from "./postGameLike";
 
 export {
     Get,
@@ -14,5 +15,6 @@ export {
     getGameFile,
     getGameIcon,
     getGamePlay,
-    getGameById
+    getGameById,
+    postGameLike
 }

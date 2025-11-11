@@ -42,7 +42,7 @@ const getRoles = async (offset: number, limit: number): Promise<[Role[], number]
     const result = await db.query(`
         SELECT *, COUNT(*) OVER()::INTEGER AS total
         FROM "roles"
-        ORDER BY id
+        ORDER BY date_created DESC
         OFFSET $1, LIMIT $3
     `, [ offset, limit ]);
 
