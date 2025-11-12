@@ -48,8 +48,13 @@ const getUserGames = async (id: number, offset: number, limit: number): Promise<
     const data: Game[] = [];
     const total: number = result?.rows?.[0]?.total || 0;
 
-    for (const row of result.rows)
-        data.push(await getGameById(row?.id));
+    for (const row of result.rows) {
+        const content = await getGameById(row?.id)
+        data.push({
+            ...row,
+            ...content
+        });
+    }
 
     redis.writeWithLog(cache_key, JSON.stringify(data));
     return [ data, total ];

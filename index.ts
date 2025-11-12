@@ -5,6 +5,8 @@ import cors from "cors";
 
 dotenv.config();
 
+import "@/lib/elasticsearch"
+
 export const app = express();
 export const secret = "Hello world";
 
@@ -21,6 +23,7 @@ import GamesRouter from "@routes/games";
 import RolesRouter from "@routes/roles";
 import Sessions from "@routes/sessions";
 import errorHandler from "@middleware/errorHandler";
+import jobGamesSearch from "@/services/games/jobGamesSearch";
 
 app.use(express.json());
 app.use(cookieParser());
@@ -30,6 +33,8 @@ app.use(cors({
 }));
 
 const RouterV1 = express.Router();
+
+//import "./tests/inits/games";
 
 RouterV1.use("/auth", AuthRouter);
 RouterV1.use("/codes", CodesRouter);
@@ -41,5 +46,7 @@ RouterV1.use("/roles", RolesRouter);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
+
+jobGamesSearch();
 
 app.listen(port, () => console.log("[server]", `is running :${port}`)); 

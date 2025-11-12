@@ -4,7 +4,7 @@ import fs from "fs";
 import CustomError from "../../utils/CustomError.js";
 
 const work_dir = path.resolve("disk", "games");
-const per_page = 20;
+const per_page = 25;
 
 export default async function GetAll(req, res) {
     try {
@@ -19,7 +19,7 @@ export default async function GetAll(req, res) {
                     )
                 ) AS authors_data
             FROM "games" g
-            JOIN "users" u ON u.id = ANY(g.authors)
+            LEFT JOIN "users" u ON u.id = ANY(g.authors)
             GROUP BY g.id
             ORDER BY g.date_created DESC
             OFFSET $1 LIMIT $2
@@ -30,8 +30,11 @@ export default async function GetAll(req, res) {
 
         if (!result?.rows?.length)
             throw new CustomError("games, get all", "game is not find");
+
+        
        
         const games = result?.rows;
+        console.log(games);
         for (const game of games) {
             const dir = path.join(work_dir, game?.id?.toString());
             game.is_avatar = fs.existsSync(path.join(dir, "icon.png"));

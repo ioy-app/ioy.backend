@@ -25,7 +25,6 @@ const getUserGames = async (req: Request, res: Response): Promise<void> => {
     }
 
     const [ items, total ] = await getUserGamesService(Number(user.id), Number(offset || 0), Number(limit || 5));
-
     res.status(200).json({
         items,
         offset,
