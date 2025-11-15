@@ -11,16 +11,18 @@ import { Request, Response } from "express";
 const getGamePlay = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
-    const stream: fs.ReadStream = await getGameFile(Number(id), "index.html");
-    res.setHeader("Content-Type", "text/html");
-    res.setHeader("Cache-Control", "public, max-age=300");
+    try {
+        const stream = await getGameFile(Number(id), "index.html");
+        res.setHeader("Content-Type", "text/html");
 
-    stream.on("error", () => {
-        if (!res.headersSent)
-            res.status(404).end("errors.exists");
-    });
+        stream.on("error", () => {
+            if (!res.headersSent)
+                res.status(404).end("errors.exists");
+        });
 
-    stream.pipe(res);
+        stream.pipe(res);
+    }
+    catch(err) { res.status(404).end('errors.exists'); }
 }
 
 export default getGamePlay;

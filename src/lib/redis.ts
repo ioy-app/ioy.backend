@@ -1,3 +1,4 @@
+import { RedisClientType } from "@redis/client";
 import { Redis } from "ioredis";
 
 const CACHE_TTL: number = 600;

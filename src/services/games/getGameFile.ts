@@ -4,15 +4,17 @@ import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 import fs from "fs";
 import path from "path";
+import minio from "@/lib/minio";
+import Stream from "stream";
 
 /**
  * Получение файла из папки игры по ID
  * 
  * @param {number} id ID Игры 
  * @param {string} filename Имя файла
- * @returns {fs.ReadStream}
+ * @returns {Promise<Stream.Readable>}
 */
-const getGameFile = (id: number, filename: string): fs.ReadStream => {
+const getGameFile = async (id: number, filename: string): Promise<Stream.Readable> => {
     validate(IdSchema, id);
     validate(
         z.string({ error: "errors.invalid.filename" })
@@ -20,16 +22,15 @@ const getGameFile = (id: number, filename: string): fs.ReadStream => {
             .nonoptional({ error: "errors.required.filename" })
     , filename);
 
-    const work_dir: string = path.resolve(process.env.DIR_GAMES, String(id));
-    const filepath: string = path.resolve(work_dir, filename);
-    const relative = path.relative(work_dir, filepath);
-    const isExists: boolean = filepath.startsWith(work_dir + path.sep)
-        && !relative.startsWith("..") && !path.isAbsolute(relative);
+    try {
+        const isExists = await minio.bucketExists("games");
+        if (!isExists)
+            await minio.makeBucket("games");
 
-    if (!isExists)
-        throw new ContentError("getGameFile", "errors.exists");
-
-    return fs.createReadStream(filepath);
+        const file = await minio.getObject("games", `${id}/${filename}`);
+        return file;
+    }
+    catch(err) { throw new ContentError("getGameFile", "errors.exists"); }
 }
 
 export default getGameFile;

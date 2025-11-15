@@ -7,19 +7,21 @@ import { Request, Response } from "express";
  * @param {Request} req 
  * @param {Response} res 
 */
-const getUserAvatar = (req: Request, res: Response): void => {
+const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
-    const stream = getUserAvatarService(login);
 
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader("Cache-Control", "public, max-age=300");
+    try {
+        const fileStream = await getUserAvatarService(login);
 
-    stream.on("error", () => {
-        if (!res.headersSent)
-            res.status(404).end("errors.exists");
-    });
+        res.setHeader("Content-Type", "application/octet-stream");
+        fileStream.on("error", () => {
+            if (!res.headersSent)
+                res.status(404).end("errors.exists");
+        });
 
-    stream.pipe(res);
+        fileStream.pipe(res);
+    }
+    catch(err) { res.status(404).end("errors.exists"); }
 }
 
 export default getUserAvatar;

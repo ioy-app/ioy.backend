@@ -24,7 +24,7 @@ const Middleware = async (req: Request, res: Response, next?: NextFunction) => {
 }
 
 const MiddlewareRequired = async (req: Request, res: Response, next: NextFunction) => {
-    Middleware(req, res);
+    Middleware(req, res, next);
 
     if (!req.token)
         throw new AccessError("MiddlewareRequired", "errors.access.denied");

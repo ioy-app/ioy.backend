@@ -47,6 +47,8 @@ export interface UserDetails extends User {
     active?: boolean;
     /** Панель управления */
     controls?: UserController;
+    /** Есть ли файл аватарки */
+    is_avatar?: boolean;
 }
 
 export interface UserController {
