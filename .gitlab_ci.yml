@@ -1,0 +1,29 @@
+stages:
+  - build
+  - tests
+  - reload
+
+build:
+  stage: build
+  script:
+    - echo "test build"
+
+docker-build:
+  stage: build
+  script:
+    - echo "test docker build container"
+
+unit-tests:
+  stage: tests
+  script:
+    - echo "unit test is testing"
+
+load-tests:
+  stage: tests
+  script:
+    - echo "load tests is testing"
+
+reload:
+  stage: reload
+  script:
+    - echo "reload is test"
