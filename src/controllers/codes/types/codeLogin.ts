@@ -1,17 +1,17 @@
-import createSession from "@/services/sessions/createSession";
-import createToken from "@/services/sessions/createToken";
-import getUserEmail from "@/services/users/getUserEmail";
+import createSession from "@services/sessions/createSession";
+import createToken from "@services/sessions/createToken";
+import getUserEmail from "@services/users/getUserEmail";
 import { Request, Response } from "express";
 
 /**
  * Вход в систему
  * 
- * @param {any} data Данные одноразового кода
+ * @param {any} payload Данные одноразового кода
  * @param {Request} req 
  * @param {Response} res 
 */
-const Login = async (data: any, req: Request, res: Response): Promise<void> => {
-    const user = await getUserEmail(data?.payload?.email);
+const CodeLogin = async (payload: any, req: Request, res: Response): Promise<void> => {
+    const user = await getUserEmail(payload?.email);
     
     const { id, login } = user;
     const session = await createSession(id, req.ip, req.get("User-Agent"));
@@ -31,4 +31,4 @@ const Login = async (data: any, req: Request, res: Response): Promise<void> => {
     });
 }
 
-export default Login;
+export default CodeLogin;

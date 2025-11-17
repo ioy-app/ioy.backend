@@ -1,40 +1,19 @@
-import db from "@lib/db";
-import Create from "../codes/create.js";
+import { Request, Response } from "express";
+import getUserEmail from "@services/users/getUserEmail";
+import createCode from "@services/codes/createCode";
 
-export default async function Login(req, res) {
+const Login = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body;
     try {
-        const { email } = req.body;
 
-        try {
-            const result = await db.query(`
-                SELECT id, email, login FROM "users"
-                WHERE email=$1
-            `, [ email ]);
-            
-            if (!result?.rows?.length)
-                throw "Такого пользователя не существует";
-
-            const user = result?.rows?.at(0);
-            const code_result = await Create(user.id, {
-                type: "login",
-                email: email
-            });
-            console.log(code_result);
-
-            res.status(200).end();
-        }
-        catch(err) {
-            if (err.toString() == "Такого пользователя не существует")
-                throw err;
-
-            console.error("[reg]", err.toString());
-            throw "Неизвестная ошибка";
-        }
+        const user = await getUserEmail(email);
+        const code = await createCode(user?.id, { type: "login", email });
+        console.log(code);   
     }
     catch(err) {
-        console.error("[login]", err.toString());
-        res.status(422).json({
-            msg: err.toString()
-        });
+
     }
+    finally { res.status(200).end(); }
 }
+
+export default Login;

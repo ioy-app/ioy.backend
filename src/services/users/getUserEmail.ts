@@ -46,7 +46,7 @@ const getUserEmail = async (email: string): Promise<UserDetails> => {
     `, [ email ]);
 
     if (result.rowCount === 0)
-        throw new ContentError("getUserEmail", "errors.user.exists");
+        throw new ContentError("getUserEmail", "errors.exists");
 
     const obj: UserDetails = result.rows[0];
     redisClient.writeWithLog(cache_key, JSON.stringify(obj));

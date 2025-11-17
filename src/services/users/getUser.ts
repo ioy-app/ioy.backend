@@ -46,7 +46,7 @@ const getUser = async (login: string): Promise<UserDetails> => {
     `, [ login ]);
 
     if (result.rowCount === 0)
-        throw new ContentError("getUser", "Пользователь не найден");
+        throw new ContentError("getUser", "errors.exists");
     
     const user: UserDetails = result.rows[0];
     redisClient.writeWithLog(cache_key, JSON.stringify(user));

@@ -3,13 +3,13 @@ import CustomError from "@/utils/CustomError";
 import ContentError from "@/utils/ContentError";
 
 const errorHandler = (err, req, res, next) => {
-    console.log(err);
-    let msg;
-    if (err instanceof jwt.TokenExpiredError)
-        msg = "Время жизни токена истекло";
+    if (err instanceof jwt.TokenExpiredError) {
+        return res.status(401).end("errors.jwt.expired");
+    }
 
-    if (err instanceof jwt.JsonWebTokenError)
-        msg = "Токен не действителен";
+    if (err instanceof jwt.JsonWebTokenError) {
+        return res.status(401).end("errors.jwt.error");
+    }
 
     if (err instanceof ContentError)
         return res.status(404).json({
@@ -21,9 +21,6 @@ const errorHandler = (err, req, res, next) => {
             msg: err?.message
         })
     }
-
-    if (msg)
-        return res.status(401).json({ msg });
 
     return res.status(422).json({
         msg: "Неизвестная ошибка"

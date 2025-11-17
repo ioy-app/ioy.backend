@@ -2,17 +2,17 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import cors from "cors";
+import { rateLimit } from "express-rate-limit";
 
 dotenv.config();
 
 import "@/lib/elasticsearch"
 
 export const app = express();
-export const secret = "Hello world";
-
+export const secret = process.env.SECRET;
 const port = process.env.PORT || 3000;
 
-import CodesRouter from "@controllers/codes/index.js";
+
 
 import CommentsRouter from "@/controllers/comments/index.js";
 
@@ -22,9 +22,19 @@ import UsersRouter from "@routes/users";
 import GamesRouter from "@routes/games";
 import RolesRouter from "@routes/roles";
 import Sessions from "@routes/sessions";
+import CodesRouter from "@routes/codes";
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
 
+
+// const limiter = rateLimit({
+//   windowMs: 1000 * 60 * 10,
+//   limit: 100,
+//   legacyHeaders: false,
+//   message: "errors.denied"
+// });
+
+// app.use(limiter);
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
@@ -33,8 +43,6 @@ app.use(cors({
 }));
 
 const RouterV1 = express.Router();
-
-//import "./tests/inits/games";
 
 RouterV1.use("/auth", AuthRouter);
 RouterV1.use("/codes", CodesRouter);

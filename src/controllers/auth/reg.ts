@@ -1,4 +1,4 @@
-import createUser from "@/services/users/createUser";
+import createUser from "@services/users/createUser";
 import { Request, Response } from "express";
 
 /**

@@ -1,5 +1,5 @@
-import getUser from "@/services/users/getUser";
-import getUserLogin from "@/services/users/getUserLogin";
+import getUser from "@services/users/getUser";
+import getUserLogin from "@services/users/getUserLogin";
 import Request from "@/types/request";
 import { Response } from "express";
 
