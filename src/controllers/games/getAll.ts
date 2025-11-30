@@ -34,7 +34,6 @@ export default async function GetAll(req, res) {
         
        
         const games = result?.rows;
-        console.log(games);
         for (const game of games) {
             const dir = path.join(work_dir, game?.id?.toString());
             game.is_avatar = fs.existsSync(path.join(dir, "icon.png"));

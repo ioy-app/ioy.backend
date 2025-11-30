@@ -18,9 +18,9 @@ const getGamesRecommendsByGame = async (game: Game): Promise<Game[]> => {
                 must: [{
                     bool: {
                         should: [
-                            { match: { title }},
-                            { match: { description }},
-                            { terms: { tags }}
+                            { match: { title: title && title || "" }},
+                            { match: { description: description && description || "" }},
+                            { terms: { tags: tags && tags || [] }}
                         ],
                         minimum_should_match: 2
                     }

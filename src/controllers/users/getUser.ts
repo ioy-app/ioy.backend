@@ -5,7 +5,6 @@ import getUserControls from "@services/users/getUserControls";
 import verify from "@utils/verify";
 import { UserDetails } from "@/types/user";
 import Request from "@/types/request";
-import minio from "@/lib/minio";
 
 /**
  * Получение информации о пользователе, подписчиках
@@ -24,9 +23,6 @@ const getUser = async (req: Request, res: Response): Promise<void> => {
         const { id } = await verify(req.token);
         data.controls = await getUserControls(id, data.id);
     }
-
-    const isAvatar = await minio.checkFileExists("users", `${login}.png`)
-    data.is_avatar = isAvatar;
 
     res.status(200).json(data);
 }

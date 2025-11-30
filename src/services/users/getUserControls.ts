@@ -23,7 +23,7 @@ const getUserControls = async (source_id: number, target_id: number): Promise<Us
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
-            validate(UserControlsSchema, parsed, "getUserController");
+            validate(UserControlsSchema, parsed, "getUserControls");
             return parsed as UserController;
         }
         catch(err) { await redisClient.delWithLog(cache_key); }

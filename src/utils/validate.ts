@@ -1,7 +1,14 @@
-import { ZodError } from "zod";
+import { ZodError, ZodType } from "zod";
 import ValidError from "./ValidError";
 
-const validate = <T>(schema: any, data: unknown, component?: string) => {
+/**
+ * Валидация входящих данных
+ * 
+ * @param {ZodSchema} schema Схема проверки данных 
+ * @param {unknown} data Данные для проверки 
+ * @param {string} component Название компонента, в котором произошла ошибка
+*/
+const validate = <T>(schema: ZodType, data: unknown, component?: string) => {
     try { schema.parse(data); }
     catch(err) {
         if (err instanceof ZodError)

@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import redis from "@/lib/redis";
 import Code from "@/types/code";
 import ContentError from "@/utils/ContentError";
 
@@ -9,7 +10,17 @@ import ContentError from "@/utils/ContentError";
  * @returns {Promise<Code>}
 */
 const checkCode = async (code: string): Promise<Code> => {
-    const result = await db.query(`
+    const cache_key: string = `code:${code}`;
+    let cached = await redis.readWithLog(cache_key);
+    if (cached) {
+        try {
+            const parsed = JSON.parse(cached as string);
+            return parsed as Code;
+        }
+        catch(err) { await redis.delWithLog(cache_key); }
+    }
+
+    const result = await db.query<Code>(`
         SELECT id, payload, code, uid
         FROM "codes"
         WHERE
@@ -20,7 +31,12 @@ const checkCode = async (code: string): Promise<Code> => {
     if (result.rowCount === 0)
         throw new ContentError("checkCode", "errors.exists");
 
-    return result?.rows?.[0] as Code;
+    const row: Code = result?.rows?.[0];
+    console.log(row);
+
+    redis.writeWithLog(cache_key, JSON.stringify(row));
+
+    return row;
 }
 
 export default checkCode;

@@ -1,4 +1,4 @@
-import { RedisClientType } from "@redis/client";
+
 import { Redis } from "ioredis";
 
 const CACHE_TTL: number = 600;
@@ -17,14 +17,15 @@ cluster.on('cluster error', (err) => {
 });
 
 const isReady = () => cluster.status == "ready";
-interface CustomClient extends RedisClientType {
+interface CustomClient {
     readWithLog: (key: string) => Promise<string>;
     writeWithLog: (key: string, data: string) => void;
     delWithLog: (key: string) => Promise<void>;
     delAllWithLog: (key: string, batchSize?: number) => Promise<number>;
 }
+type RedisClient = CustomClient & Redis;
 
-const redis: CustomClient = cluster;
+const redis = cluster as RedisClient;
 
 /**
  * Чтение данных из кеша

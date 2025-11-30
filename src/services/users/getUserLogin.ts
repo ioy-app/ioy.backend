@@ -3,6 +3,7 @@ import redisClient from "@/lib/redis";
 import IdSchema from "@/schemas/id";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
+import z from "zod";
 
 /**
  * Получение логина по id пользователя
@@ -11,7 +12,9 @@ import validate from "@/utils/validate";
  * @returns {Promise<string>}
 */
 const getUserLogin = async (id: number): Promise<string> => {
-    validate(IdSchema, id);
+    validate(z.number({ error: "errors.invalid.id" })
+        .nonnegative({ error: "errors.invalid.id" })
+        .nonoptional({ error: "errors.required.id" }), id);
 
     const cache_key: string = `user_id:${id}:login`;
     let cached = await redisClient.readWithLog(cache_key);

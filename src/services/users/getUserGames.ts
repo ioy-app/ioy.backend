@@ -6,25 +6,27 @@ import validate from "@utils/validate";
 import getGameById from "@services/games/getGameById";
 import redis from "@/lib/redis";
 
-const getUserGames = async (id: number, offset: number, limit: number): Promise<[Game[], number]> => {
-    validate(IdSchema, id);
-
-    validate(z.number({
-        error: "errors.invalid.offset"
-    }).nonnegative({
-        error: "errors.invalid.offset"
-    }).int({
-        error: "errors.invalid.offset"
-    }), offset);
-
-    validate(z.number({
-        error: "errors.invalid.limit"
-    }).nonnegative({
-        error: "errors.invalid.limit"
-    }).int({
-        error: "errors.invalid.limit"
-    }), limit);
-
+/**
+ * Получение списка игр пользователя
+ * 
+ * @param {number} id ID Пользователя
+ * @param {number} [offset=0] Отступ
+ * @param {number} [limit=5] Лимит
+ * @returns {Promise<[Game[], number]>}
+*/
+const getUserGames = async (id: number, offset: number = 0, limit: number = 5): Promise<[Game[], number]> => {
+    validate(z.object({
+        id: z.number({ error: "errors.invalid.id" })
+            .nonnegative({ error: "errors.invalid.id" })
+            .nonoptional({ error: "errors.required.id" }),
+        offset: z.number({ error: "errors.invalid.offset" })
+            .nonnegative({ error: "errors.invalid.offset" })
+            .optional(),
+        limit: z.number({ error: "erros.invlaid.limit" })
+            .nonnegative({ error: "errors.invalid.limit" })
+            .optional()
+    }), { id, offset, limit }, "getUserGames");
+    
     const cache_key = `user_id:${id}:games:${offset}:${limit}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
@@ -41,6 +43,7 @@ const getUserGames = async (id: number, offset: number, limit: number): Promise<
             COUNT(*) OVER()::INTEGER as total
         FROM "games"
         WHERE creater_id = $1
+        AND status = 'public'
         ORDER BY date_created DESC
         OFFSET $2 LIMIT $3
     `, [ id, offset, limit ]);

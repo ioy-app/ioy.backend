@@ -1,5 +1,5 @@
 import { Router as ExpressRouter } from "express";
-
+import multer from "multer";
 import {
     GetAll,
     Subscribe,
@@ -7,15 +7,23 @@ import {
     getGameIcon,
     getGamePlay,
     getGameById,
-    postGameLike
+    postGameLike,
+    createGame,
+    getGamesByUser
 } from "@controllers/games";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
 
+const upload = multer();
 const Router = ExpressRouter();
 
 Router.get("/", GetAll);
 Router.get("/:id", Middleware, getGameById);
 
+Router.post("/create", upload.fields([
+  { name: 'icon', maxCount: 1 },
+  { name: 'game', maxCount: 1 }
+]), MiddlewareRequired, createGame);
+Router.post("/my", MiddlewareRequired, getGamesByUser);
 
 Router.post("/:id/subscribe", MiddlewareRequired, Subscribe);
 Router.post("/:id/like", MiddlewareRequired, postGameLike);

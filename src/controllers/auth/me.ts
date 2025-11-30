@@ -10,7 +10,21 @@ import { Response } from "express";
  * @param {Response} res 
 */
 const Me = async (req: Request, res: Response): Promise<void> => {
-    const login = await getUserLogin(Number(req.user_id));
+    const { user_id, token } = req;
+
+    
+
+    if (!token) {
+        res.status(401).end();
+        return;
+    }
+
+    if (!user_id) {
+        res.status(422).end();
+        return;
+    }
+
+    const login = await getUserLogin(Number(user_id));
 
     const data = await getUser(login);
     res.status(200).json(data);

@@ -20,21 +20,35 @@ const Middleware = async (req: Request, res: Response, next?: NextFunction) => {
 
     req.token = token;
     req.is_access = false;
+
+    if (token) {
+        try {
+            const { id, refresh_id } = jwt.verify(token, secret) as JWTResponse;
+            req.user_id = id;
+            req.refresh_id = refresh_id;
+            req.is_access = true;
+        }
+        catch(err) {
+            req.is_access = false;
+        }
+    }
+
     next && next();
 }
 
 const MiddlewareRequired = async (req: Request, res: Response, next: NextFunction) => {
-    Middleware(req, res, next);
+    const authHeader: string = req?.headers?.authorization;
+    const token: string = authHeader && authHeader.split(" ")[1];
 
-    if (!req.token)
+    if (!token)
         throw new AccessError("MiddlewareRequired", "errors.access.denied");
 
-    const { id, refresh_id } = jwt.verify(req.token, secret) as JWTResponse;
+    const { id, refresh_id } = jwt.verify(token, secret) as JWTResponse;
+
     if (!id && !refresh_id)
         throw new AccessError("MiddlewareRequired", "errors.access.denied");
 
-    const session = await getSession(id, refresh_id);
-
+    req.token = token;
     req.user_id = id;
     req.is_access = true;
     req.refresh_id = refresh_id;

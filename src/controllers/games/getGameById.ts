@@ -7,6 +7,7 @@ import { UserDetails } from "@/types/user";
 import verify from "@/utils/verify";
 import checkLikeByGame from "@/services/likes/checkLikeByGame";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
+import Game from "@/types/game";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -25,7 +26,13 @@ interface GameResponse extends Game {
  */
 const getGameById = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+
     const data = await getGameByIdService(Number(id));
+    if (data.status != "public" && req?.user_id != data.creater_id) {
+        console.log(data);
+        res.status(404).end();
+        return;
+    }
 
     const authors_data: UserDetails[] = [];
     for (const uid of Array.from(new Set([data.creater_id, ...(data?.authors || [])]))) {

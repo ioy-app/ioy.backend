@@ -3,6 +3,7 @@ import redis from "@/lib/redis";
 import IdSchema from "@/schemas/id";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
+import { getGameById } from "../games";
 
 /**
  * Создание лайка по ID
@@ -15,6 +16,12 @@ import validate from "@/utils/validate";
 const createLike = async (user_id: number, id: number, type: string = "game"): Promise<boolean> => {
     validate(IdSchema, id);
     validate(IdSchema, user_id);
+
+    if (type == "game") {
+        const game = await getGameById(id);
+        if (game.status != "public")
+            return false;
+    }
 
     const result = await db.query(`
         INSERT INTO "likes" (

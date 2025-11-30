@@ -19,7 +19,6 @@ const getGameById = async (id: number): Promise<Game> => {
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
-            //validate(RoleSchema, parsed, "getRole");
             return parsed as Game;
         }
         catch(err) { await redis.delWithLog(cache_key); }

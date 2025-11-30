@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
 import CustomError from "@/utils/CustomError";
 import ContentError from "@/utils/ContentError";
+import ValidError from "@/utils/ValidError";
 
 const errorHandler = (err, req, res, next) => {
+    console.log(err);
     if (err instanceof jwt.TokenExpiredError) {
         return res.status(401).end("errors.jwt.expired");
     }
@@ -22,9 +24,17 @@ const errorHandler = (err, req, res, next) => {
         })
     }
 
+    if (err instanceof ValidError) {
+        return res.status(422).json({
+            msg: err?.message
+        });
+    }
+
     return res.status(422).json({
         msg: "Неизвестная ошибка"
     });
+
+    return;
 }
 
 export default errorHandler;

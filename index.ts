@@ -25,6 +25,7 @@ import Sessions from "@routes/sessions";
 import CodesRouter from "@routes/codes";
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
+import jobClearCodes from "@/services/codes/jobClearCodes";
 
 
 // const limiter = rateLimit({
@@ -35,10 +36,10 @@ import jobGamesSearch from "@/services/games/jobGamesSearch";
 // });
 
 // app.use(limiter);
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:8080",
+  origin: "*", //"http://localhost:8080",
   credentials: true
 }));
 
@@ -55,6 +56,9 @@ RouterV1.use("/roles", RolesRouter);
 app.use("/v1", RouterV1);
 app.use(errorHandler);
 
-jobGamesSearch();
+(async () => {
+  await jobGamesSearch();
+  await jobClearCodes();
 
-app.listen(port, () => console.log("[server]", `is running :${port}`)); 
+  app.listen(port, () => console.log("[server]", `is running :${port}`)); 
+})();

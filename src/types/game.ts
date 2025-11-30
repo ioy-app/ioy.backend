@@ -1,6 +1,6 @@
 export default interface Game {
     /** ID игры */
-    id: number;
+    id?: number;
     /** Название игры */
     title: string;
     /** Версия игры */

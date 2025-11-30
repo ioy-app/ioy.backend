@@ -2,6 +2,8 @@ import db from "@lib/db";
 import redisClient from "@lib/redis";
 import IdSchema from "@schemas/id"
 import validate from "@utils/validate"
+import getSessions from "./getSessions";
+import deleteSession from "./deleteSession";
 
 /**
  * Удаление всех пользовательских сессий
@@ -10,18 +12,10 @@ import validate from "@utils/validate"
  * @returns {Promise<boolean>}
 */
 const deleteSessions = async (user_id: number): Promise<boolean> => {
-    validate(IdSchema, user_id);
-
-    const result = await db.query<number[]>(`
-        DELETE FROM "sessions"
-        WHERE uid = $1
-        RETURNING id
-    `, [ user_id ]);
-
-    const sessionKeys = result.rows.map(({ id }) => `session:${id}`);
-    await redisClient.delWithLog(sessionKeys);
-    await redisClient.delWithLog(`sessions:${user_id}`);
-
+    const sessions = await getSessions(user_id);
+    for (const session of sessions)
+        await deleteSession(user_id, session.id);
+    
     return true;
 }
 

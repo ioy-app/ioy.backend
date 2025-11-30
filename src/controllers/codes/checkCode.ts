@@ -11,13 +11,14 @@ import CodeLogin from "./types/codeLogin";
 */
 const checkCode = async (req: Request, res: Response): Promise<void> => {
     const { code } = req.body;
-
     const { payload } = await checkCodeService(code);
     await deleteCode(code);
 
+    console.log(payload);
+
     switch(payload?.type) {
         case "login":
-            return await CodeLogin(payload, req, res);
+            return (await CodeLogin(payload, req, res));
         break;
     }
 

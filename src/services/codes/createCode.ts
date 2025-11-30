@@ -1,7 +1,15 @@
 import db from "@/lib/db";
+import redis from "@/lib/redis";
 import Code from "@/types/code";
 import genCode from "@/utils/genCode";
 
+/**
+ * Создание проверочного кода
+ * 
+ * @param {number} user_id ID Пользователя
+ * @param {Record<string, any>} payload Данные 
+ * @returns {Promise<Code>}
+*/
 const createCode = async (user_id: number, payload: Record<string, any>): Promise<Code> => {
     let created: Code;
     do {
@@ -16,13 +24,14 @@ const createCode = async (user_id: number, payload: Record<string, any>): Promis
                 SELECT 1 FROM "codes"
                 WHERE code=$2
             )
-            RETURNING id, code, date_created
+            RETURNING id, code, date_created, payload
         `, [ user_id, code, payload ]);
 
         if (result.rowCount !== 0)
             created = result?.rows?.[0];
     } while (!created);
 
+    redis.writeWithLog(`code:${created.code}`, JSON.stringify(created));
     return created;
 }
 

@@ -1,5 +1,8 @@
+import kafka from "@/lib/kafka";
 import createUser from "@services/users/createUser";
 import { Request, Response } from "express";
+
+const producer = kafka.producer();
 
 /**
  * Регистрация новой учетной записи
@@ -8,12 +11,32 @@ import { Request, Response } from "express";
  * @param {Response} res 
 */
 const Reg = async (req: Request, res: Response): Promise<void> => {
+    await producer.connect();
     const { login, email } = req.body;
-
     await createUser(login, email);
-    // Здесь должна быть логика на отправку письма с активацией учетной записи
 
-    res.status(200);
+    
+    await producer.send({
+        topic: "notify",
+        messages: [
+            {
+                key: `${login}:${email}`,
+                value: JSON.stringify({
+                    type: "reg",
+                    subject: `Welcome, ${login}!`,
+                    email,
+                    login,
+                    props: {
+                        login,
+                        email
+                    }
+                })
+            }
+        ]
+    });
+    await producer.disconnect();
+
+    res.status(200).end();
 }
 
 export default Reg;
