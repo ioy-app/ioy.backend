@@ -2,9 +2,10 @@ import db from "@lib/db";
 import path from "path";
 import fs from "fs";
 import CustomError from "../../utils/CustomError.js";
+import getGameById from "@/services/games/getGameById.js";
 
 const work_dir = path.resolve("disk", "games");
-const per_page = 25;
+const per_page = 10;
 
 export default async function GetAll(req, res) {
     try {
@@ -21,7 +22,7 @@ export default async function GetAll(req, res) {
             FROM "games" g
             LEFT JOIN "users" u ON u.id = ANY(g.authors)
             GROUP BY g.id
-            ORDER BY g.date_created DESC
+            ORDER BY g.date_created ASC
             OFFSET $1 LIMIT $2
         `, [
             (page - 1) * per_page,
@@ -33,12 +34,17 @@ export default async function GetAll(req, res) {
 
         
        
-        const games = result?.rows;
-        for (const game of games) {
-            const dir = path.join(work_dir, game?.id?.toString());
-            game.is_avatar = fs.existsSync(path.join(dir, "icon.png"));
-            game.is_game = fs.existsSync(path.join(dir, "index.html"));
-        }
+        const games = [];
+        for (const game of result?.rows) {
+            const dt = await getGameById(game?.id);
+            games.push(dt);
+        };
+        /*for (const game of games) {
+            
+            // const dir = path.join(work_dir, game?.id?.toString());
+            // game.is_avatar = fs.existsSync(path.join(dir, "icon.png"));
+            // game.is_game = fs.existsSync(path.join(dir, "index.html"));
+        }*/
         const tags = await db.query(`
             SELECT
                 tag,
@@ -53,7 +59,7 @@ export default async function GetAll(req, res) {
                 tag
             ORDER BY
                 usage_count DESC, tag ASC
-            LIMIT 8
+            LIMIT 5
         `);
 
         res.status(200).json({

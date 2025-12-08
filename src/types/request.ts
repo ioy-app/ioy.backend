@@ -2,7 +2,7 @@ import {
     Request as ExpressRequest,
 } from "express";
 
-export default interface Request extends ExpressRequest {
+type Request = ExpressRequest & {
     /** ID Пользователя */
     user_id: number;
     /** Доступ к маршруту */
@@ -12,3 +12,5 @@ export default interface Request extends ExpressRequest {
     /** Refresh токен */
     token?: string;
 }
+
+export default Request;
