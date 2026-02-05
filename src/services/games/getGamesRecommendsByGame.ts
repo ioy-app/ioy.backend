@@ -1,5 +1,5 @@
 import es from "@/lib/elasticsearch";
-import Game from "@/types/game";
+import Game from "@/schemas/game";
 import { SearchHit } from "node_modules/@elastic/elasticsearch/lib/api/types";
 
 /**

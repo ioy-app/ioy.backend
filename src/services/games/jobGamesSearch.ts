@@ -1,6 +1,6 @@
 import db from "@/lib/db"
 import es from "@/lib/elasticsearch";
-import Game from "@/types/game";
+import Game from "@/schemas/game";
 
 const jobGamesSearch = async () => {
     const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]> => {

@@ -8,6 +8,7 @@ import getGameById from "./getGameById";
 import postGameLike from "./postGameLike";
 import createGame from "./createGame";
 import getGamesByUser from "./getGamesByUser";
+import editGame from "./editGame";
 
 export {
     GetAll,
@@ -18,5 +19,6 @@ export {
     getGameById,
     postGameLike,
     createGame,
-    getGamesByUser
+    getGamesByUser,
+    editGame
 }

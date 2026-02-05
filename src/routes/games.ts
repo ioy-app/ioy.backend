@@ -9,7 +9,8 @@ import {
     getGameById,
     postGameLike,
     createGame,
-    getGamesByUser
+    getGamesByUser,
+    editGame
 } from "@controllers/games";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
 
@@ -18,12 +19,16 @@ const Router = ExpressRouter();
 
 Router.get("/", GetAll);
 Router.get("/:id", Middleware, getGameById);
-
+Router.put("/:id", upload.fields([
+  { name: 'icon', maxCount: 1 },
+  { name: 'game', maxCount: 1 }
+]), MiddlewareRequired, editGame);
 Router.post("/create", upload.fields([
   { name: 'icon', maxCount: 1 },
   { name: 'game', maxCount: 1 }
 ]), MiddlewareRequired, createGame);
 Router.post("/my", MiddlewareRequired, getGamesByUser);
+
 
 Router.post("/:id/subscribe", MiddlewareRequired, postSubscribe);
 Router.post("/:id/like", MiddlewareRequired, postGameLike);

@@ -1,24 +1,24 @@
 import db from "@/lib/db";
 import redis from "@/lib/redis";
-import IdSchema from "@/schemas/id";
-import Game from "@/types/game";
+import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 
 /**
- * Получение информации об игре по ID
+ * Get game info by ID
  * 
- * @param {number} id ID Игры 
- * @returns {Promise<Game>}
+ * @param id - Game ID
+ * @returns
 */
 const getGameById = async (id: number): Promise<Game> => {
-    validate(IdSchema, id);
+    validate(GameSchema.pick({ id: true }), { id }, "getGameById");
 
     const cache_key = `game:${id}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
+            validate(GameSchema, parsed, "getGameById");
             return parsed as Game;
         }
         catch(err) { await redis.delWithLog(cache_key); }
@@ -46,6 +46,10 @@ const getGameById = async (id: number): Promise<Game> => {
         throw new ContentError("getGameById", "errors.exists");
 
     const game: Game = result.rows[0];
+    for (const [ key, value ] of Object.entries(game))
+        if (!value)
+            delete game[key];
+
     redis.writeWithLog(cache_key, JSON.stringify(game));
 
     return game;

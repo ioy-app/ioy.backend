@@ -54,9 +54,6 @@ const getGamesByUser = async (
         opts.push(`%${search}%`);
     }
 
-    console.log(status, search);
-    console.log(filters, opts);
-
     const result = await db.query(`
         SELECT
             id,
