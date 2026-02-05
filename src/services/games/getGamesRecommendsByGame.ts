@@ -29,7 +29,10 @@ const getGamesRecommendsByGame = async (game: Game): Promise<Game[]> => {
                     { term: { _id: id }}
                 ]
             }
-        }
+        },
+        sort: [
+            { likes: { order: "desc" }}
+        ]
     });
     return hits.hits.map((item: SearchHit<Game>) => ({
         id: Number(item._id),

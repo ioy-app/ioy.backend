@@ -7,7 +7,7 @@ import { UserDetails } from "@/types/user";
 import verify from "@/utils/verify";
 import checkLikeByGame from "@/services/likes/checkLikeByGame";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
-import Game from "@/types/game";
+import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
 
 interface GameResponse extends Game {

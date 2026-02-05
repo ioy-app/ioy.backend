@@ -1,6 +1,7 @@
 import db from "@/lib/db"
 import es from "@/lib/elasticsearch";
 import Game from "@/schemas/game";
+import { getLikesByGame } from "../likes";
 
 const jobGamesSearch = async () => {
     const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]> => {
@@ -21,14 +22,14 @@ const jobGamesSearch = async () => {
     }
 
     let count: number = 0;
-    let isNext: boolean = false;
-    do {
-        const games = await handleGet(count, 100);
+    let isNext: boolean = true;
+    while(isNext) {
+        const games = await handleGet(count, 200);
         
         for (const game of games) {
-            
             try {
-                console.log(game.id);
+                const likes = await getLikesByGame(game.id);
+                console.log(game.id, likes);
                 await es.index({
                     index: "games",
                     id: String(game.id),
@@ -37,10 +38,10 @@ const jobGamesSearch = async () => {
                         description: game.description,
                         date_created: game.date_created,
                         date_updated: game.date_updated,
-                        tags: game.tags
+                        tags: game.tags,
+                        likes: likes
                     }
                 });
-                console.log("success");
             }
             catch(err) {
                 console.log(err);
@@ -50,7 +51,7 @@ const jobGamesSearch = async () => {
 
         count += games.length;
         isNext = Boolean(games.length > 0);
-    } while (isNext);
+    }
 
     console.log("[job][elasticsearch] games indexed is", count);
 }

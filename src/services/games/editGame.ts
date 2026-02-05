@@ -4,6 +4,7 @@ import redis from "@/lib/redis";
 import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
+import { getLikesByGame } from "../likes";
 
 /**
  * Edit game
@@ -60,6 +61,10 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
             delete game[key];
 
     redis.writeWithLog(`game:${id}`, JSON.stringify(game));
+    await redis.delAllWithLog(`user_id:*`);
+    await redis.delAllWithLog(`games:user:${game.creater_id}:*`);
+    await redis.delAllWithLog(`subscribers:*`);
+
     if (game.status == "public") {
         await es.index({
             index: "games",
@@ -69,7 +74,8 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
                 description: game.description,
                 date_created: game.date_created,
                 date_updated: game.date_updated,
-                tags: game.tags
+                tags: game.tags,
+                likes: await getLikesByGame(game.id)
             }
         });
     } else {

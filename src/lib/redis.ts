@@ -102,7 +102,7 @@ redis.delAllWithLog = async (key: string, batchSize=1000): Promise<number> => {
         }
     } while (cursor !== '0');
 
-    console.log("[redis]", `clear ${totalDeleted} rows`);
+    console.log("[redis]", `clear ${totalDeleted} rows key: ${key}`);
     return totalDeleted;
 }
 

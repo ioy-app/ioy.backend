@@ -41,21 +41,47 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
         catch(err) { await redis.delWithLog(cache_key); }
     }
 
-    const result = await db.query(`
-        SELECT
-            s.target_id as id,
-            COUNT(*) OVER()::INTEGER AS total
-        FROM "subscribers" s
-        JOIN "users" u
-        ON
-            u.id = s.source_id
-            AND s.target_type = $2
-            AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
-        WHERE s.source_id = $1
-        ORDER BY s.date_created
-        OFFSET $3 LIMIT $4
-    `, [ user_id, type, offset, limit ]);
+    let result;
 
+    switch(type) {
+        case "game": {
+            result = await db.query(`
+                SELECT
+                    s.target_id as id,
+                    COUNT(*) OVER()::INTEGER AS total
+                FROM "subscribers" s
+                JOIN "users" u
+                ON
+                    u.id = s.source_id
+                    AND s.target_type = $2
+                    AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
+                JOIN "games" g
+                ON
+                    g.id = s.target_id
+                    AND g.status = 'public'
+                WHERE s.source_id = $1
+                ORDER BY s.date_created DESC
+                OFFSET $3 LIMIT $4
+            `, [ user_id, type, offset, limit ])
+        } break;
+        case "user":
+            result = await db.query(`
+                SELECT
+                    s.target_id as id,
+                    COUNT(*) OVER()::INTEGER AS total
+                FROM "subscribers" s
+                JOIN "users" u
+                ON
+                    u.id = s.source_id
+                    AND s.target_type = $2
+                    AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
+                WHERE s.source_id = $1
+                ORDER BY s.date_created DESC
+                OFFSET $3 LIMIT $4
+            `, [ user_id, type, offset, limit ]);
+        break;
+    }
+    
     const data: getUserSubsProp = [];
     const total: number = result?.rows?.[0]?.total || 0;
 

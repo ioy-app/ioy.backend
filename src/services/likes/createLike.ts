@@ -4,6 +4,8 @@ import IdSchema from "@/schemas/id";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 import { getGameById } from "../games";
+import es from "@/lib/elasticsearch";
+import getLikesByGame from "./getLikesByGame";
 
 /**
  * Создание лайка по ID
@@ -21,6 +23,19 @@ const createLike = async (user_id: number, id: number, type: string = "game"): P
         const game = await getGameById(id);
         if (game.status != "public")
             return false;
+
+        await es.index({
+            index: "games",
+            id: String(game.id),
+            document: {
+                title: game.title,
+                description: game.description,
+                date_created: game.date_created,
+                date_updated: game.date_updated,
+                tags: game.tags,
+                likes: await getLikesByGame(game.id)
+            }
+        });
     }
 
     const result = await db.query(`

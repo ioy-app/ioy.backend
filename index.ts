@@ -23,6 +23,8 @@ import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
 import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
+import { searchGames } from "@/services/search";
+import Search from "@/controllers/search";
 
 
 // const limiter = rateLimit({
@@ -49,6 +51,7 @@ RouterV1.use("/games", GamesRouter);
 RouterV1.use("/comments", CommentsRouter);
 RouterV1.use("/sessions", Sessions);
 RouterV1.use("/roles", RolesRouter);
+RouterV1.get("/search", Search);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
@@ -57,8 +60,6 @@ app.use(errorHandler);
   await initES();
   await jobGamesSearch();
   await jobClearCodes();
-
-  //console.log("[server]", `is running :${port}`);
 
   app.listen(port, () => {
     console.log("[server]", `is running :${port}`);
