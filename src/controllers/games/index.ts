@@ -1,5 +1,5 @@
 import GetAll from "./getAll";
-import Subscribe from "./subscribe";
+import postSubscribe from "./postSubscribe";
 
 import getGameFile from "./getGameFile";
 import getGameIcon from "./getGameIcon";
@@ -11,7 +11,7 @@ import getGamesByUser from "./getGamesByUser";
 
 export {
     GetAll,
-    Subscribe,
+    postSubscribe,
     getGameFile,
     getGameIcon,
     getGamePlay,

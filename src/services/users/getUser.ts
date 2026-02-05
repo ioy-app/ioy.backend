@@ -10,8 +10,8 @@ import minio from "@/lib/minio";
 /**
  * Получение информации о пользователе
  * 
- * @param {string} login Логин пользователя 
- * @returns {Promise<UserDetails>}
+ * @param login - Логин 
+ * @returns
 */
 const getUser = async (login: string): Promise<UserDetails> => {
     validate(LoginSchema, login, "getUser");

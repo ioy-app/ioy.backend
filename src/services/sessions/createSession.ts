@@ -11,10 +11,10 @@ import ValidError from "@utils/ValidError";
 /**
  * Создание пользовательской сессии
  * 
- * @param {number} user_id ID Пользователя 
- * @param {string} ip IP Адрес
- * @param {string} user_agent Браузер, версия ОС
- * @returns {Promise<Session>}
+ * @param user_id - ID Пользователя 
+ * @param ip - IP Адрес
+ * @param user_agent - Браузер, версия ОС
+ * @returns
 */
 const createSession = async (user_id: number, ip: string, user_agent: string): Promise<Session> => {
     validate(IdSchema, user_id);

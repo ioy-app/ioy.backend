@@ -8,6 +8,7 @@ import verify from "@/utils/verify";
 import checkLikeByGame from "@/services/likes/checkLikeByGame";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
 import Game from "@/types/game";
+import { checkSubscribe } from "@/services/subscribers";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -43,15 +44,18 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     const recomendator = await getGamesRecommendsByGame(data);
 
     let is_like: boolean;
+    let is_subscribe: boolean;
     if (req.token) {
         const { id: user_id } = await verify(req.token);
         is_like = await checkLikeByGame(Number(user_id), Number(id));
+        is_subscribe = await checkSubscribe(Number(user_id), Number(id), "game");
     }
 
     const obj = {
         ...data,
         authors_data,
         is_like,
+        is_subscribe,
         recomendator
     }
 

@@ -5,7 +5,7 @@ import CustomError from "../../utils/CustomError.js";
 import getGameById from "@/services/games/getGameById.js";
 
 const work_dir = path.resolve("disk", "games");
-const per_page = 10;
+const per_page = 40;
 
 export default async function GetAll(req, res) {
     try {

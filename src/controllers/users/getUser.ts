@@ -10,8 +10,8 @@ import Request from "@/types/request";
  * Получение информации о пользователе, подписчиках
  * и кнопок действий
  * 
- * @param {Request} req
- * @param {Response} res
+ * @param req - Запрос
+ * @param res - Ответ
 */
 const getUser = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;

@@ -1,11 +1,23 @@
 import { z } from "zod";
 
 const IdSchema = z.number({
-    error: "ID должен быть числом"
+    error: "errors.invalid.id"
 }).nonnegative({
-    error: "ID не может быть меньше 0"
+    error: "errors.invalid.id"
 }).nonoptional({
-    error: "ID обязателен"
+    error: "errors.required.id"
 });
+
+/**
+ * Custom ID Schema
+ * 
+ * @param param - ID param
+ * @returns
+*/
+export const IdSchemaCustom = (param: string) => (
+    z.number({ error: `errors.invalid.${param}` })
+    .nonnegative({ error: `errors.invalid.${param}` })
+    .nonoptional({ error: `errors.required.${param}` })
+);
 
 export default IdSchema;

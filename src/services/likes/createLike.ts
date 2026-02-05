@@ -39,7 +39,10 @@ const createLike = async (user_id: number, id: number, type: string = "game"): P
     if (result.rowCount !== 0) {
         redis.delWithLog(`likes_count:${type}:${id}`);
         redis.delWithLog(`likes_check:${type}:${id}`);
-        redis.delAllWithLog(`user_id:${user_id}:likes:*`);
+        if (type == "game")
+            redis.delAllWithLog(`user_id:${user_id}:likes:*`);
+        if (type == "comment")
+            redis.delWithLog(`comment:${id}`);
     }
 
     return true;

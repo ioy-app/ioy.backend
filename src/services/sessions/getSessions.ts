@@ -9,8 +9,8 @@ import SessionSchema from "@/schemas/sessions";
 /**
  * Получение пользовательских сессий
  * 
- * @param {number} user_id ID Пользователя 
- * @returns {Promise<Session[]>}
+ * @param user_id - ID Пользователя 
+ * @returns
 */
 const getSessions = async (user_id: number): Promise<Session[]> => {
     validate(IdSchema, user_id);

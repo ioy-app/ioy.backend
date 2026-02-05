@@ -9,10 +9,10 @@ import redis from "@/lib/redis";
 /**
  * Получение списка игр пользователя
  * 
- * @param {number} id ID Пользователя
- * @param {number} [offset=0] Отступ
- * @param {number} [limit=5] Лимит
- * @returns {Promise<[Game[], number]>}
+ * @param id - ID Пользователя
+ * @param offset - Отступ
+ * @param limit - Лимит
+ * @returns
 */
 const getUserGames = async (id: number, offset: number = 0, limit: number = 5): Promise<[Game[], number]> => {
     validate(z.object({

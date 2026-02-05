@@ -7,8 +7,8 @@ import Stream from "stream";
 /**
  * Получение пользовательского аватара
  * 
- * @param {string} login Логин 
- * @returns {Promise<Stream.Readable>}
+ * @param login - Логин 
+ * @returns
 */
 const getUserAvatar = async (login: string): Promise<Stream.Readable> => {
     validate(LoginSchema, login);

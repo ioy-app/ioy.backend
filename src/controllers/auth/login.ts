@@ -3,7 +3,7 @@ import getUserEmail from "@services/users/getUserEmail";
 import createCode from "@services/codes/createCode";
 
 /**
- * Вход по почте
+ * Login
  * 
  * @param {Request} req 
  * @param {Response} res 

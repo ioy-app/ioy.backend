@@ -6,15 +6,30 @@ import { Request, Response } from "express";
 /**
  * Получение списка избранных
  * 
- * @param {Request} req 
- * @param {Response} res 
+ * @param req - Запрос 
+ * @param res - Ответ 
 */
 const getUserFavorites = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
     const offset: number = req.query.offset && Number(req.query.offset);
     const limit: number = req.query.limit && Number(req.query.limit);
 
+    const user = await getUser(login);
+    if (!user?.privacy?.favorites) {
+        res.status(200).json({
+            items: [],
+            offset,
+            limit,
+            total: 0
+        });
+        return;
+    }
+    
+    
     const id = await getUserId(login);
+
+    
+
     const [ items, total ] = await getUserSubs(id, "game", offset, limit);
     
     res.status(200).json({

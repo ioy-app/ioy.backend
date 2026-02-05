@@ -2,7 +2,7 @@ import { Router as ExpressRouter } from "express";
 import multer from "multer";
 import {
     GetAll,
-    Subscribe,
+    postSubscribe,
     getGameFile,
     getGameIcon,
     getGamePlay,
@@ -25,7 +25,7 @@ Router.post("/create", upload.fields([
 ]), MiddlewareRequired, createGame);
 Router.post("/my", MiddlewareRequired, getGamesByUser);
 
-Router.post("/:id/subscribe", MiddlewareRequired, Subscribe);
+Router.post("/:id/subscribe", MiddlewareRequired, postSubscribe);
 Router.post("/:id/like", MiddlewareRequired, postGameLike);
 
 Router.get("/:id/game", getGamePlay);

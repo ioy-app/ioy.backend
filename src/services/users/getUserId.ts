@@ -7,8 +7,8 @@ import validate from "@/utils/validate";
 /**
  * Получение ID пользователя по лоигну
  * 
- * @param {string} login Логин
- * @returns {Promise<number>}
+ * @param login - Логин
+ * @returns
 */
 const getUserId = async (login: string): Promise<number> => {
     validate(LoginSchema, login);

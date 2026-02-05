@@ -16,12 +16,10 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
     const result = await createGameService(Number(user_id), req.body);
 
     if (req?.files?.icon?.[0]) {
-        console.log(req.files.icon)
         putGameFile(result.id, "icon.png", req.files.icon?.[0].buffer);
     }
 
     if (req?.files?.game?.[0]) {
-        console.log(req.files.game);
         putGameFile(result.id, "index.html", req.files.game?.[0].buffer);
     }
 

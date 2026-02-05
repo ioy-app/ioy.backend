@@ -1,7 +1,25 @@
 import db from "@lib/db";
 import CustomError from "../../utils/CustomError.js";
 import redisClient from "@lib/redis";
+import Request from "@/types/request.js";
+import { Response } from "express";
+import getUserId from "@/services/users/getUserId.js";
+import putSubscribe from "@/services/subscribers/putSubscribe.js";
 
+const postUserSubscribe = async (req: Request, res: Response): Promise<void> => {
+    const { login } = req.params;
+
+    const id = await getUserId(login);
+    const isSubscribe = await putSubscribe(req.user_id, id, "user");
+
+    res.status(200).json({
+        status: isSubscribe ? "created" : "deleted"
+    });
+}
+
+export default postUserSubscribe;
+
+/*
 export default async function postUserSubscribe(req, res) {
     try {
         const { login } = req?.params;
@@ -56,3 +74,4 @@ export default async function postUserSubscribe(req, res) {
         });
     }
 }
+*/

@@ -5,8 +5,8 @@ import redisClient from "@lib/redis";
 /**
  * Получение кол-ва подписчиков пользователя
  * 
- * @param {number} id ID Пользователя 
- * @returns {Promise<number>}
+ * @param id - ID Пользователя 
+ * @returns
 */
 const getUserFollowers = async (id: number): Promise<number> => {
     const cache_key: string = `user_id:${id}:followers`;

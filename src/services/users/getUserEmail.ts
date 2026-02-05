@@ -9,8 +9,8 @@ import UserDetailsSchema from "@/schemas/userDetails";
 /**
  * Получение данных о пользователе по почте
  * 
- * @param {string} email Почта
- * @returns {Promise<UserDetails>}
+ * @param email - Почта
+ * @returns
 */
 const getUserEmail = async (email: string): Promise<UserDetails> => {
     validate(z.email({

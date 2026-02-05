@@ -8,8 +8,8 @@ import z from "zod";
 /**
  * Получение логина по id пользователя
  * 
- * @param {number} id ID
- * @returns {Promise<string>}
+ * @param id - ID Пользователя
+ * @returns
 */
 const getUserLogin = async (id: number): Promise<string> => {
     validate(z.number({ error: "errors.invalid.id" })

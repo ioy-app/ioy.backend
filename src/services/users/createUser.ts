@@ -7,9 +7,9 @@ import ContentError from "@/utils/ContentError";
 /**
  * Создание учетной записи
  * 
- * @param {string} login Логин 
- * @param {string} email Почта
- * @returns {Promise<number>}
+ * @param login - Логин 
+ * @param email - Почта
+ * @returns
 */
 const createUser = async (login: string, email: string): Promise<number> => {
     validate(LoginSchema, login);

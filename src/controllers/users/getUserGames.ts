@@ -5,9 +5,8 @@ import getUser from "@/services/users/getUser";
 /**
  * Получение пользовательских игр
  * 
- * @param {Request} req 
- * @param {Response} res 
- * @returns 
+ * @param req - Запрос 
+ * @param res - Ответ 
 */
 const getUserGames = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;

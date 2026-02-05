@@ -7,8 +7,8 @@ import { secret } from "index";
 /**
  * Создание временного токена доступа
  * 
- * @param {string} session_token 
- * @returns {Promise<string>}
+ * @param session_token Токен сессии
+ * @returns
 */
 const createToken = async (session_token: string): Promise<string> => {
     if (!session_token)

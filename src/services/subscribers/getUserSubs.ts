@@ -22,10 +22,11 @@ enum TypePrivacy {
 /**
  * Получение подписок пользователя на игры/пользователей/джемы
  * 
- * @param {number} user_id ID Пользователя 
- * @param {Type} type Тип запроса
- * @param {number} [offset=0] Отступ
- * @param {number} [limit=5] Лимит записей
+ * @param user_id - ID Пользователя 
+ * @param type - Тип запроса
+ * @param offset - Отступ
+ * @param limit - Лимит записей
+ * @returns
 */
 const getUserSubs = async (user_id: number, type: Type = "game", offset: number = 0, limit: number = 5): Promise<[getUserSubsProp, number]> => {
     validate(validObj, { user_id, offset, limit }, "getUserSubs");

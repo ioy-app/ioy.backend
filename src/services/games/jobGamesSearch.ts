@@ -24,19 +24,28 @@ const jobGamesSearch = async () => {
     let isNext: boolean = false;
     do {
         const games = await handleGet(count, 100);
-
+        
         for (const game of games) {
-            await es.index({
-                index: "games",
-                id: String(game.id),
-                document: {
-                    title: game.title,
-                    description: game.description,
-                    date_created: game.date_created,
-                    date_updated: game.date_updated,
-                    tags: game.tags
-                }
-            });
+            
+            try {
+                console.log(game.id);
+                await es.index({
+                    index: "games",
+                    id: String(game.id),
+                    document: {
+                        title: game.title,
+                        description: game.description,
+                        date_created: game.date_created,
+                        date_updated: game.date_updated,
+                        tags: game.tags
+                    }
+                });
+                console.log("success");
+            }
+            catch(err) {
+                console.log(err);
+            }
+            
         }
 
         count += games.length;

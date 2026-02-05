@@ -8,8 +8,8 @@ import deleteSession from "./deleteSession";
 /**
  * Удаление всех пользовательских сессий
  * 
- * @param {number} user_id ID Пользователя
- * @returns {Promise<boolean>}
+ * @param user_id - ID Пользователя
+ * @returns
 */
 const deleteSessions = async (user_id: number): Promise<boolean> => {
     const sessions = await getSessions(user_id);

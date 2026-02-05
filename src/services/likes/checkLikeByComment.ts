@@ -16,8 +16,9 @@ const checkLikeByComment = async (user_id: number, id: number): Promise<boolean>
 
     const cache_key = `likes_check:comment:${id}`;
     let cached = await redis.readWithLog(cache_key);
+    
     if (cached)
-        return Boolean(cached);
+        return cached == "true" ? true : false;
 
     const result = await db.query(`
         SELECT 1

@@ -12,20 +12,17 @@ export const app = express();
 export const secret = process.env.SECRET;
 const port = process.env.PORT || 3000;
 
-
-
-import CommentsRouter from "@/controllers/comments/index.js";
-
-
 import AuthRouter from "@routes/auth";
 import UsersRouter from "@routes/users";
 import GamesRouter from "@routes/games";
 import RolesRouter from "@routes/roles";
 import Sessions from "@routes/sessions";
 import CodesRouter from "@routes/codes";
+import CommentsRouter from "@/routes/comments";
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
 import jobClearCodes from "@/services/codes/jobClearCodes";
+import { initES } from "@/lib/elasticsearch";
 
 
 // const limiter = rateLimit({
@@ -57,8 +54,13 @@ app.use("/v1", RouterV1);
 app.use(errorHandler);
 
 (async () => {
+  await initES();
   await jobGamesSearch();
   await jobClearCodes();
 
-  app.listen(port, () => console.log("[server]", `is running :${port}`)); 
+  //console.log("[server]", `is running :${port}`);
+
+  app.listen(port, () => {
+    console.log("[server]", `is running :${port}`);
+  }); 
 })();

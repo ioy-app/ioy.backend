@@ -4,8 +4,8 @@ import { Request, Response } from "express";
 /**
  * Получение пользовательского аватара
  * 
- * @param {Request} req 
- * @param {Response} res 
+ * @param req - Запрос 
+ * @param res - Ответ 
 */
 const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;

@@ -6,9 +6,9 @@ import validate from "@utils/validate"
 /**
  * Удаление пользовательской сессии
  * 
- * @param {number} user_id ID Пользователя
- * @param {number} id ID Сессии
- * @returns {Promise<boolean>}
+ * @param user_id - ID Пользователя
+ * @param id - ID Сессии
+ * @returns
 */
 const deleteSession = async (user_id: number, id: number): Promise<boolean> => {
     validate(IdSchema, id);
