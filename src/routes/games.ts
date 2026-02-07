@@ -10,7 +10,8 @@ import {
     postGameLike,
     createGame,
     getGamesByUser,
-    editGame
+    editGame,
+    deleteGame
 } from "@controllers/games";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
 
@@ -23,6 +24,7 @@ Router.put("/:id", upload.fields([
   { name: 'icon', maxCount: 1 },
   { name: 'game', maxCount: 1 }
 ]), MiddlewareRequired, editGame);
+Router.delete("/:id", MiddlewareRequired, deleteGame);
 Router.post("/create", upload.fields([
   { name: 'icon', maxCount: 1 },
   { name: 'game', maxCount: 1 }

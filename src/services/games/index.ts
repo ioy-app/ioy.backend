@@ -5,6 +5,7 @@ import jobGamesSearch from "./jobGamesSearch";
 import createGame from "./createGame";
 import getGamesByUser from "./getGamesByUser";
 import putGameFile from "./putGameFile";
+import deleteGame from "./deleteGame";
 import z from "zod";
 
 export const validObj = z.object({
@@ -26,5 +27,6 @@ export {
     jobGamesSearch,
     createGame,
     getGamesByUser,
-    putGameFile
+    putGameFile,
+    deleteGame
 }

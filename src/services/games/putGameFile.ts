@@ -29,6 +29,7 @@ const putGameFile = async (id: number, filename: string, buffer: Buffer): Promis
             await minio.makeBucket("games");
 
         const file = await minio.putObject("games", `${id}/${filename}`, Readable.from(buffer));
+        
         return true;
     }
     catch(err) {
