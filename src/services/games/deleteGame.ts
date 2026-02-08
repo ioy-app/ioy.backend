@@ -40,15 +40,13 @@ const deleteGame = async (id: number): Promise<boolean> => {
 
         await minio.removeObject("games", `${id}/icon.png`);
         await minio.removeObject("games", `${id}/index.html`);
+        await es.delete({
+            index: "games",
+            id: String(game.id)
+        });
     }
-    catch(err) {
-        console.log(err);
-        throw new ContentError("putGameFile", "errors.exists");
-    }
-    await es.delete({
-        index: "games",
-        id: String(game.id)
-    })
+    catch(err) {}
+    
 
     return true;
 }

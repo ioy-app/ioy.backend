@@ -80,24 +80,22 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${user_id}:*`);
     
-    if (game.status == "public") {
-        await es.index({
-            index: "games",
-            id: String(game.id),
-            document: {
-                title: game.title,
-                description: game.description,
-                date_created: game.date_created,
-                date_updated: game.date_updated,
-                tags: game.tags
-            }
-        });
-    } else {
-        await es.delete({
-            index: "games",
-            id: String(game.id)
-        })
+    try {
+        if (game.status == "public") {
+            await es.index({
+                index: "games",
+                id: String(game.id),
+                document: {
+                    title: game.title,
+                    description: game.description,
+                    date_created: game.date_created,
+                    date_updated: game.date_updated,
+                    tags: game.tags
+                }
+            });
+        }
     }
+    catch(err) {}
 
     return game;
 }
