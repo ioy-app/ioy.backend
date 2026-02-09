@@ -14,21 +14,32 @@ import getUser from "./getUser";
  * @param email - Email
  * @returns 
 */
-const putUserEmail = async (user_id: number, email: string): Promise<boolean> => {
+const putUserEmail = async (user_id: number, current_email: string, email: string): Promise<boolean> => {
     validate(
         z.object({
             user_id: IdSchemaCustom("user_id"),
             email: z.email({ error: "errors.invalid.email"})
-            .nonoptional({ error: "errors.required.email" })
+            .nonoptional({ error: "errors.required.email" }),
+            current_email: z.email({ error: "errors.invalid.current_email"})
+            .nonoptional({ error: "errors.required.current_email" })
         }),
         {
             user_id,
+            current_email,
             email
         }
     );
 
     const login = await getUserLogin(user_id);
     const userdata = await getUser(login);
+
+    const user_email = await db.query(`
+        SELECT email FROM "users"
+        WHERE id = $1 AND email = $2
+    `, [ user_id, current_email ]);
+
+    if (user_email.rowCount === 0)
+        return false;
 
     const result = await db.query(`
         UPDATE "users"

@@ -1,34 +1,24 @@
-import createSession from "@services/sessions/createSession";
-import createToken from "@services/sessions/createToken";
-import getUserEmail from "@services/users/getUserEmail";
+import putUserEmail from "@/services/users/putUserEmail";
+import ContentError from "@/utils/ContentError";
 import { Request, Response } from "express";
 
 /**
  * Change email
  * 
- * @param {any} payload Данные одноразового кода
- * @param {Request} req 
- * @param {Response} res 
+ * @param {any} payload - Payload data
+ * @param {Request} req - Request 
+ * @param {Response} res - Response
 */
 const CodeChangeMail = async (payload: any, req: Request, res: Response): Promise<void> => {
-    const user = await getUserEmail(payload?.email);
+    const { user_id, current_email, email } = payload;
     
-    const { id, login } = user;
-    const session = await createSession(id, req.ip, req.get("User-Agent"));
+    const result = await putUserEmail(user_id, current_email, email);
+    if (!result)
+        throw new ContentError("CodeChangeMail", "errors.denied");
 
-    res.cookie("refresh_token", session.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000
-    });
-
-    const token = await createToken(session.token);
     res.status(200).json({
-        token,
-        id,
-        login
-    });
+        status: "ok"
+    })
 }
 
 export default CodeChangeMail;
