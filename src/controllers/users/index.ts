@@ -7,6 +7,7 @@ import putUser from "./putUser";
 import getUserAvatar from "./getUserAvatar";
 import postUserSubscribe from "./postUserSubscribe";
 import getUserLikes from "./getUserLikes";
+import putUserEmail from "./putUserEmail";
 
 export {
     getUser,
@@ -17,5 +18,6 @@ export {
     getUserFavorites,
     putUser,
     postUserSubscribe,
-    getUserLikes
+    getUserLikes,
+    putUserEmail
 }
