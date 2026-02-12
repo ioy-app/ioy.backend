@@ -3,7 +3,7 @@ import Request from "@/types/request";
 import { Response } from "express";
 
 /**
- * Выход из аккаунта
+ * Logout
  * 
  * @param {Request} req 
  * @param {Response} res 

@@ -33,8 +33,6 @@ const errorHandler = (err, req, res, next) => {
     return res.status(422).json({
         msg: "Неизвестная ошибка"
     });
-
-    return;
 }
 
 export default errorHandler;

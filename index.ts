@@ -6,8 +6,6 @@ import { rateLimit } from "express-rate-limit";
 
 dotenv.config();
 
-import "@/lib/elasticsearch"
-
 export const app = express();
 export const secret = process.env.SECRET;
 const port = process.env.PORT || 3000;
@@ -26,12 +24,11 @@ import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
 import Search from "@/controllers/search";
 
-
 // const limiter = rateLimit({
 //   windowMs: 1000 * 60 * 10,
 //   limit: 100,
 //   legacyHeaders: false,
-//   message: "errors.denied"
+//   message: "errors.limit"
 // });
 
 // app.use(limiter);

@@ -24,12 +24,16 @@
     "express": "^5.1.0",
     "express-jwt": "^8.5.1",
     "express-rate-limit": "^8.2.1",
+    "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.2",
     "k6": "^0.0.0",
     "kafkajs": "^2.2.4",
     "minio": "^8.0.6",
     "mocha": "^11.7.4",
     "multer": "^2.0.2",
+    "passport": "^0.7.0",
+    "passport-custom": "^1.1.1",
+    "passport-local": "^1.0.0",
     "pg": "^8.16.3",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.16",
@@ -42,6 +46,8 @@
     "@types/jest": "^30.0.0",
     "@types/mocha": "^10.0.10",
     "@types/multer": "^2.0.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
     "ioredis": "^5.8.2"
   }
 }

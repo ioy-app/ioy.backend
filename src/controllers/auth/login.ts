@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import getUserEmail from "@services/users/getUserEmail";
 import createCode from "@services/codes/createCode";
 
+
 /**
  * Login
  * 
@@ -14,7 +15,7 @@ const Login = async (req: Request, res: Response): Promise<void> => {
     try {        
         const user = await getUserEmail(email);
         const code = await createCode(user?.id, { type: "login", email });
-        console.log(code);   
+        console.log(code);
     }
     finally { res.status(200).end(); }
 }
