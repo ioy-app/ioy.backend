@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
@@ -49,6 +50,8 @@ const getGameById = async (id: number): Promise<Game> => {
     for (const [ key, value ] of Object.entries(game))
         if (!value)
             delete game[key];
+
+    game.is_avatar = await minio.checkFileExists("games", `${id}/icon.png`);
 
     redis.writeWithLog(cache_key, JSON.stringify(game));
 

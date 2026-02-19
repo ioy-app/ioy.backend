@@ -30,7 +30,7 @@ const createToken = async (session_token: string): Promise<string> => {
         id,
         refresh_id
     }, secret, {
-        expiresIn: "5m"
+        expiresIn: "30m"
     });
 
     return token;

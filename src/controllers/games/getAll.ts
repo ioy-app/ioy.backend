@@ -37,11 +37,14 @@ export default async function GetAll(req, res) {
 
     const popularTags = tags.aggregations.popular_tags.buckets.map(bucket => bucket.key);
 
+    const games = [];
+    for (const game of hits.hits) {
+        const data = await getGameById(Number(game._id));
+        games.push(data);
+    }
+
     res.status(200).json({
-        games: hits.hits.map((item: SearchHit<Game>) => ({
-            id: Number(item._id),
-            ...item._source
-        })) as Game[],
+        games,
         tags: popularTags
     });
 }

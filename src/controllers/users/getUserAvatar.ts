@@ -13,7 +13,10 @@ const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     try {
         const fileStream = await getUserAvatarService(login);
 
-        res.setHeader("Content-Type", "application/octet-stream");
+        //res.setHeader("Content-Type", "application/octet-stream");
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Cache-Control", "public, max-age=300");
+        
         fileStream.on("error", () => {
             if (!res.headersSent)
                 res.status(404).end("errors.exists");

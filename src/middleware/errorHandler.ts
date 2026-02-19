@@ -5,13 +5,15 @@ import ValidError from "@/utils/ValidError";
 
 const errorHandler = (err, req, res, next) => {
     console.log(err);
-    if (err instanceof jwt.TokenExpiredError) {
-        return res.status(401).end("errors.jwt.expired");
-    }
+    if (err instanceof jwt.TokenExpiredError)
+        return res.status(401).json({
+            msg: "errors.jwt.expired"
+        });
 
-    if (err instanceof jwt.JsonWebTokenError) {
-        return res.status(401).end("errors.jwt.error");
-    }
+    if (err instanceof jwt.JsonWebTokenError)
+        return res.status(401).json({
+            msg: "errors.jwt.error"
+        });
 
     if (err instanceof ContentError)
         return res.status(404).json({
@@ -20,13 +22,13 @@ const errorHandler = (err, req, res, next) => {
 
     if (err instanceof CustomError) {
         return res.status(403).json({
-            msg: err?.message
+            msg: err?.message?.toString()
         })
     }
 
     if (err instanceof ValidError) {
         return res.status(422).json({
-            msg: err?.message
+            msg: err?.message?.toString()
         });
     }
 

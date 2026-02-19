@@ -22,6 +22,8 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     if (userdata.id != req.user_id)
         throw new AccessError("putUser", "errors.denied");
 
+    console.log(req.file, req.body);
+
     const data = await putUserService(
         login,
         req.body,

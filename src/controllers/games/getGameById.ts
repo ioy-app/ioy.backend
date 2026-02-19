@@ -9,6 +9,7 @@ import checkLikeByGame from "@/services/likes/checkLikeByGame";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
 import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
+import minio from "@/lib/minio";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
