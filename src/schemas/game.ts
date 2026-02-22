@@ -22,7 +22,7 @@ const GameSchema = z.object({
     tags: z.array(z.string({ error: "errors.invalid.tags" }))
         .optional(),
     /** Another authors */
-    authors: z.array(z.number({ error: "errors.invalid.authors" }))
+    authors: z.array(z.string({ error: "errors.invalid.authors" }))
         .optional(),
     /** Status */
     status: z.enum([

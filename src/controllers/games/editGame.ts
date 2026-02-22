@@ -17,7 +17,6 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
 
     if (game_data.creater_id != user_id)
         throw new AccessError("editGame", "errors.denied");
-
     const result = await editGameService(id, req.body);
 
     if (req?.files?.icon?.[0]) {
