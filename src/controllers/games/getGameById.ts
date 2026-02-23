@@ -46,10 +46,12 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
 
     let is_like: boolean;
     let is_subscribe: boolean;
+    let is_me: boolean;
     if (req.token) {
         const { id: user_id } = await verify(req.token);
         is_like = await checkLikeByGame(Number(user_id), Number(id));
         is_subscribe = await checkSubscribe(Number(user_id), Number(id), "game");
+        is_me = Boolean(Number(user_id) == Number(data.creater_id))
     }
 
     const obj = {
@@ -57,6 +59,7 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         authors_data,
         is_like,
         is_subscribe,
+        is_me,
         recomendator
     }
 
