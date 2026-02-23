@@ -62,10 +62,10 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
         if (!value)
             delete game[key];
 
-    redis.writeWithLog(`game:${id}`, JSON.stringify(game));
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${game.creater_id}:*`);
     await redis.delAllWithLog(`subscribers:*`);
+    await redis.delWithLog(`game:${id}`);
 
     try {
         if (game.status == "public") {

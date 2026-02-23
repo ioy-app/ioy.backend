@@ -12,8 +12,8 @@ import { Request, Response } from "express";
 */
 const CodeLogin = async (payload: any, req: Request, res: Response): Promise<void> => {
     const user = await getUserEmail(payload?.email);
-    
-    const { id, login } = user;
+    console.log(user);
+    const { id, login, is_avatar } = user;
     const session = await createSession(id, req.ip, req.get("User-Agent"));
 
     res.cookie("refresh_token", session.token, {
@@ -27,7 +27,8 @@ const CodeLogin = async (payload: any, req: Request, res: Response): Promise<voi
     res.status(200).json({
         token,
         id,
-        login
+        login,
+        is_avatar
     });
 }
 

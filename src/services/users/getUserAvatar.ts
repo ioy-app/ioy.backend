@@ -3,6 +3,7 @@ import ContentError from "@utils/ContentError";
 import validate from "@utils/validate";
 import minio from "@lib/minio";
 import Stream from "stream";
+import redis from "@/lib/redis";
 
 /**
  * Получение пользовательского аватара

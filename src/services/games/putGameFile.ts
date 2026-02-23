@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import minio from "@/lib/minio";
 import Stream, { Readable } from "stream";
+import redis from "@/lib/redis";
 
 /**
  * Сохранение/изменение файла из папки игры по ID
@@ -29,7 +30,7 @@ const putGameFile = async (id: number, filename: string, buffer: Buffer): Promis
             await minio.makeBucket("games");
 
         const file = await minio.putObject("games", `${id}/${filename}`, Readable.from(buffer));
-        
+        await redis.delWithLog(`game:${id}`);
         return true;
     }
     catch(err) {

@@ -5,6 +5,7 @@ import { UserDetails } from "@/types/user";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 import UserDetailsSchema from "@/schemas/userDetails";
+import getUser from "./getUser";
 
 /**
  * Получение данных о пользователе по почте
@@ -23,24 +24,13 @@ const getUserEmail = async (email: string): Promise<UserDetails> => {
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
-            validate(UserDetailsSchema, parsed);
-            return parsed as UserDetails;
+            return (await getUser(parsed));
         }
         catch(err) { await redisClient.delWithLog(cache_key); }
     }
 
     const result = await db.query<UserDetails>(`
-        SELECT
-            id,
-            active,
-            login,
-            description,
-            date_created,
-            date_deleted,
-            date_ban,
-            ban_count,
-            privacy,
-            role_id
+        SELECT login
         FROM "users"
         WHERE email = $1
     `, [ email ]);
@@ -48,10 +38,10 @@ const getUserEmail = async (email: string): Promise<UserDetails> => {
     if (result.rowCount === 0)
         throw new ContentError("getUserEmail", "errors.exists");
 
-    const obj: UserDetails = result.rows[0];
-    redisClient.writeWithLog(cache_key, JSON.stringify(obj));
+    const login: string = result.rows?.[0]?.login;
+    redisClient.writeWithLog(cache_key, String(login));
 
-    return obj;
+    return getUser(login);
 }
 
 export default getUserEmail;

@@ -9,7 +9,8 @@ const GameSchema = z.object({
     /** Title */
     title: z.string({ error: "errors.invalid.title" })
         .trim()
-        .nonempty({ error: "errors.empty.title" })
+        .nonempty({ error: "errors.invalid.title" })
+        .max(50, { error: "errors.max.title" })
         .nonoptional({ error: "errors.required.title" }),
     /** Version */
     version: z.string({ error: "errors.invalid.version" })
