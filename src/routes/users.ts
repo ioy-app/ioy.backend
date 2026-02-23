@@ -11,14 +11,16 @@ import {
     putUser,
     postUserSubscribe,
     getUserLikes,
-    putUserEmail
+    putUserEmail,
+    deleteUser
 } from "@controllers/users";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 
 const upload = multer();
 const Router = ExpressRouter();
 
-Router.put("/email", MiddlewareRequired, putUserEmail);
+Router.put("/change-email", MiddlewareRequired, putUserEmail);
+Router.post("/delete", MiddlewareRequired, deleteUser);
 Router.get("/:login", Middleware, getUser);
 Router.get("/:login/avatar", getUserAvatar);
 Router.get("/:login/favorites", getUserFavorites);

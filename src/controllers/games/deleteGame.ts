@@ -1,6 +1,5 @@
 import { createCode } from "@/services/codes";
 import { getGameById } from "@/services/games";
-import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
 import { Response } from "express";
 

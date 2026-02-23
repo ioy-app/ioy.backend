@@ -32,8 +32,6 @@ const checkCode = async (code: string): Promise<Code> => {
         throw new ContentError("checkCode", "errors.exists");
 
     const row: Code = result?.rows?.[0];
-    console.log(row);
-
     redis.writeWithLog(cache_key, JSON.stringify(row));
 
     return row;

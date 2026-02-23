@@ -5,6 +5,7 @@ import CodeLogin from "./types/codeLogin";
 import CodeChangeMail from "./types/codeChangeMail";
 import CodeDeleteGame from "./types/codeDeleteGame";
 import AuthRequest from "@/types/request";
+import CodeDeleteUser from "./types/codeDeleteUser";
 
 /**
  * Проверка кода подтверждения
@@ -27,7 +28,7 @@ const checkCode = async (req: Request, res: Response): Promise<void> => {
             return (await CodeChangeMail(payload, req, res));
         break;
         case "delete_user":
-
+            return (await CodeDeleteUser(payload, req, res));
         break;
         case "delete_game":
             return (await CodeDeleteGame(payload as { id: number}, req as AuthRequest, res));

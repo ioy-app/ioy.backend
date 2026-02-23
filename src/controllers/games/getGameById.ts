@@ -38,8 +38,11 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
 
     const authors_data: UserDetails[] = [];
     for (const uid of Array.from(new Set([data.creater_id, ...(data?.authors || [])]))) {
-        const login = await getUserLogin(uid);
-        authors_data.push(await getUser(login));
+        try {
+            const login = await getUserLogin(uid);
+            authors_data.push(await getUser(login));
+        }
+        catch(err) {}
     }
 
     const recomendator = await getGamesRecommendsByGame(data);

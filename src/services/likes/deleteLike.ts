@@ -25,8 +25,8 @@ const deleteLike = async (user_id: number, id: number, type: string = "game"): P
     `, [ user_id, id, type ]);
 
     if (result.rowCount != 0) {
-        redis.delWithLog(`likes_count:${type}:${id}`);
-        redis.delWithLog(`likes_check:${type}:${id}`);
+        await redis.delWithLog(`likes_count:${type}:${id}`);
+        await redis.delWithLog(`likes_check:${type}:${id}`);
         if (type == "game") {
             redis.delAllWithLog(`user_id:${user_id}:likes:*`);
             const game = await getGameById(id);
@@ -44,7 +44,11 @@ const deleteLike = async (user_id: number, id: number, type: string = "game"): P
             });
         }
         if (type == "comment")
-            redis.delWithLog(`comment:${id}`);
+            await redis.delWithLog(`comment:${id}`);
+
+        if (type == "game")
+            for (const { source_id } of result?.rows)
+                await redis.delAllWithLog(`user_id:${source_id}:likes:*`);
     }
 
     return true;

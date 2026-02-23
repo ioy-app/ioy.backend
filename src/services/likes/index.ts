@@ -4,6 +4,7 @@ import createLike from "./createLike";
 import deleteLike from "./deleteLike";
 import getLikesByComment from "./getLikesByComment";
 import getLikesByGame from "./getLikesByGame";
+import deleteLikes from "./deleteLikes";
 
 export {
     checkLikeByComment,
@@ -11,5 +12,6 @@ export {
     createLike,
     deleteLike,
     getLikesByComment,
-    getLikesByGame
+    getLikesByGame,
+    deleteLikes
 }

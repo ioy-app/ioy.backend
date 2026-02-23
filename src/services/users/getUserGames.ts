@@ -1,9 +1,7 @@
 import { z } from "zod";
 import db from "@lib/db";
-import IdSchema from "@schemas/id";
 import Game from "@/types/game";
 import validate from "@utils/validate";
-import getGameById from "@services/games/getGameById";
 import redis from "@/lib/redis";
 
 /**
@@ -32,7 +30,7 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 5): 
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
-            return [ parsed as Game[], parsed?.[0]?.total as number ];
+            return parsed;
         }
         catch(err) { await redis.delWithLog(cache_key); }
     }
@@ -48,18 +46,10 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 5): 
         OFFSET $2 LIMIT $3
     `, [ id, offset, limit ]);
 
-    const data: Game[] = [];
+    const data: number[] = result?.rows?.map(row => row?.id);
     const total: number = result?.rows?.[0]?.total || 0;
 
-    for (const row of result.rows) {
-        const content = await getGameById(row?.id)
-        data.push({
-            ...row,
-            ...content
-        });
-    }
-
-    redis.writeWithLog(cache_key, JSON.stringify(data));
+    redis.writeWithLog(cache_key, JSON.stringify([data, total]));
     return [ data, total ];
 }
 

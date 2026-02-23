@@ -1,3 +1,5 @@
+import Game from "@/schemas/game";
+import { getGameById } from "@/services/games";
 import getUserSubs from "@/services/subscribers/getUserSubs";
 import getUser from "@/services/users/getUser";
 import getUserId from "@/services/users/getUserId";
@@ -31,9 +33,14 @@ const getUserFavorites = async (req: Request, res: Response): Promise<void> => {
     
 
     const [ items, total ] = await getUserSubs(id, "game", offset, limit);
+    const data: Game[] = [];
+    for (const id of items) {
+        const game_data = await getGameById(id);
+        data.push(game_data);
+    }
     
     res.status(200).json({
-        items,
+        items: data,
         offset,
         limit,
         total

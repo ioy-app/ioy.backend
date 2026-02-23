@@ -3,6 +3,7 @@ import z from "zod";
 import checkSubscribe from "./checkSubscribe";
 import getUserSubs from "./getUserSubs";
 import putSubscribe from "./putSubscribe";
+import deleteSubs from "./deleteSubs";
 
 export const validObj = z.object({
     user_id: z.number({ error: "errors.invalid.id" })
@@ -19,5 +20,6 @@ export const validObj = z.object({
 export {
     checkSubscribe,
     getUserSubs,
-    putSubscribe
+    putSubscribe,
+    deleteSubs
 }

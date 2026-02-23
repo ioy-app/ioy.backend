@@ -6,6 +6,9 @@ import validate from "@/utils/validate";
 import { GameSchema } from "@/schemas/game";
 import minio from "@/lib/minio";
 import ContentError from "@/utils/ContentError";
+import { deleteLikes } from "../likes";
+import { deleteSubs } from "../subscribers";
+import { deleteComments } from "../comments";
 
 /**
  * Delete game
@@ -33,6 +36,11 @@ const deleteGame = async (id: number): Promise<boolean> => {
     await redis.delWithLog(`game:${id}`);
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${game.creater_id}:*`);
+
+    await deleteLikes(id, "game");
+    await deleteSubs(id, "game");
+    await deleteComments(id, "game");
+
     try {
         const isExists = await minio.bucketExists("games");
         if (!isExists)

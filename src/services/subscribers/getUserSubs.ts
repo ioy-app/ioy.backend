@@ -36,7 +36,7 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
     if (cached) {
         try {
             const parsed = JSON.parse(cached as string);
-            return [ parsed as getUserSubsProp, parsed?.[0]?.total as number ];
+            return parsed;
         }
         catch(err) { await redis.delWithLog(cache_key); }
     }
@@ -82,30 +82,10 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
         break;
     }
     
-    const data: getUserSubsProp = [];
+    const data: number[] = result?.rows?.map(row => row.id);
     const total: number = result?.rows?.[0]?.total || 0;
 
-    for (const row of result.rows) {
-        let content: User | Game;
-
-        switch(type) {
-            case "game":
-                content = await getGameById(row?.id);
-            break;
-            case "user": {
-                const login = await getUserLogin(Number(row?.id));
-                content = await getUser(login);
-            } break;
-        }
-        
-        if (content)
-            data.push({
-                ...row,
-                ...content
-            });
-    }
-
-    redis.writeWithLog(cache_key, JSON.stringify(data));
+    redis.writeWithLog(cache_key, JSON.stringify([data, total]));
     return [ data, total ];
 }
 
