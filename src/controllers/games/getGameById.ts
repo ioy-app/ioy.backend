@@ -45,7 +45,13 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         catch(err) {}
     }
 
-    const recomendator = await getGamesRecommendsByGame(data);
+    const recommendator_data = [];
+    const recommendator = await getGamesRecommendsByGame(data);
+    for (const g of recommendator) {
+        const game_data = await getGameByIdService(g.id);
+        recommendator_data.push(game_data);
+    }
+    
 
     let is_like: boolean;
     let is_subscribe: boolean;
@@ -63,7 +69,7 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         is_like,
         is_subscribe,
         is_me,
-        recomendator
+        recommendator: recommendator_data
     }
 
     res.status(200).json(obj as GameResponse);

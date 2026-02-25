@@ -1,18 +1,18 @@
 import { z } from "zod";
 import db from "@lib/db";
-import Game from "@/types/game";
 import validate from "@utils/validate";
 import redis from "@/lib/redis";
 
 /**
- * Получение списка игр пользователя
+ * Get games by user
  * 
- * @param id - ID Пользователя
- * @param offset - Отступ
- * @param limit - Лимит
+ * @param id - ID User
+ * @param offset - Offset
+ * @param limit - Limit
+ * @param sort - Order sort
  * @returns
 */
-const getUserGames = async (id: number, offset: number = 0, limit: number = 5): Promise<[Game[], number]> => {
+const getUserGames = async (id: number, offset: number = 0, limit: number = 20, sort: "new" | "old" = "new"): Promise<[number[], number]> => {
     validate(z.object({
         id: z.number({ error: "errors.invalid.id" })
             .nonnegative({ error: "errors.invalid.id" })
@@ -20,12 +20,14 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 5): 
         offset: z.number({ error: "errors.invalid.offset" })
             .nonnegative({ error: "errors.invalid.offset" })
             .optional(),
-        limit: z.number({ error: "erros.invlaid.limit" })
+        limit: z.number({ error: "errors.invlaid.limit" })
             .nonnegative({ error: "errors.invalid.limit" })
+            .optional(),
+        sort: z.enum([ "new", "old" ], { error: "errors.invalid.sort" })
             .optional()
-    }), { id, offset, limit }, "getUserGames");
+    }), { id, offset, limit, sort }, "getUserGames");
     
-    const cache_key = `user_id:${id}:games:${offset}:${limit}`;
+    const cache_key = `user_id:${id}:games:${offset}:${limit}:${sort}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
         try {
@@ -35,6 +37,11 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 5): 
         catch(err) { await redis.delWithLog(cache_key); }
     }
 
+    enum OrderEnum {
+        new="DESC",
+        old="ASC"
+    }
+
     const result = await db.query(`
         SELECT
             id,
@@ -42,7 +49,7 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 5): 
         FROM "games"
         WHERE creater_id = $1
         AND status = 'public'
-        ORDER BY date_created DESC
+        ORDER BY date_created ${OrderEnum[sort] || "DESC"}
         OFFSET $2 LIMIT $3
     `, [ id, offset, limit ]);
 

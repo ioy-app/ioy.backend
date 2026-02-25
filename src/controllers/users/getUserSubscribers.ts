@@ -15,6 +15,7 @@ const getUserSubscribers = async (req: Request, res: Response): Promise<void> =>
     const { login } = req.params;
     const offset: number = req.query.offset && Number(req.query.offset);
     const limit: number = req.query.limit && Number(req.query.limit);
+    const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
     const user = await getUser(login);
     if (!user?.privacy?.subscribers) {
@@ -28,7 +29,7 @@ const getUserSubscribers = async (req: Request, res: Response): Promise<void> =>
     }
 
     const id = await getUserId(login);
-    const [ items, total ] = await getUserSubs(id, "user", offset, limit);
+    const [ items, total ] = await getUserSubs(id, "user", offset, limit, sort);
     const data: User[] = [];
     for (const id of items) {
         const user_login = await getUserLogin(id);

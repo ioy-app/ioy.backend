@@ -28,10 +28,30 @@ enum TypePrivacy {
  * @param limit - Лимит записей
  * @returns
 */
-const getUserSubs = async (user_id: number, type: Type = "game", offset: number = 0, limit: number = 5): Promise<[getUserSubsProp, number]> => {
-    validate(validObj, { user_id, offset, limit }, "getUserSubs");
+const getUserSubs = async (
+    user_id: number,
+    type: Type = "game",
+    offset: number = 0,
+    limit: number = 5,
+    sort: "new" | "old" = "new"
+): Promise<[getUserSubsProp, number]> => {
+    validate(z.object({
+        user_id: z.number({ error: "errors.invalid.user_id" })
+            .nonnegative({ error: "errors.invalid.user_id" })
+            .nonoptional({ error: "errors.required.user_id" }),
+        offset: z.number({ error: "errors.invalid.offset" })
+            .nonnegative({ error: "errors.invalid.offset" })
+            .optional(),
+        limit: z.number({ error: "errors.invlaid.limit" })
+            .nonnegative({ error: "errors.invalid.limit" })
+            .optional(),
+        sort: z.enum([ "new", "old" ], { error: "errors.invalid.sort" })
+            .optional(),
+        type: z.enum([ "game", "user", "jam" ], { error: "errors.invalid.type" })
+            .optional()
+    }), { user_id, offset, limit, sort, type }, "getUserSubs");
 
-    const cache_key = `subscribers:${user_id}:${type}:${offset}:${limit}`;
+    const cache_key = `subscribers:${user_id}:${type}:${offset}:${limit}:${sort}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
         try {
@@ -39,6 +59,11 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
             return parsed;
         }
         catch(err) { await redis.delWithLog(cache_key); }
+    }
+
+    enum OrderEnum {
+        new="DESC",
+        old="ASC"
     }
 
     let result;
@@ -60,7 +85,7 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
                     g.id = s.target_id
                     AND g.status = 'public'
                 WHERE s.source_id = $1
-                ORDER BY s.date_created DESC
+                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
                 OFFSET $3 LIMIT $4
             `, [ user_id, type, offset, limit ])
         } break;
@@ -76,7 +101,7 @@ const getUserSubs = async (user_id: number, type: Type = "game", offset: number 
                     AND s.target_type = $2
                     AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
                 WHERE s.source_id = $1
-                ORDER BY s.date_created DESC
+                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
                 OFFSET $3 LIMIT $4
             `, [ user_id, type, offset, limit ]);
         break;

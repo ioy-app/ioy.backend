@@ -12,7 +12,7 @@ import { getGameById } from "@/services/games";
 */
 const getUserLikes = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
-    const { offset, limit } = req.query;
+    const { offset, limit, sort } = req.query;
 
     const user = await getUser(login);
     if (!user?.privacy?.likes) {
@@ -25,7 +25,12 @@ const getUserLikes = async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
-    const [ items, total ] = await getUserLikesService(Number(user.id), Number(offset || 0), Number(limit || 5));
+    const [ items, total ] = await getUserLikesService(
+        Number(user.id),
+        Number(offset || 0),
+        Number(limit || 5),
+        sort as ("new" | "old")
+    );
     const data: Game[] = [];
     for (const id of items) {
         const game_data = await getGameById(id);

@@ -1,13 +1,5 @@
-import db from "@lib/db";
-import path from "path";
-import fs from "fs";
-import CustomError from "../../utils/CustomError.js";
 import getGameById from "@/services/games/getGameById.js";
 import es from "@/lib/elasticsearch.js";
-import { SearchHit } from "node_modules/@elastic/elasticsearch/lib/api/types.js";
-import Game from "@/schemas/game.js";
-
-const work_dir = path.resolve("disk", "games");
 const per_page = 40;
 
 export default async function GetAll(req, res) {

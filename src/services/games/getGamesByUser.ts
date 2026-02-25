@@ -21,15 +21,20 @@ const getGamesByUser = async (
     offset: number = 0,
     limit: number = 10,
     status?: status,
-    search?: string
+    search?: string,
+    sort: "new" | "old" = "new"
 ): Promise<[number[], number]> => {
     validate(validObj, { user_id, offset, limit }, "getGamesByUser");
     validate(z.object({
         status: z.string({ error: "errors.invalid.status" }).optional(),
         search: z.string({ error: "errors.invalid.search" }).optional()
     }), { status, search }, "getGamesByUser");
+    validate(
+        z.enum([ "new", "old" ], { error: "errors.invalid.sort" })
+            .optional(),
+    sort, "getGamesByUser");
 
-    const cache_key: string = `games:user:${user_id}:${offset}:${limit}:${status}:${search}`;
+    const cache_key: string = `games:user:${user_id}:${offset}:${limit}:${status}:${search}:${sort}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
         try {
@@ -54,6 +59,11 @@ const getGamesByUser = async (
         opts.push(`%${search}%`);
     }
 
+    enum OrderEnum {
+        new="DESC",
+        old="ASC"
+    }
+
     const result = await db.query(`
         SELECT
             id,
@@ -62,7 +72,7 @@ const getGamesByUser = async (
         WHERE
             creater_id = $1
             ${filters?.length >= 1 && `AND ${filters.join(" AND ")}` || ""}
-        ORDER BY date_created DESC
+        ORDER BY date_created ${OrderEnum[sort] || "DESC"}
         OFFSET $2 LIMIT $3
     `, [ user_id, offset, limit, ...opts ]);
 

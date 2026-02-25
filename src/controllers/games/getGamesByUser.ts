@@ -15,8 +15,9 @@ const getGamesByUser = async (req: Request, res: Response): Promise<void> => {
     const limit: number = req.query.limit && Number(req.query.limit);
     const status: string = req.query?.status && String(req.query.status) || undefined;
     const search: string = req.query?.search && String(req.query.search) || undefined;
+    const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
     
-    const [ game_ids, total ] = await getGamesByUserService(Number(req.user_id), offset, limit, status as status, search);
+    const [ game_ids, total ] = await getGamesByUserService(Number(req.user_id), offset, limit, status as status, search, sort);
 
     const items: Game[] = [];
     for (const id of game_ids) {

@@ -15,6 +15,7 @@ const getUserFavorites = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
     const offset: number = req.query.offset && Number(req.query.offset);
     const limit: number = req.query.limit && Number(req.query.limit);
+    const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
     const user = await getUser(login);
     if (!user?.privacy?.favorites) {
@@ -32,7 +33,7 @@ const getUserFavorites = async (req: Request, res: Response): Promise<void> => {
 
     
 
-    const [ items, total ] = await getUserSubs(id, "game", offset, limit);
+    const [ items, total ] = await getUserSubs(id, "game", offset, limit, sort);
     const data: Game[] = [];
     for (const id of items) {
         const game_data = await getGameById(id);
