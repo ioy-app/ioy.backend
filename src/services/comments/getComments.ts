@@ -17,7 +17,8 @@ const getComments = async (
     id: number,
     offset: number = 0,
     limit: number = 10,
-    type: "game" | "comment" = "game"
+    type: "game" | "comment" = "game",
+    sort: "new" | "old" = "new"
 ): Promise<[number[], number]> => {
     validate(
         z.object({
@@ -38,8 +39,12 @@ const getComments = async (
             limit
         }
     );
+    validate(
+        z.enum([ "new", "old" ], { error: "errors.invalid.sort" })
+            .optional(),
+    sort, "getComments");
 
-    const cache_key = `comments:${type}:${id}:${offset}:${limit}`;
+    const cache_key = `comments:${type}:${id}:${offset}:${limit}:${sort}`;
     const cache = await redis.readWithLog(cache_key);
     if (cache) {
         try {
@@ -60,6 +65,11 @@ const getComments = async (
         catch(err) { await redis.delWithLog(cache_key); }
     }
 
+    enum OrderEnum {
+        new="DESC",
+        old="ASC"
+    }
+
     const query = await db.query(`
         SELECT
             id,
@@ -68,7 +78,7 @@ const getComments = async (
         WHERE
             target_id = $1
             AND target_type = $2
-        ORDER BY date_created DESC
+        ORDER BY date_created ${type == "game" ? (OrderEnum[sort] || "DESC") : "DESC"}
         OFFSET $3
         LIMIT $4
     `, [ id, type, offset, limit ]);
