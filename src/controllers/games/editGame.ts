@@ -21,13 +21,17 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
 
     if (req?.files?.icon?.[0]) {
         if (req?.files?.icon?.[0]?.size > (1 * 1024 * 1024))
-            throw new AccessError("putUser", "errors.icon_limit");
+            throw new AccessError("editGame", "errors.icon_limit");
+        if (req?.files?.icon?.[0]?.mimetype != "image/png")
+            throw new AccessError("editGame", "errors.icon_type");
         putGameFile(result.id, "icon.png", req.files.icon?.[0].buffer);
     }
 
     if (req?.files?.game?.[0]) {
         if (req?.files?.game?.[0]?.size > (25 * 1024 * 1024))
-            throw new AccessError("putUser", "errors.game_limit");
+            throw new AccessError("editGame", "errors.game_limit");
+        if (req?.files?.game?.[0]?.mimetype != "text/html")
+            throw new AccessError("editGame", "errors.game_type");
         putGameFile(result.id, "index.html", req.files.game?.[0].buffer);
     }
 

@@ -26,6 +26,9 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     if (req?.file && req?.file?.size > (1 * 1024 * 1024))
         throw new AccessError("putUser", "errors.avatar_limit");
 
+    if (req?.file && req?.file?.mimetype != "image/png")
+        throw new AccessError("putUser", "errors.avatar_type");
+
     const data = await putUserService(
         login,
         req.body,

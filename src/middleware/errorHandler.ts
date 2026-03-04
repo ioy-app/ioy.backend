@@ -31,9 +31,8 @@ const errorHandler = (err, req, res, next) => {
             msg: err?.message?.toString()
         });
     }
-
     return res.status(422).json({
-        msg: "Неизвестная ошибка"
+        msg: "errors.unknown"
     });
 }
 
