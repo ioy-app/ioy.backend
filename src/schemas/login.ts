@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-const LoginSchema = z.string()
-    .min(3, "Не может быть < 3 символов")
-    .max(50, "Не может превышать 50 символов")
-    .regex(/^[a-zA-Z0-9_-]+$/, "Не верный формат строки");
+const LoginSchema = z.string("errors.invalid.login")
+    .min(3, "errors.invalid.login")
+    .max(50, "errors.invalid.login")
+    .regex(/^[a-zA-Z0-9_-]+$/, "errors.invalid.login");
 
 export default LoginSchema;

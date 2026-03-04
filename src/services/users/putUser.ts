@@ -38,17 +38,18 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
     validate(LoginSchema, login, "putUser");
     validate(z.object({
         login: LoginSchema,
-        description: z.string({ error: "errors.invalid.descriptions" }).optional(),
+        description: z.string({ error: "errors.invalid.descriptions" })
+            .optional(),
         privacy: z.object({
             likes: z.boolean({ error: "errors.invalid.privacy.likes" })
-                    .nonoptional({ error: "errors.required.privacy.likes" }),
+                .optional(),
             favorites: z.boolean({ error: "errors.invalid.privacy.favorites" })
-                        .nonoptional({ error: "errors.required.privacy.favorites" }),
+                .optional(),
             subscribers: z.boolean({ error: "errors.invalid.privacy.subscribers" })
-                        .nonoptional({ error: "errors.required.privacy.subscribers" }),
+                .optional(),
             games: z.boolean({ error: "errors.invalid.privacy.games" })
-                    .nonoptional({ error: "errors.required.privacy.games" }),
-        })
+                .optional()
+        }).optional()
     }), params, "putUser");
 
     const id = await getUserId(login);
