@@ -63,8 +63,10 @@ const putSubscribe = async (
     await redis.delWithLog(`is_subscribe:${source_id}:${target_id}:${target_type}`);
     if (target_type == "user")
         await redis.delWithLog(`user_id:${target_id}:followers`);
-    if (target_type == "game")
+    if (target_type == "game") {
         await redis.delWithLog(`user_id:${target_id}:subscribers`);
+        await redis.delWithLog(`game:${target_id}:saves`);
+    }
     await redis.delAllWithLog(`subscribers:${source_id}:${target_type}:*`);
 
     return !isSubscribe;

@@ -4,6 +4,7 @@ import checkSubscribe from "./checkSubscribe";
 import getUserSubs from "./getUserSubs";
 import putSubscribe from "./putSubscribe";
 import deleteSubs from "./deleteSubs";
+import getGameSubs from "./getGameSubs";
 
 export const validObj = z.object({
     user_id: z.number({ error: "errors.invalid.id" })
@@ -21,5 +22,6 @@ export {
     checkSubscribe,
     getUserSubs,
     putSubscribe,
-    deleteSubs
+    deleteSubs,
+    getGameSubs
 }
