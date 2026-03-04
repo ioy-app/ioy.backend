@@ -79,7 +79,6 @@ const getUserSubs = async (
                 ON
                     u.id = s.source_id
                     AND s.target_type = $2
-                    AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
                 JOIN "games" g
                 ON
                     g.id = s.target_id
@@ -99,7 +98,6 @@ const getUserSubs = async (
                 ON
                     u.id = s.source_id
                     AND s.target_type = $2
-                    AND u.privacy->'${TypePrivacy[type]}' = 'true'::jsonb
                 WHERE s.source_id = $1
                 ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
                 OFFSET $3 LIMIT $4

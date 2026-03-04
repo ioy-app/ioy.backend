@@ -15,7 +15,7 @@ const getUserLikes = async (req: Request, res: Response): Promise<void> => {
     const { offset, limit, sort } = req.query;
 
     const user = await getUser(login);
-    if (!user?.privacy?.likes) {
+    if (!user?.privacy?.likes && (user.id != req?.user_id)) {
         res.status(200).json({
             items: [],
             offset,

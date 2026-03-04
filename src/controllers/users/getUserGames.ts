@@ -15,7 +15,7 @@ const getUserGames = async (req: Request, res: Response): Promise<void> => {
     const { offset, limit, sort } = req.query;
 
     const user = await getUser(login);
-    if (!user?.privacy?.games) {
+    if (!user?.privacy?.games && (user.id != req?.user_id)) {
         res.status(200).json({
             items: [],
             offset,

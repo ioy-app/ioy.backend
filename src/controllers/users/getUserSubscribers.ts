@@ -18,7 +18,9 @@ const getUserSubscribers = async (req: Request, res: Response): Promise<void> =>
     const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
     const user = await getUser(login);
-    if (!user?.privacy?.subscribers) {
+    const id = await getUserId(login);
+
+    if (!user?.privacy?.subscribers && (user.id != req?.user_id)) {
         res.status(200).json({
             items: [],
             offset,
@@ -27,8 +29,7 @@ const getUserSubscribers = async (req: Request, res: Response): Promise<void> =>
         });
         return;
     }
-
-    const id = await getUserId(login);
+    
     const [ items, total ] = await getUserSubs(id, "user", offset, limit, sort);
     const data: User[] = [];
     for (const id of items) {

@@ -18,7 +18,7 @@ const getUserFavorites = async (req: Request, res: Response): Promise<void> => {
     const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
     const user = await getUser(login);
-    if (!user?.privacy?.favorites) {
+    if (!user?.privacy?.favorites && (user.id != req?.user_id)) {
         res.status(200).json({
             items: [],
             offset,
