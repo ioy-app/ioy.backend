@@ -20,10 +20,14 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
     const result = await editGameService(id, req.body);
 
     if (req?.files?.icon?.[0]) {
+        if (req?.files?.icon?.[0]?.size > (1 * 1024 * 1024))
+            throw new AccessError("putUser", "errors.icon_limit");
         putGameFile(result.id, "icon.png", req.files.icon?.[0].buffer);
     }
 
     if (req?.files?.game?.[0]) {
+        if (req?.files?.game?.[0]?.size > (25 * 1024 * 1024))
+            throw new AccessError("putUser", "errors.game_limit");
         putGameFile(result.id, "index.html", req.files.game?.[0].buffer);
     }
 

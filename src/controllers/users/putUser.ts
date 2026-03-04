@@ -4,6 +4,7 @@ import putUserService from "@/services/users/putUser.js";
 import { Multer } from "multer";
 import getUser from "@/services/users/getUser";
 import AccessError from "@/utils/AccessError";
+import ContentError from "@/utils/ContentError";
 
 /**
  * Редактирование пользовательских данных
@@ -21,6 +22,9 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     const userdata = await getUser(login);
     if (userdata.id != req.user_id)
         throw new AccessError("putUser", "errors.denied");
+
+    if (req?.file && req?.file?.size > (1 * 1024 * 1024))
+        throw new AccessError("putUser", "errors.avatar_limit");
 
     const data = await putUserService(
         login,
