@@ -10,6 +10,7 @@ import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame"
 import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
 import minio from "@/lib/minio";
+import { getRole } from "@/services/roles";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -56,11 +57,16 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     let is_like: boolean;
     let is_subscribe: boolean;
     let is_me: boolean;
+    let roledata = {};
     if (req.token) {
         const { id: user_id } = await verify(req.token);
+        const login = await getUserLogin(Number(user_id));
+        const userdata = await getUser(login);
         is_like = await checkLikeByGame(Number(user_id), Number(id));
         is_subscribe = await checkSubscribe(Number(user_id), Number(id), "game");
         is_me = Boolean(Number(user_id) == Number(data.creater_id))
+        const role = await getRole(userdata.role_id);
+        roledata = role;
     }
 
     const obj = {
@@ -69,7 +75,8 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         is_like,
         is_subscribe,
         is_me,
-        recommendator: recommendator_data
+        recommendator: recommendator_data,
+        roledata
     }
 
     res.status(200).json(obj as GameResponse);

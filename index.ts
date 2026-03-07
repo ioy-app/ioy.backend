@@ -18,6 +18,8 @@ import Sessions from "@routes/sessions";
 import CodesRouter from "@routes/codes";
 import JamsRouter from "@routes/jams";
 import CommentsRouter from "@/routes/comments";
+import ReportRouter from "@/routes/reports";
+
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
 import jobClearCodes from "@/services/codes/jobClearCodes";
@@ -50,6 +52,7 @@ RouterV1.use("/sessions", Sessions);
 RouterV1.use("/roles", RolesRouter);
 RouterV1.get("/search", Search);
 RouterV1.use("/jams", JamsRouter);
+RouterV1.use("/reports", ReportRouter);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
