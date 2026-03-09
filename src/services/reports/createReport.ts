@@ -3,6 +3,7 @@ import getReport from "./getReport";
 import validate from "@/utils/validate";
 import z from "zod";
 import { IdSchemaCustom } from "@/schemas/id";
+import redis from "@/lib/redis";
 
 /**
  * Create new report for instance
@@ -57,6 +58,7 @@ const createReport = async (
         return null;
 
     const id = result?.rows?.[0]?.id;
+    await redis.delAllWithLog(`reports:*`);
     return (await getReport(id));
 }
 

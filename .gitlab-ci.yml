@@ -1,33 +1,14 @@
 stages:
   - build
-  - test
-  - reload
 
-build:
+Building:
   stage: build
+  tags:
+    - shell 
   script:
-    - echo "test build"
-
-docker-build:
-  stage: build
-  needs: ["build"]
-  script:
-    - echo "test docker build container"
-
-unit-tests:
-  stage: test
-  needs: ["docker-build"]
-  script:
-    - echo "unit test is testing"
-
-load-tests:
-  stage: test
-  needs: ["docker-build"]
-  script:
-    - echo "load tests is testing"
-
-reload:
-  stage: reload
-  needs: ["load-tests", "unit-tests"]
-  script:
-    - echo "reload is test"
+    - |
+      #!/bin/bash
+      docker image prune -f
+      docker build -t backend .
+  only:
+    - develop

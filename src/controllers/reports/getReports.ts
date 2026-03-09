@@ -33,9 +33,11 @@ const getReports = async(req: Request, res: Response): Promise<void> => {
                     const login = await getUserLogin(report.target_id);
                     instance = await getUser(login);
                 } break;
-                case "comment":
+                case "comment": {
                     instance = await getComment(report.target_id);
-                break;
+                    const login = await getUserLogin(instance.source_id);
+                    instance.userdata = await getUser(login);
+                } break;
                 case "jam":
                     instance = await getJam(report.target_id);
                 break;
