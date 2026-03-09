@@ -24,11 +24,9 @@ const Reg = async (req: Request, res: Response): Promise<void> => {
                     type: "reg",
                     subject: `Welcome, ${login}!`,
                     email,
-                    login,
                     props: {
                         login,
-                        email,
-                        code: ''
+                        email
                     }
                 })
             }
