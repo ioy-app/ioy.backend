@@ -1,7 +1,9 @@
 import { Client } from "@elastic/elasticsearch";
+import dotenv from "dotenv";
+dotenv.config();
 
 const es = new Client({
-    node: "http://localhost:9200",
+    node: process.env.ES_URL,
     requestTimeout: 5000,
     sniffOnStart: false,
     sniffOnConnectionError: false
