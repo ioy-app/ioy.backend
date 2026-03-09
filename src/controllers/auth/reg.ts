@@ -27,7 +27,8 @@ const Reg = async (req: Request, res: Response): Promise<void> => {
                     login,
                     props: {
                         login,
-                        email
+                        email,
+                        code: ''
                     }
                 })
             }

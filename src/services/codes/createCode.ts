@@ -42,25 +42,29 @@ const createCode = async (user_id: number, payload: Record<string, any>): Promis
     if (user_result.rowCount === 0)
         throw new AccessError("createCode", "errors.denied");
 
-    // await producer.connect();
-    // await producer.send({
-    //     topic: "notify",
-    //     messages: [
-    //         {
-    //             key: `verify:${user_id}:${created.payload?.type}`,
-    //             value: JSON.stringify({
-    //                 type: "code",
-    //                 subject: `Verify`,
-    //                 email: user_result?.rows?.[0]?.email,
-    //                 props: {
-    //                     code: created.code,
-    //                     action: created.payload?.type
-    //                 }
-    //             })
-    //         }
-    //     ]
-    // });
-    // await producer.disconnect();
+    try {
+        await producer.connect();
+        await producer.send({
+            topic: "notify",
+            messages: [
+                {
+                    key: `verify:${user_id}:${created.payload?.type}`,
+                    value: JSON.stringify({
+                        type: "code",
+                        subject: `Verify`,
+                        email: user_result?.rows?.[0]?.email,
+                        props: {
+                            code: created.code,
+                            action: created.payload?.type
+                        }
+                    })
+                }
+            ]
+        });
+        await producer.disconnect();
+        console.log("send code");
+    }
+    catch(err) { console.log(err); }
 
     redis.writeWithLog(`code:${created.code}`, JSON.stringify(created));
     return created;
