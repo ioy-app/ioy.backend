@@ -86,7 +86,10 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
             await minio.removeObject("users", `${login}.png`);
         }
     }
-    catch(err) { throw new ContentError("putUser", "errors.exists"); }
+    catch(err) {
+        console.log(err);
+        throw new ContentError("putUser", "errors.exists");
+    }
     
     await redis.delWithLog(`user:${login}`);
     await redis.delAllWithLog(`user_id:${id}:*`);
