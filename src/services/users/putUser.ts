@@ -74,10 +74,13 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
         if (!isExists)
             await minio.makeBucket("users");
 
+        console.log(file);
+
         if (file)
             await minio.putObject("users", `${login}.png`, Readable.from(file));
 
         const isFile = await minio.checkFileExists("users", `${login}.png`);
+        console.log(isFile);
         if (isFile && data_updated.login != login) {
             await minio.copyObject("users", `${data_updated.login}.png`, `users/${login}.png`);
             await minio.removeObject("users", `${login}.png`);
