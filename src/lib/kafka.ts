@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const kafka = new Kafka({
-    clientId: "web.platform",
+    clientId: "ioy.app",
     brokers: [ process.env.KAFKA_BROKER ]
 });
 
