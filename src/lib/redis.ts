@@ -1,8 +1,12 @@
 
 import { Redis } from "ioredis";
+import dotenv from "dotenv";
+dotenv.config();
 
 const CACHE_TTL: number = 600;
-const cluster = new Redis();
+const cluster = new Redis({
+    host: process.env.REDIS_URL
+});
 
 cluster.on('connect', () => console.log('[redis] connect'));
 cluster.on('ready', () => console.log('[redis] ready'));
