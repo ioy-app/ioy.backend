@@ -11,7 +11,7 @@ interface MinioCustom {
 type SubMinio = Client & MinioCustom;
 
 const minio = new Client({
-    endPoint: "localhost",
+    endPoint: process.env.MINIO_URL || "localhost",
     port: 9000,
     useSSL: false,
     accessKey: process.env.MINIO_ACCESS_KEY,
