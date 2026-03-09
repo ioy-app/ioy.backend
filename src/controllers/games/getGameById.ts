@@ -47,11 +47,14 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     }
 
     const recommendator_data = [];
-    const recommendator = await getGamesRecommendsByGame(data);
-    for (const g of recommendator) {
-        const game_data = await getGameByIdService(g.id);
-        recommendator_data.push(game_data);
+    try {
+        const recommendator = await getGamesRecommendsByGame(data);
+        for (const g of recommendator) {
+            const game_data = await getGameByIdService(g.id);
+            recommendator_data.push(game_data);
+        }
     }
+    catch(err) {}
     
 
     let is_like: boolean;
