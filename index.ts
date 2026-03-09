@@ -26,18 +26,18 @@ import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
 import Search from "@/controllers/search";
 
-// const limiter = rateLimit({
-//   windowMs: 1000 * 60 * 10,
-//   limit: 100,
-//   legacyHeaders: false,
-//   message: "errors.limit"
-// });
+const limiter = rateLimit({
+  windowMs: 1000 * 60 * 10,
+  limit: 2000,
+  legacyHeaders: false,
+  message: "errors.limit"
+});
 
 // app.use(limiter);
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(cors({
-  origin: "*", //"http://localhost:8080",
+  origin: "https://ioy.app",
   credentials: true
 }));
 
