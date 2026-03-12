@@ -21,12 +21,12 @@ const deleteLike = async (user_id: number, id: number, type: string = "game"): P
     const result = await db.query(`
         DELETE FROM "likes"
         WHERE source_id = $1 AND target_id = $2 AND target_type = $3
-        RETURNING id
+        RETURNING id, source_id
     `, [ user_id, id, type ]);
 
     if (result.rowCount != 0) {
         await redis.delWithLog(`likes_count:${type}:${id}`);
-        await redis.delWithLog(`likes_check:${type}:${id}`);
+        await redis.delWithLog(`likes_check:${type}:${id}:${user_id}`);
         if (type == "game") {
             redis.delAllWithLog(`user_id:${user_id}:likes:*`);
             const game = await getGameById(id);
@@ -47,8 +47,9 @@ const deleteLike = async (user_id: number, id: number, type: string = "game"): P
             await redis.delWithLog(`comment:${id}`);
 
         if (type == "game")
-            for (const { source_id } of result?.rows)
-                await redis.delAllWithLog(`user_id:${source_id}:likes:*`);
+            for (const row of result?.rows) {
+                await redis.delAllWithLog(`user_id:${row?.source_id}:likes:*`);
+            }
     }
 
     return true;

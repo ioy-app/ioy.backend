@@ -23,7 +23,7 @@ const deleteLikes = async (
         await redis.delWithLog(`comment:${id}`);
 
     await redis.delWithLog(`likes_count:${type}:${id}`);
-    await redis.delWithLog(`likes_check:${type}:${id}`);
+    await redis.delAllWithLog(`likes_check:${type}:${id}:*`);
 
     return true;
 }

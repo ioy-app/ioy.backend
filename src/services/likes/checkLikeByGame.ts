@@ -14,7 +14,7 @@ const checkLikeByGame = async (user_id: number, id: number): Promise<boolean> =>
     validate(IdSchema, id);
     validate(IdSchema, user_id);
 
-    const cache_key = `likes_check:game:${id}`;
+    const cache_key = `likes_check:game:${id}:${user_id}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached)
         return cached == "true" ? true : false;

@@ -14,7 +14,7 @@ const checkLikeByComment = async (user_id: number, id: number): Promise<boolean>
     validate(IdSchema, id);
     validate(IdSchema, user_id);
 
-    const cache_key = `likes_check:comment:${id}`;
+    const cache_key = `likes_check:comment:${id}:${user_id}`;
     let cached = await redis.readWithLog(cache_key);
     
     if (cached)
