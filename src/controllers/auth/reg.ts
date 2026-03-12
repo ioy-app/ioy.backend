@@ -1,6 +1,10 @@
 import kafka from "@/lib/kafka";
 import createUser from "@services/users/createUser";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const producer = kafka.producer();
 
@@ -12,7 +16,14 @@ const producer = kafka.producer();
 */
 const Reg = async (req: Request, res: Response): Promise<void> => {
     const { login, email } = req.body;
-    await createUser(login, email);
+    const id = await createUser(login, email);
+
+    const verify_code = jwt.sign({
+        id,
+        login
+    }, process.env.SECRET, {
+        expiresIn: "3d"
+    });
     
     await producer.connect();
     await producer.send({
@@ -26,7 +37,8 @@ const Reg = async (req: Request, res: Response): Promise<void> => {
                     email,
                     props: {
                         login,
-                        email
+                        email,
+                        verify_code
                     }
                 })
             }
