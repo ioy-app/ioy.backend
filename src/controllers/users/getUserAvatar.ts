@@ -1,4 +1,8 @@
+import getUser from "@/services/users/getUser";
+import { UserDetails } from "@/types/user";
+import AccessError from "@/utils/AccessError";
 import getUserAvatarService from "@services/users/getUserAvatar";
+import dayjs from "dayjs";
 import { Request, Response } from "express";
 
 /**
@@ -11,6 +15,12 @@ const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
     try {
+
+        const data: UserDetails = await getUser(login);
+
+        if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
+            throw new AccessError("getUserAvatar", "errors.denied");
+
         const fileStream = await getUserAvatarService(login);
 
         //res.setHeader("Content-Type", "application/octet-stream");

@@ -6,6 +6,9 @@ import { NextFunction, Response } from "express";
 import Request from "@/types/request.js";
 import AccessError from "@/utils/AccessError.js";
 import getSession from "@/services/sessions/getSession.js";
+import getUserLogin from "@/services/users/getUserLogin.js";
+import getUser from "@/services/users/getUser.js";
+import dayjs from "dayjs";
 
 interface JWTResponse extends jwt.JwtPayload {
     /** ID */
@@ -41,17 +44,23 @@ const MiddlewareRequired = async (req: Request, res: Response, next: NextFunctio
     const token: string = authHeader && authHeader.split(" ")[1];
 
     if (!token)
-        throw new AccessError("MiddlewareRequired", "errors.access.denied");
+        throw new AccessError("MiddlewareRequired", "errors.denied");
 
     const { id, refresh_id } = jwt.verify(token, secret) as JWTResponse;
 
     if (!id && !refresh_id)
-        throw new AccessError("MiddlewareRequired", "errors.access.denied");
+        throw new AccessError("MiddlewareRequired", "errors.denied");
 
     req.token = token;
     req.user_id = id;
     req.is_access = true;
     req.refresh_id = refresh_id;
+
+    const login = await getUserLogin(id);
+    const userdata = await getUser(login);
+    if (userdata?.date_ban && dayjs(userdata?.date_ban).isAfter(dayjs())) {
+        throw new AccessError("MiddlewareRequired", "errors.denied");
+    }
 
     next();
 }

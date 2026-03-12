@@ -6,6 +6,7 @@ import validate from "@utils/validate";
 import redisClient from "@lib/redis";
 import UserDetailsSchema from "@/schemas/userDetails";
 import minio from "@/lib/minio";
+import dayjs from "dayjs";
 
 /**
  * Получение информации о пользователе
@@ -51,7 +52,7 @@ const getUser = async (login: string): Promise<UserDetails> => {
     
     const user: UserDetails = result.rows[0];
     const isAvatar = await minio.checkFileExists("users", `${login}.png`);
-    user.is_avatar = isAvatar;
+    user.is_avatar = isAvatar && !(user?.date_ban && dayjs(user?.date_ban).isAfter(dayjs()));
 
     redisClient.writeWithLog(cache_key, JSON.stringify(user));
 

@@ -5,6 +5,8 @@ import getUserControls from "@services/users/getUserControls";
 import verify from "@utils/verify";
 import { UserDetails } from "@/types/user";
 import Request from "@/types/request";
+import dayjs from "dayjs";
+import AccessError from "@/utils/AccessError";
 
 /**
  * Получение информации о пользователе, подписчиках
@@ -17,6 +19,10 @@ const getUser = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
     const data: UserDetails = await getUserService(login);
+
+    if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
+        throw new AccessError("getUser", "errors.denied");
+
     data.subscribers = await getUserFollowers(data.id);
 
     if (req.token) {
