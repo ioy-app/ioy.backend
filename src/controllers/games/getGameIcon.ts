@@ -12,7 +12,7 @@ const getGameIcon = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     try {
-        const stream = await getGameFile(Number(id), "icon.png");
+        const { stream } = await getGameFile(Number(id), "icon.png");
         //res.setHeader("Content-Type", "application/octet-stream");
         res.setHeader("Content-Type", "image/png");
         res.setHeader("Cache-Control", "public, max-age=300");

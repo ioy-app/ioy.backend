@@ -12,7 +12,7 @@ const getGamePlay = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     
     try {
-        const stream = await getGameFile(Number(id), "index.html");
+        const { stream } = await getGameFile(Number(id), "files/index.html");
         res.setHeader("Content-Type", "text/html");
 
         stream.on("error", () => {

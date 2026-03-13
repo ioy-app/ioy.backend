@@ -14,7 +14,6 @@ const Search = async (req: Request, res: Response): Promise<void> => {
     const limit: number = req.query.limit && Number(req.query.limit);
 
     const [ items, total ] = await searchGames(search, offset, limit);
-    console.log(items);
     const data: Game[] = [];
     for (const id of items) {
         
