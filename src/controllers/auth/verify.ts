@@ -14,7 +14,6 @@ const Verify = async(req: Request, res: Response): Promise<void> => {
     throw new ContentError("Verify", "errors.exists");
 
   await activeUser(code);
-
   res.status(200).end();
 }
 
