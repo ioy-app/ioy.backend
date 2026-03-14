@@ -40,6 +40,8 @@ app.use(cors({
   origin: "https://ioy.app",
   credentials: true
 }));
+app.set("trust proxy", true);
+app.use(limiter);
 
 const RouterV1 = express.Router();
 

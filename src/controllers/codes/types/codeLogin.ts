@@ -12,9 +12,8 @@ import { Request, Response } from "express";
 */
 const CodeLogin = async (payload: any, req: Request, res: Response): Promise<void> => {
     const user = await getUserEmail(payload?.email);
-    console.log(user);
     const { id, login, is_avatar } = user;
-    const session = await createSession(id, req.ip, req.get("User-Agent"));
+    const session = await createSession(id, req.ip?.split(":")?.at(-1), req.get("User-Agent"));
 
     res.cookie("refresh_token", session.token, {
         httpOnly: true,
