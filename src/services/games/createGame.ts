@@ -19,63 +19,92 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
     }), props, "createGame");
     validate(GameSchema.pick({ creater_id: true }), { creater_id: user_id }, "createGame");
 
-    const {
-        title,
-        version,
-        description,
-        tags,
-        authors,
-        status
-    } = props;
+    const keys = Object.keys(props).filter(prop => [
+        "title",
+        "version",
+        "description",
+        "tags",
+        "status",
+        "creater_id",
+        "jam_id"
+    ].includes(prop));
+    const values = keys.map(key => props[key]);
 
-    const result = await db.query(`
+    if (props?.authors?.length) {
+        keys.push("authors");
+        values.push(props?.authors || []);
+    }
+
+    keys.push("creater_id");
+    values.push(user_id);
+
+    const result = await db.query<Game[]>(`
         INSERT INTO "games" (
-            creater_id,
+            ${keys?.join(",")}
+        )
+        VALUES (
+            ${keys?.map((_, i: number) => `$${i + 1}`)?.join(",")}
+        )
+        RETURNING 
+            id,
             title,
             version,
             description,
             tags,
+            status,
+            creater_id,
             authors,
-            status
-        )
-        VALUES (
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7
-        )
-        RETURNING id, date_created
-    `, [
-        user_id,
-        title,
-        version,
-        description,
-        tags,
-        authors,
-        status
-    ]);
+            jam_id,
+            date_created,
+            date_updated
+    `, [ ...values ]);
+
+    // const {
+    //     title,
+    //     version,
+    //     description,
+    //     tags,
+    //     authors,
+    //     status
+    // } = props;
+
+    // const result = await db.query(`
+    //     INSERT INTO "games" (
+    //         creater_id,
+    //         title,
+    //         version,
+    //         description,
+    //         tags,
+    //         authors,
+    //         status
+    //     )
+    //     VALUES (
+    //         $1,
+    //         $2,
+    //         $3,
+    //         $4,
+    //         $5,
+    //         $6,
+    //         $7
+    //     )
+    //     RETURNING id, date_created
+    // `, [
+    //     user_id,
+    //     title,
+    //     version,
+    //     description,
+    //     tags,
+    //     authors,
+    //     status
+    // ]);
 
     if (result.rowCount === 0)
         throw new ContentError("createGame", "errors.denied");
 
-    const id: number = result.rows?.[0]?.id;
-    const date_created: string = result.rows?.[0]?.date_created;
-    const cache_key = `game:${id}`;
+    const game: Game = result?.rows?.[0];
+    const cache_key = `game:${game?.id}`;
 
-    const game: Game = {
-        id,
-        title,
-        version,
-        description,
-        tags,
-        authors,
-        status,
-        creater_id: user_id,
-        date_created
-    }
+    
     redis.writeWithLog(cache_key, JSON.stringify(game));
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${user_id}:*`);

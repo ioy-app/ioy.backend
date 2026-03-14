@@ -31,8 +31,10 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
     ].includes(prop));
     const values = keys.map(key => props[key]);
 
-    keys.push("authors");
-    values.push(props?.authors || []);
+    if (props?.authors?.length) {
+        keys.push("authors");
+        values.push(props?.authors || []);
+    }
 
     const result = await db.query<Game[]>(`
         UPDATE "games"
