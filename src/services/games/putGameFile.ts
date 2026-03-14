@@ -37,7 +37,7 @@ const putGameFile = async (id: number, filename: string, buffer: Buffer, size: n
     }
     catch(err) {
         console.log(err);
-        throw new ContentError("putGameFile", "errors.exists");
+        //throw new ContentError("putGameFile", "errors.exists");
     }
 
     return false;
