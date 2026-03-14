@@ -24,7 +24,8 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
             throw new AccessError("editGame", "errors.icon_limit");
         if (req?.files?.icon?.[0]?.mimetype != "image/png")
             throw new AccessError("editGame", "errors.icon_type");
-        putGameFile(id, "icon.png", req.files.icon?.[0].buffer);
+        
+        putGameFile(id, "icon.png", req.files.icon?.[0]?.buffer, req.files.icon?.[0]?.size);
     }
 
     if (req?.files?.game) {
@@ -39,7 +40,7 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
         await removeAllFilesInFolder("games", `${id}/files/`);
         for (const file of files) {
             const path = file?.originalname?.split("/")?.slice(1)?.join("/");
-            putGameFile(id, `files/${path}`, file?.buffer);
+            putGameFile(id, `files/${path}`, file?.buffer, file.size);
         }
     }
 

@@ -32,7 +32,7 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
         const files = req?.files?.game;
         for (const file of files) {
             const path = file?.originalname?.split("/")?.slice(1)?.join("/");
-            putGameFile(result.id, `files/${path}`, file?.buffer);
+            putGameFile(result.id, `files/${path}`, file?.buffer, file.size);
         }
     }
 

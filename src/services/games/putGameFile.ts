@@ -7,6 +7,7 @@ import path from "path";
 import minio from "@/lib/minio";
 import Stream, { Readable } from "stream";
 import redis from "@/lib/redis";
+import mime from "mime-types";
 
 /**
  * Сохранение/изменение файла из папки игры по ID
@@ -16,7 +17,7 @@ import redis from "@/lib/redis";
  * @param {Buffer} buffer Содержание файла
  * @returns {Promise<Stream.Readable>}
 */
-const putGameFile = async (id: number, filename: string, buffer: Buffer): Promise<boolean> => {
+const putGameFile = async (id: number, filename: string, buffer: Buffer, size: number): Promise<boolean> => {
     validate(IdSchema, id);
     validate(
         z.string({ error: "errors.invalid.filename" })
@@ -28,7 +29,8 @@ const putGameFile = async (id: number, filename: string, buffer: Buffer): Promis
         const isExists = await minio.bucketExists("games");
         if (!isExists)
             await minio.makeBucket("games");
-
+        if (!size)
+            return true;
         const file = await minio.putObject("games", `${id}/${filename}`, Readable.from(buffer));
         await redis.delWithLog(`game:${id}`);
         return true;
