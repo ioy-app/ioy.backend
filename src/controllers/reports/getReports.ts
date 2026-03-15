@@ -6,6 +6,8 @@ import getUserLogin from "@/services/users/getUserLogin";
 import getUser from "@/services/users/getUser";
 import { getComment } from "@/services/comments";
 import { getJam } from "@/services/jams";
+import { getRole } from "@/services/roles";
+import AccessError from "@/utils/AccessError";
 
 /**
  * Get reports list
@@ -18,6 +20,13 @@ const getReports = async(req: Request, res: Response): Promise<void> => {
 
     const items = [];
     const data = await getReportsService(offset, limit);
+
+    const login = await getUserLogin(req?.user_id);
+    const userdata = await getUser(login);
+    const roledata = await getRole(userdata.role_id);
+
+    if (!roledata.is_view_reports)
+        throw new AccessError("getReports", "errors.denied");
 
     for (const id of data[0]) {
         const report = await getReport(id);

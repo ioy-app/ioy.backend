@@ -5,6 +5,8 @@ export default interface Role {
     title?: string;
     /** Возможность банить */
     is_ban?: boolean;
+    
+    is_view_reports?: boolean;
     /** Предупреждение играм */
     is_warning_games?: boolean;
     /** Предупреждение пользователям */
