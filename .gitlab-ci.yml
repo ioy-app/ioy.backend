@@ -1,0 +1,16 @@
+stages:
+  - build
+
+Building:
+  stage: build
+  tags:
+    - shell 
+  script:
+    - |
+      #!/bin/bash
+      docker image prune -f
+      docker build -t backend .
+      cd /opt/ioy.app
+      docker compose up -d
+  only:
+    - master
