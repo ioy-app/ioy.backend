@@ -10,5 +10,7 @@ Building:
       #!/bin/bash
       docker image prune -f
       docker build -t backend .
+      cd /opt/ioy.app
+      docker compose up -d
   only:
-    - develop
+    - master
