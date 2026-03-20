@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { IdSchemaCustom } from "@/schemas/id";
 import Jam, { JamSchema } from "@/schemas/jam";
@@ -34,6 +35,7 @@ const getJam = async (id: number): Promise<Jam> => {
         return null;
 
     const data: Jam = result.rows[0];
+    data.is_avatar = await minio.checkFileExists("jams", `${id}/icon.png`);
     redis.writeWithLog(cache_key, JSON.stringify(data));
     
     return data;
