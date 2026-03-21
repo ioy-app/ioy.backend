@@ -1,8 +1,9 @@
 import minio from "@/lib/minio";
-import { putGameFile } from "@/services/games";
+import { getGamesByUser, putGameFile } from "@/services/games";
 import createGameService from "@/services/games/createGame";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
+import ContentError from "@/utils/ContentError";
 import { Response } from "express";
 
 /**
@@ -16,11 +17,20 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
     if (req?.files?.game) {
         const totalsize = req?.files?.game?.reduce((a, b) => a + b.size, 0);
         if (totalsize > (32 * 1024 * 1024))
-            throw new AccessError("editGame", "errors.game_limit");
+            throw new AccessError("createGame", "errors.game_limit");
         const files = req?.files?.game;
         if (!files?.filter(file => file?.originalname?.split("/")?.slice(1)?.join("/") == "index.html")?.length)
-            throw new AccessError("editGame", "errors.indexhtml");
+            throw new AccessError("createGame", "errors.indexhtml");
     }
+
+    const [ games, total_games ] = await getGamesByUser(
+        Number(user_id),
+        0, 1,
+        "draft"
+    );
+
+    if ((total_games + 1) > 5)
+        throw new ContentError("createGame", "errors.draft_limit");
 
     const result = await createGameService(Number(user_id), req.body);
 

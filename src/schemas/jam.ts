@@ -18,8 +18,6 @@ const JamSchema = z.object({
         .nonoptional({ error: "errors.required.theme" }),
     /** Description */
     description: z.string({ error: "errors.invalid.description" })
-        .trim()
-        .nonempty({ error: "errors.invalid.description" })
         .optional(),
     /** Nominations */
     nominations: z.array(
@@ -48,16 +46,16 @@ const JamSchema = z.object({
         "members"
     ], { error: "errors.invalid.vote_type" }),
     /** Jam's date started */
-    date_started: z.iso.datetime({ error: "errors.invalid.date_started" })
+    date_started: z.string({ error: "errors.invalid.date_started" })
         .nonoptional({ error: "errors.required.date_started" }),
     /** Jam's date finished */
-    date_finished: z.iso.datetime({ error: "errors.invalid.date_finished" })
+    date_finished: z.string({ error: "errors.invalid.date_finished" })
         .nonoptional({ error: "errors.required.date_finished" }),
     /** Jam's vote date started */
-    date_vote_started: z.iso.datetime({ error: "errors.invalid.date_vote_started" })
+    date_vote_started: z.string({ error: "errors.invalid.date_vote_started" })
         .nonoptional({ error: "errors.required.date_vote_started" }),
     /** Jam's vote date finished */
-    date_vote_finished: z.iso.datetime({ error: "errors.invalid.date_vote_finished" })
+    date_vote_finished: z.string({ error: "errors.invalid.date_vote_finished" })
         .nonoptional({ error: "errors.required.date_vote_finished" })
 });
 
