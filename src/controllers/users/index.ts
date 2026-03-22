@@ -9,6 +9,7 @@ import postUserSubscribe from "./postUserSubscribe";
 import getUserLikes from "./getUserLikes";
 import putUserEmail from "./putUserEmail";
 import deleteUser from "./deleteUser";
+import getUserSelf from "./getUserSelf";
 
 export {
     getUser,
@@ -21,5 +22,6 @@ export {
     postUserSubscribe,
     getUserLikes,
     putUserEmail,
-    deleteUser
+    deleteUser,
+    getUserSelf
 }

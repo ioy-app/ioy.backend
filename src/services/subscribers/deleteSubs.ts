@@ -24,6 +24,7 @@ const deleteSubs = async (id: number, type: "game" | "user" | "jam"): Promise<bo
             await redis.delWithLog(`game:${target_id}:saves`);
         }
         await redis.delAllWithLog(`subscribers:${source_id}:${target_type}:*`);
+        await redis.delWithLog(`subs:${target_type}:${target_id}`);
     }
 
     return true;

@@ -9,29 +9,36 @@ import minio from "@/lib/minio";
 import { Readable } from "stream";
 
 type Params = {
-    /** Логин */
+    /** Login */
     login: string;
-    /** Описание */
+    /** Description */
     description: string;
-    /** Настройки приватности */
+    /** Privacy */
     privacy: {
-        /** Понравилось */
+        /** Likes */
         likes: boolean;
-        /** Избранное */
+        /** Favorites */
         favorites: boolean;
-        /** Подписки */
+        /** Followers */
         subscribers: boolean;
-        /** Игры */
+        /** Games */
         games: boolean;
+    },
+    notify: {
+        new_game?: boolean;
+        new_jam?: boolean;
+        jam_started?: boolean;
+        jam_ended?: boolean;
+        jam_finish?: boolean;
     }
 }
 
 /**
- * Редактирование данных пользователя
+ * Edit user data
  * 
- * @param login - Логин
- * @param params - Редактируемые данные
- * @param file - Аватар
+ * @param login - Login
+ * @param params - New data
+ * @param file - avatar file
  * @returns 
 */
 const putUser = async (login: string, params: Params, file?: Buffer): Promise<Params> => {
@@ -49,6 +56,18 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
                 .optional(),
             games: z.boolean({ error: "errors.invalid.privacy.games" })
                 .optional()
+        }).optional(),
+        notify: z.object({
+            new_game: z.boolean("errors.invalid.notify.new_game")
+                .optional(),
+            new_jam: z.boolean("errors.invalid.notify.new_jam")
+                .optional(),
+            jam_started: z.boolean("errors.invalid.notify.jam_started")
+                .optional(),
+            jam_ended: z.boolean("errors.invalid.notify.jam_ended")
+                .optional(),
+            jam_finish: z.boolean("errors.invalid.notify.jam_finish")
+                .optional()
         }).optional()
     }), params, "putUser");
 
@@ -58,10 +77,11 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
         SET
             login=$2,
             description=$3,
-            privacy=$4
+            privacy=$4,
+            notify=$5
         WHERE id=$1
-        RETURNING login, description, privacy
-    `, [ id, params.login, params.description, params.privacy ]);
+        RETURNING login, description, privacy, notify
+    `, [ id, params.login, params.description, params.privacy, params.notify ]);
     
     if (result.rowCount === 0)
         throw new ContentError("putUser", "errors.denied");
@@ -93,6 +113,7 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
     
     await redis.delWithLog(`user:${login}`);
     await redis.delAllWithLog(`user_id:${id}:*`);
+    await redis.delWithLog(`user_id:${id}:notify`);
 
     return data_updated;
 }

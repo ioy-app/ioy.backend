@@ -1,9 +1,19 @@
+import db from "@/lib/db";
+import kafka from "@/lib/kafka";
 import minio from "@/lib/minio";
+import redis from "@/lib/redis";
 import { getGameById, putGameFile } from "@/services/games";
 import editGameService from "@/services/games/editGame";
+import { getSubsByInstance } from "@/services/subscribers";
+import getUser from "@/services/users/getUser";
+import getUserEmail from "@/services/users/getUserEmail";
+import getUserLogin from "@/services/users/getUserLogin";
+import getUserNotify from "@/services/users/getUserNotify";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import { Response } from "express";
+
+const producer = kafka.producer();
 
 /**
  * Edit game
@@ -45,6 +55,54 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
     }
 
     const result = await editGameService(id, req.body);
+
+    if (result.status == "public") {
+        const author_login = await getUserLogin(result.creater_id);
+
+        // Notify update game:
+        const is_notify = await redis.readWithLog(`notify:add_game:${id}`);
+        if (!is_notify) {
+            const author_subscribers = await getSubsByInstance(game_data.creater_id, "user");
+            await producer.connect();
+            for (const uid of author_subscribers) {
+                const user_login = await getUserLogin(uid);
+                const user_rules = await getUserNotify(user_login);
+
+                if (!user_rules.new_game)
+                    continue;
+
+                const user_result = await db.query(`
+                    SELECT email from "users"
+                    WHERE id = $1    
+                `, [ uid ]);
+
+                if (user_result.rowCount === 0)
+                    continue;
+
+                await producer.send({
+                    topic: "notify",
+                    messages: [
+                        {
+                            key: `add_game:${id}`,
+                            value: JSON.stringify({
+                                type: "game",
+                                subject: `${result.title} is updated!`,
+                                email: user_result?.rows?.[0]?.email,
+                                props: {
+                                    author: author_login,
+                                    title: result.title,
+                                    description: result.description,
+                                    id: result.id
+                                }
+                            })
+                        }
+                    ]
+                });
+            }
+            await producer.disconnect();
+            redis.writeWithLog(`notify:add_game:${id}`, "1", 1800);
+        }
+    }
     res.status(200).json(result);
 }
 
