@@ -1,4 +1,11 @@
-import { createJam, getJam, getJamIcon, getJams, getJamsByUser } from "@/controllers/jams";
+import {
+  createJam,
+  deleteJam,
+  getJam,
+  getJamIcon,
+  getJams,
+  getJamsByUser
+} from "@/controllers/jams";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 import express from "express";
 import multer from "multer";
@@ -15,5 +22,6 @@ Router.post("/", upload.fields([
   { name: 'icon', maxCount: 1 }
 ]), MiddlewareRequired, createJam);
 Router.post("/my", MiddlewareRequired, getJamsByUser);
+Router.delete("/:id", MiddlewareRequired, deleteJam);
 
 export default Router;
