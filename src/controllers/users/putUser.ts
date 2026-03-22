@@ -18,6 +18,9 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     if (req?.body?.privacy)
         for (const [key, value] of Object.entries(req.body.privacy))
             req.body.privacy[key]= Boolean(value == "true");
+    if (req?.body?.notify)
+        for (const [key, value] of Object.entries(req.body.notify))
+            req.body.notify[key]= Boolean(value == "true");
 
     const userdata = await getUser(login);
     if (userdata.id != req.user_id)
