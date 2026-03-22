@@ -90,7 +90,8 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
                                     author: author_login,
                                     title: result.title,
                                     description: result.description,
-                                    id: result.id
+                                    id: result.id,
+                                    image_url: `https://ioy.app/g/${result.id}/icon`
                                 }
                             })
                         }
