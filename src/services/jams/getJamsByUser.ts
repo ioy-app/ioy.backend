@@ -78,7 +78,7 @@ const getJamsByUser = async (
             ${filters?.length >= 1 && `AND ${filters.join(" AND ")}` || ""}
         ORDER BY date_created ${OrderEnum[sort] || "DESC"}
         OFFSET $2 LIMIT $3
-    `, [ user_id, offset, limit, ...opts ]);
+    `, [ user_id, offset, limit, ...opts ]);;
 
     const total = Number(result?.rows?.[0]?.total || 0);
     const jams_ids: number[] = result?.rows?.map((row: { id: number, total: number }) => row.id);

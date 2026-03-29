@@ -4,7 +4,9 @@ import {
   getJam,
   getJamIcon,
   getJams,
-  getJamsByUser
+  getJamsByUser,
+  joinJam,
+  leaveJam
 } from "@/controllers/jams";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 import express from "express";
@@ -23,5 +25,7 @@ Router.post("/", upload.fields([
 ]), MiddlewareRequired, createJam);
 Router.post("/my", MiddlewareRequired, getJamsByUser);
 Router.delete("/:id", MiddlewareRequired, deleteJam);
+Router.post("/:id/join", MiddlewareRequired, joinJam);
+Router.post("/:id/leave", MiddlewareRequired, leaveJam);
 
 export default Router;
