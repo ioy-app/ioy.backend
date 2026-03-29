@@ -14,11 +14,13 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
   const data = await getJamService(id);
 
   const judges_data = [];
-  for (const judge_id of data?.judges) {
-    const login = await getUserLogin(judge_id);
-    const userdata = await getUser(login);
+  if (data?.judges) {
+    for (const judge_id of data?.judges) {
+      const login = await getUserLogin(judge_id);
+      const userdata = await getUser(login);
 
-    judges_data.push(userdata);
+      judges_data.push(userdata);
+    }
   }
 
   const creater_login = await getUserLogin(data?.creater_id);
