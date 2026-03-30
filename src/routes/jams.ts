@@ -6,7 +6,8 @@ import {
   getJams,
   getJamsByUser,
   joinJam,
-  leaveJam
+  leaveJam,
+  getGamesByJam
 } from "@/controllers/jams";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 import express from "express";
@@ -27,5 +28,6 @@ Router.post("/my", MiddlewareRequired, getJamsByUser);
 Router.delete("/:id", MiddlewareRequired, deleteJam);
 Router.post("/:id/join", MiddlewareRequired, joinJam);
 Router.post("/:id/leave", MiddlewareRequired, leaveJam);
+Router.get("/:id/games", getGamesByJam);
 
 export default Router;

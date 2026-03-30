@@ -11,6 +11,7 @@ import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
 import minio from "@/lib/minio";
 import { getRole } from "@/services/roles";
+import { getJam } from "@/services/jams";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -35,6 +36,11 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         console.log(data);
         res.status(404).end();
         return;
+    }
+
+    let jamdata;
+    if (data.jam_id) {
+        jamdata = await getJam(data?.jam_id);
     }
 
     const authors_data: UserDetails[] = [];
@@ -79,7 +85,8 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         is_subscribe,
         is_me,
         recommendator: recommendator_data,
-        roledata
+        roledata,
+        jamdata
     }
 
     res.status(200).json(obj as GameResponse);

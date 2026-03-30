@@ -5,6 +5,9 @@ import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 import { getLikesByGame } from "../likes";
+import getGameById from "./getGameById";
+import { getJam } from "../jams";
+import AccessError from "@/utils/AccessError";
 
 /**
  * Edit game
@@ -16,9 +19,17 @@ import { getLikesByGame } from "../likes";
 const editGame = async (id: number, props: Game): Promise<Game> => {
     validate(GameSchema.omit({
         id: true,
-        creater_id: true
+        creater_id: true,
+        jam_id: true
     }), props, "editGame");
     validate(GameSchema.pick({ id: true }), { id }, "editGame");
+
+    const gamedata = await getGameById(id);
+    if (gamedata?.jam_id) {
+        const jamdata = await getJam(gamedata?.jam_id);
+        if (!["in_process"].includes(jamdata?.status))
+            throw new AccessError("editGame", "errors.jams_denied");
+    }
 
     const keys = Object.keys(props).filter(prop => [
         "title",
@@ -26,8 +37,7 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
         "description",
         "tags",
         "status",
-        "creater_id",
-        "jam_id"
+        "creater_id"
     ].includes(prop));
     const values = keys.map(key => props[key]);
 

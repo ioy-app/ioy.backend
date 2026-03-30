@@ -2,8 +2,10 @@ import db from "@/lib/db";
 import es from "@/lib/elasticsearch";
 import redis from "@/lib/redis";
 import Game, { GameSchema } from "@/schemas/game";
+import AccessError from "@/utils/AccessError";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
+import { getJam } from "../jams";
 
 /**
  * Add new game
@@ -15,9 +17,16 @@ import validate from "@/utils/validate";
 const createGame = async (user_id: number, props: Game): Promise<Game> => {
     validate(GameSchema.omit({
         id: true,
-        creater_id: true
+        creater_id: true,
+        jam_id: true
     }), props, "createGame");
     validate(GameSchema.pick({ creater_id: true }), { creater_id: user_id }, "createGame");
+
+    if (props?.jam_id) {
+        const jamdata = await getJam(Number(props?.jam_id));
+        if (!["in_process"].includes(jamdata?.status))
+            throw new AccessError("createGame", "errors.jams_denied");
+    }
 
     const keys = Object.keys(props).filter(prop => [
         "title",

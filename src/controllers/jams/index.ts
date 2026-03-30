@@ -6,6 +6,7 @@ import getJamIcon from "./getJamIcon";
 import deleteJam from "./deleteJam";
 import joinJam from "./joinJam";
 import leaveJam from "./leaveJam";
+import getGamesByJam from "./getGamesByJam";
 
 export {
     getJams,
@@ -15,5 +16,6 @@ export {
     getJamIcon,
     deleteJam,
     joinJam,
-    leaveJam
+    leaveJam,
+    getGamesByJam
 }

@@ -20,7 +20,8 @@ const getJamsByUser = async (req: Request, res: Response): Promise<void> => {
     
     let jams_ids, total;
     switch(jams) {
-        default: {
+        case "author":
+            case "judge": {
             [ jams_ids, total ] = await getJamsByUserService(
                 Number(req.user_id),
                 offset,
@@ -29,7 +30,7 @@ const getJamsByUser = async (req: Request, res: Response): Promise<void> => {
                 sort
             );
         } break;
-        case "join" : {
+        default: {
             [ jams_ids, total ] = await getUserSubs(
                 Number(req.user_id),
                 "jam",
