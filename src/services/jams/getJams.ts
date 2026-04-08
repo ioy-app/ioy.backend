@@ -15,7 +15,7 @@ const getJams = async (date_from: string, date_to: string): Promise<[ number[], 
             id,
             COUNT(*) OVER()::INTEGER as total
         FROM "jams"
-        WHERE date_started >= $1 AND date_finished <= $2
+        WHERE date_started <= $2 AND date_finished >= $1
     `, [ dateFromObj, dateToObj ]);
 
     const items = result.rows?.map(row => row.id) || [];

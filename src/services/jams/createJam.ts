@@ -85,6 +85,8 @@ const createJam = async (
     data.date_created = result?.rows[0].date_created;
 
     redis.writeWithLog(`jam:${data.id}`, JSON.stringify(data));
+    await redis.delAllWithLog(`feed:global:*`);
+    await redis.delAllWithLog(`jams:user:${creater_id}:*`);
     return data;
 }
 

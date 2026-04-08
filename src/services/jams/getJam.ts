@@ -4,6 +4,7 @@ import redis from "@/lib/redis";
 import { IdSchemaCustom } from "@/schemas/id";
 import Jam, { JamSchema } from "@/schemas/jam";
 import validate from "@/utils/validate";
+import dayjs from "dayjs";
 
 /**
  * Get jam info
@@ -35,6 +36,18 @@ const getJam = async (id: number): Promise<Jam> => {
         return null;
 
     const data: Jam = result.rows[0];
+
+    data.status = "init";
+    const current_date = dayjs();
+    if (current_date.isAfter(data?.date_started) && current_date.isBefore(data?.date_finished))
+        data.status = "in_process";
+
+    if (current_date.isAfter(data?.date_vote_started) && current_date.isBefore(data?.date_vote_finished))
+        data.status = "in_voting";
+
+    if (current_date.isAfter(data?.date_finished) || current_date.isAfter(data?.date_vote_finished))
+        data.status = "finished";
+
     data.is_avatar = await minio.checkFileExists("jams", `${id}/icon.png`);
     redis.writeWithLog(cache_key, JSON.stringify(data));
     

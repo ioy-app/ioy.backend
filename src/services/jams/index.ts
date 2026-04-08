@@ -4,6 +4,8 @@ import getJams from "./getJams";
 import getJamsByUser from "./getJamsByUser";
 import getJamFile from "./getJamFile";
 import putJamFile from "./putJamFile";
+import deleteJam from "./deleteJam";
+import getGamesByJam from "./getGamesByJam";
 
 export {
     createJam,
@@ -11,5 +13,7 @@ export {
     getJams,
     getJamsByUser,
     getJamFile,
-    putJamFile
+    putJamFile,
+    deleteJam,
+    getGamesByJam
 }

@@ -103,6 +103,21 @@ const getUserSubs = async (
                 OFFSET $3 LIMIT $4
             `, [ user_id, type, offset, limit ]);
         break;
+        case "jam":
+            result = await db.query(`
+                SELECT
+                    s.target_id as id,
+                    COUNT(*) OVER()::INTEGER AS total
+                FROM "subscribers" s
+                JOIN "users" u
+                ON
+                    u.id = s.source_id
+                    AND s.target_type = $2
+                WHERE s.source_id = $1
+                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
+                OFFSET $3 LIMIT $4
+            `, [ user_id, type, offset, limit ]);
+        break;
     }
     
     const data: number[] = result?.rows?.map(row => row.id);

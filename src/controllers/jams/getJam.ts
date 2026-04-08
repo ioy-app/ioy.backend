@@ -3,6 +3,8 @@ import { getJam as getJamService } from "@/services/jams";
 import verify from "@/utils/verify";
 import getUserLogin from "@/services/users/getUserLogin";
 import getUser from "@/services/users/getUser";
+import { checkSubscribe } from "@/services/subscribers";
+import dayjs from "dayjs";
 
 /**
  * Get jam info by id
@@ -14,11 +16,16 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
   const data = await getJamService(id);
 
   const judges_data = [];
-  for (const judge_id of data?.judges) {
-    const login = await getUserLogin(judge_id);
-    const userdata = await getUser(login);
+  if (data?.judges) {
+    for (const judge_id of data?.judges) {
+      try {
+        const login = await getUserLogin(judge_id);
+        const userdata = await getUser(login);
 
-    judges_data.push(userdata);
+        judges_data.push(userdata);
+      }
+      catch(err) {}
+    }
   }
 
   const creater_login = await getUserLogin(data?.creater_id);
@@ -26,8 +33,12 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
 
   let is_join;
   let is_game;
+  let is_author;
   if (req?.token) {
     const { id: user_id } = await verify(req?.token);
+    is_author = Number(user_id) == data.creater_id;
+    if (!is_author)
+      is_join = await checkSubscribe(Number(user_id), id, "jam");
   }
 
   res.status(200)
@@ -36,7 +47,8 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
       judges_data,
       creater_data,
       is_join,
-      is_game
+      is_game,
+      is_author
     });
 }
 
