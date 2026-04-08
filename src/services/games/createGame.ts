@@ -117,6 +117,7 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
     redis.writeWithLog(cache_key, JSON.stringify(game));
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${user_id}:*`);
+    await redis.delAllWithLog(`feed:global:*`);
     
     try {
         if (game.status == "public") {
