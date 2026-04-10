@@ -1,13 +1,13 @@
+import Game from "@/schemas/game";
 import { getGameById, getGamesByUser as getGamesByUserService } from "@/services/games";
 import { status } from "@/services/games/getGamesByUser";
 import { getLikesByGame } from "@/services/likes";
 import { getGameSubs } from "@/services/subscribers";
-import Game from "@/types/game";
 import Request from "@/types/request";
 import { Response } from "express";
 
 /**
- * Получение всех игр авторизированного пользователя 
+ * Get all games by auth user
  * 
  * @param {Request} req 
  * @param {Response} res 
