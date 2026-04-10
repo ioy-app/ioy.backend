@@ -36,6 +36,7 @@ const getGameSubs = async (id: number): Promise<number> => {
         ON
             g.id = s.target_id
             AND g.id = $1
+            AND s.target_type = 'game'
         ORDER BY s.date_created DESC
     `, [ id ]);
 
