@@ -15,11 +15,14 @@ const leaveJam = async(req: Request, res: Response): Promise<void> => {
   const jam_data = await getJam(id);
 
   if (jam_data.creater_id == req.user_id)
-    throw new AccessError("joinJam", "errors.author");
+    throw new AccessError("leaveJam", "errors.author");
+
+  if (["voting", "finished"].includes(jam_data?.status))
+    throw new AccessError("leaveJam", "errors.denied");
 
   const isSubscribe = await checkSubscribe(req.user_id, id, "jam");
   if (!isSubscribe)
-    throw new ContentError("joinJam", "errors.leaved");
+    throw new ContentError("leaveJam", "errors.leaved");
 
   await putSubscribe(req.user_id, id, "jam");
   res.status(200).end();

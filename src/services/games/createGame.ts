@@ -68,45 +68,6 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
             date_updated
     `, [ ...values ]);
 
-    // const {
-    //     title,
-    //     version,
-    //     description,
-    //     tags,
-    //     authors,
-    //     status
-    // } = props;
-
-    // const result = await db.query(`
-    //     INSERT INTO "games" (
-    //         creater_id,
-    //         title,
-    //         version,
-    //         description,
-    //         tags,
-    //         authors,
-    //         status
-    //     )
-    //     VALUES (
-    //         $1,
-    //         $2,
-    //         $3,
-    //         $4,
-    //         $5,
-    //         $6,
-    //         $7
-    //     )
-    //     RETURNING id, date_created
-    // `, [
-    //     user_id,
-    //     title,
-    //     version,
-    //     description,
-    //     tags,
-    //     authors,
-    //     status
-    // ]);
-
     if (result.rowCount === 0)
         throw new ContentError("createGame", "errors.denied");
 
@@ -118,6 +79,8 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${user_id}:*`);
     await redis.delAllWithLog(`feed:global:*`);
+    if (props?.jam_id)
+        await redis.delAllWithLog(`jams:games:${props?.jam_id}:*`);
     
     try {
         if (game.status == "public") {

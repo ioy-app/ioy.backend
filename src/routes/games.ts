@@ -14,6 +14,7 @@ import {
     deleteGame
 } from "@controllers/games";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware.js";
+import { getVotes, putVote } from "@/controllers/votes";
 
 const upload = multer({
   preservePath: true
@@ -39,14 +40,16 @@ Router.post("/:id/like", MiddlewareRequired, postGameLike);
 
 Router.get("/:id/game", getGamePlay);
 Router.get("/:id/icon", getGameIcon);
+Router.get("/:id/my-votes", MiddlewareRequired, getVotes);
+Router.put("/:id/my-votes", MiddlewareRequired, putVote);
 Router.get(/^\/(\d+)\/(.+)$/, (req, res, next) => {
-    // req.params[0] = первый захват (id), req.params[1] = второй (путь к файлу)
     if (req.params[0] && req.params[1]) {
-        req.params.id = req.params[0];      // "1039"
-        req.params.file = req.params[1];    // "42eng/eng.js"
+        req.params.id = req.params[0];
+        req.params.file = req.params[1];
     }
     next();
 }, getGameFile);
+
 
 
 export default Router;

@@ -4,6 +4,7 @@ import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { getGameById, putGameFile } from "@/services/games";
 import editGameService from "@/services/games/editGame";
+import { getJam } from "@/services/jams";
 import { getSubsByInstance } from "@/services/subscribers";
 import getUser from "@/services/users/getUser";
 import getUserEmail from "@/services/users/getUserEmail";
@@ -25,6 +26,22 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
     const id = Number(req.params.id);
     const { user_id } = req;
     const game_data = await getGameById(id);
+
+    if (game_data?.jam_id) {
+        const jam_id = Number(game_data?.jam_id);
+        const jamdata = await getJam(jam_id);
+
+        if (jamdata?.status != "in_process")
+            throw new AccessError("editGame", "errors.denied");
+
+        if (jamdata?.judges?.length && jamdata?.judges?.includes(user_id))
+            throw new AccessError("createGame", "errors.denied");
+
+        if (jamdata?.creater_id == user_id)
+            throw new AccessError("createGame", "errors.denied");
+
+        req.body.status = "public";
+    }
 
     if (game_data.creater_id != user_id)
         throw new AccessError("editGame", "errors.denied");
