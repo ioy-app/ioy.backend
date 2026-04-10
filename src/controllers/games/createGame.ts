@@ -4,6 +4,7 @@ import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { getGamesByUser, putGameFile } from "@/services/games";
 import createGameService from "@/services/games/createGame";
+import { getJam } from "@/services/jams";
 import { getSubsByInstance } from "@/services/subscribers";
 import getUserLogin from "@/services/users/getUserLogin";
 import getUserNotify from "@/services/users/getUserNotify";
@@ -22,6 +23,23 @@ const producer = kafka.producer();
  */
 const createGame = async (req: Request, res: Response): Promise<void> => {
     const { user_id } = req;
+
+    if (req?.body?.jam_id) {
+        const jam_id = Number(req?.body?.jam_id);
+        const jamdata = await getJam(jam_id);
+
+        if (jamdata?.status != "in_process")
+            throw new AccessError("createGame", "errors.denied");
+
+        if (jamdata?.judges?.length && jamdata?.judges?.includes(user_id))
+            throw new AccessError("createGame", "errors.denied");
+
+        if (jamdata?.creater_id == user_id)
+            throw new AccessError("createGame", "errors.denied");
+
+        req.body.status = "public";
+    }
+
     if (req?.files?.game) {
         const totalsize = req?.files?.game?.reduce((a, b) => a + b.size, 0);
         if (totalsize > (32 * 1024 * 1024))
@@ -61,45 +79,47 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
         const is_notify = await redis.readWithLog(`notify:add_game:${result.id}`);
         if (!is_notify) {
             const author_subscribers = await getSubsByInstance(result.creater_id, "user");
-            await producer.connect();
-            for (const uid of author_subscribers) {
-                const user_login = await getUserLogin(uid);
-                const user_rules = await getUserNotify(user_login);
+            if (author_subscribers) {
+                await producer.connect();
+                for (const uid of author_subscribers) {
+                    const user_login = await getUserLogin(uid);
+                    const user_rules = await getUserNotify(user_login);
 
-                if (!user_rules.new_game)
-                    continue;
+                    if (!user_rules.new_game)
+                        continue;
 
-                const user_result = await db.query(`
-                    SELECT email from "users"
-                    WHERE id = $1    
-                `, [ uid ]);
+                    const user_result = await db.query(`
+                        SELECT email from "users"
+                        WHERE id = $1    
+                    `, [ uid ]);
 
-                if (user_result.rowCount === 0)
-                    continue;
+                    if (user_result.rowCount === 0)
+                        continue;
 
-                await producer.send({
-                    topic: "notify",
-                    messages: [
-                        {
-                            key: `add_game:${result.id}`,
-                            value: JSON.stringify({
-                                type: "game",
-                                subject: `${result.title} is released!`,
-                                email: user_result?.rows?.[0]?.email,
-                                props: {
-                                    author: author_login,
-                                    title: result.title,
-                                    description: result.description,
-                                    id: result.id,
-                                    image_url: `https://ioy.app/g/${result.id}/icon`
-                                }
-                            })
-                        }
-                    ]
-                });
+                    await producer.send({
+                        topic: "notify",
+                        messages: [
+                            {
+                                key: `add_game:${result.id}`,
+                                value: JSON.stringify({
+                                    type: "game",
+                                    subject: `${result.title} is released!`,
+                                    email: user_result?.rows?.[0]?.email,
+                                    props: {
+                                        author: author_login,
+                                        title: result.title,
+                                        description: result.description,
+                                        id: result.id,
+                                        image_url: `https://ioy.app/g/${result.id}/icon`
+                                    }
+                                })
+                            }
+                        ]
+                    });
+                }
+                await producer.disconnect();
+                redis.writeWithLog(`notify:add_game:${result.id}`, "1", 1800);
             }
-            await producer.disconnect();
-            redis.writeWithLog(`notify:add_game:${result.id}`, "1", 1800);
         }
     }
     res.status(200).json(result);

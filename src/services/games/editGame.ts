@@ -79,6 +79,8 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
     await redis.delAllWithLog(`subscribers:*`);
     await redis.delWithLog(`game:${id}`);
     await redis.delAllWithLog(`feed:global:*`);
+    if (props?.jam_id)
+        await redis.delAllWithLog(`jams:games:${props?.jam_id}:*`);
 
     try {
         if (game.status == "public") {

@@ -66,6 +66,7 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     let is_like: boolean;
     let is_subscribe: boolean;
     let is_me: boolean;
+    let is_vote: boolean;
     let roledata = {};
     if (req.token) {
         const { id: user_id } = await verify(req.token);
@@ -76,6 +77,21 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         is_me = Boolean(Number(user_id) == Number(data.creater_id))
         const role = await getRole(userdata.role_id);
         roledata = role;
+        if (jamdata?.status == "voting") {
+            switch(jamdata?.vote_type) {
+                case "judges":
+                    if (jamdata?.judges?.length && jamdata?.judges?.includes(user_id))
+                    is_vote = true;
+                break;
+                case "members": {
+                    const isMember = await checkSubscribe(user_id, jamdata?.id, "jam");
+                    is_vote = isMember;
+                } break;
+                case "all":
+                is_vote = true;
+                break;
+            }
+        }
     }
 
     const obj = {
@@ -86,7 +102,8 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         is_me,
         recommendator: recommendator_data,
         roledata,
-        jamdata
+        jamdata,
+        is_vote
     }
 
     res.status(200).json(obj as GameResponse);
