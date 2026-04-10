@@ -20,7 +20,7 @@ const createJam = async (
     vote_type: "all" | "judges" | "members" = "all",
     description?: string,
     judges?: number[]
-): Promise<Jam> => {
+): Promise<number> => {
     const data: Jam = {
         creater_id,
         title,
@@ -81,13 +81,11 @@ const createJam = async (
     if (result.rowCount === 0)
         return null;
 
-    data.id = result?.rows[0].id;
-    data.date_created = result?.rows[0].date_created;
-
-    redis.writeWithLog(`jam:${data.id}`, JSON.stringify(data));
+    const id = result?.rows[0].id;
+    await redis.delWithLog(`jam:${id}`);
     await redis.delAllWithLog(`feed:global:*`);
     await redis.delAllWithLog(`jams:user:${creater_id}:*`);
-    return data;
+    return id;
 }
 
 export default createJam;

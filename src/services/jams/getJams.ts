@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import Jam from "@/schemas/jam";
+import dayjs from "dayjs";
 
 /**
  * Get Jams between date
@@ -7,9 +8,12 @@ import Jam from "@/schemas/jam";
  * return getJams()
 */
 const getJams = async (date_from: string, date_to: string): Promise<[ number[], number ]> => {
-    const dateFromObj = new Date(`${date_from}T00:00:00.000Z`);
-    const dateToObj = new Date(`${date_to}T23:59:59.999Z`);
-    
+    const dateFromObj = dayjs(date_from);
+    let dateToObj = dayjs(date_to);
+    if (dateFromObj.isSame(dateToObj)) {
+        dateToObj = dateToObj.add(1, 'day');
+    }
+ 
     const result = await db.query(`
         SELECT
             id,

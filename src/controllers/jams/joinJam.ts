@@ -17,6 +17,9 @@ const joinJam = async(req: Request, res: Response): Promise<void> => {
   if (jam_data.creater_id == req.user_id)
     throw new AccessError("joinJam", "errors.author");
 
+  if (!["in_process", "init"].includes(jam_data?.status))
+    throw new AccessError("joinJam", "errors.denied");
+
   const isSubscribe = await checkSubscribe(req.user_id, id, "jam");
   if (isSubscribe)
     throw new ContentError("joinJam", "errors.joined");

@@ -5,6 +5,11 @@ import { IdSchemaCustom } from "@/schemas/id";
 import Jam, { JamSchema } from "@/schemas/jam";
 import validate from "@/utils/validate";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 /**
  * Get jam info
@@ -37,18 +42,25 @@ const getJam = async (id: number): Promise<Jam> => {
 
     const data: Jam = result.rows[0];
 
-    data.status = "init";
+    data.status = "finished";
     const current_date = dayjs();
-    if (current_date.isAfter(data?.date_started) && current_date.isBefore(data?.date_finished))
+
+    if (current_date.isBefore(data?.date_started))
+        data.status = "init";
+
+    if (current_date.isSameOrAfter(data?.date_started) && current_date.isSameOrBefore(data?.date_finished))
         data.status = "in_process";
 
-    if (current_date.isAfter(data?.date_vote_started) && current_date.isBefore(data?.date_vote_finished))
-        data.status = "in_voting";
+    if (current_date.isSameOrAfter(data?.date_vote_started) && current_date.isSameOrBefore(data?.date_vote_finished))
+        data.status = "voting";
 
-    if (current_date.isAfter(data?.date_finished) || current_date.isAfter(data?.date_vote_finished))
-        data.status = "finished";
+    
 
     data.is_avatar = await minio.checkFileExists("jams", `${id}/icon.png`);
+
+    if (data?.status == "init")
+        delete data.theme;
+
     redis.writeWithLog(cache_key, JSON.stringify(data));
     
     return data;

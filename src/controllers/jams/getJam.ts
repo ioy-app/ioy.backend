@@ -34,11 +34,28 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
   let is_join;
   let is_game;
   let is_author;
+  let is_vote;
   if (req?.token) {
     const { id: user_id } = await verify(req?.token);
     is_author = Number(user_id) == data.creater_id;
     if (!is_author)
       is_join = await checkSubscribe(Number(user_id), id, "jam");
+
+    if (data?.status == "voting") {
+        switch(data?.vote_type) {
+            case "judges":
+                if (data?.judges?.length && data?.judges?.includes(user_id))
+                  is_vote = true;
+            break;
+            case "members": {
+              const isMember = await checkSubscribe(user_id, id, "jam");
+              is_vote = isMember;
+            } break;
+            case "all":
+              is_vote = true;
+            break;
+        }
+    }
   }
 
   res.status(200)
@@ -48,7 +65,8 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
       creater_data,
       is_join,
       is_game,
-      is_author
+      is_author,
+      is_vote
     });
 }
 

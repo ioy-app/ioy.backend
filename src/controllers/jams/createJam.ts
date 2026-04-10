@@ -1,4 +1,4 @@
-import { createJam as createJamService, putJamFile } from "@/services/jams";
+import { createJam as createJamService, getJam, putJamFile } from "@/services/jams";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import { Response } from "express";
@@ -29,7 +29,7 @@ const createJam = async(req: Request, res: Response): Promise<void> => {
         throw new AccessError("editGame", "errors.icon_type");
   }
 
-  const response = await createJamService(
+  const id = await createJamService(
     Number(req.user_id),
     title,
     theme,
@@ -46,7 +46,7 @@ const createJam = async(req: Request, res: Response): Promise<void> => {
   let is_avatar;
   if (req?.files?.icon?.[0]) {
     await putJamFile(
-      response?.id,
+      id,
       "icon.png",
       req.files.icon?.[0]?.buffer,
       req.files.icon?.[0]?.size
@@ -54,8 +54,10 @@ const createJam = async(req: Request, res: Response): Promise<void> => {
     is_avatar = true;
   }
 
+  const jamdata = await getJam(id);
+
   res.status(200).json({
-    ...response,
+    ...jamdata,
     is_avatar
   });
 }
