@@ -1,11 +1,8 @@
 import z from "zod";
+import DateSchema from "./date";
+import dayjs from "dayjs";
 
 const JamSchema = z.object({
-    /** ID */
-    id: z.number({ error: "errors.invalid.id" })
-        .nonnegative({ error: "errors.invalid.id" })
-        .int({ error: "errors.invalid.id" })
-        .nonoptional({ error: "errors.required.id" }),
     /** Title */
     title: z.string({ error: "errors.invalid.title" })
         .trim()
@@ -46,22 +43,39 @@ const JamSchema = z.object({
         "members"
     ], { error: "errors.invalid.vote_type" }),
     /** Jam's date started */
-    date_started: z.string({ error: "errors.invalid.date_started" })
+    date_started: DateSchema("date_started")
         .nonoptional({ error: "errors.required.date_started" }),
     /** Jam's date finished */
-    date_finished: z.string({ error: "errors.invalid.date_finished" })
+    date_finished: DateSchema("date_finished")
         .nonoptional({ error: "errors.required.date_finished" }),
     /** Jam's vote date started */
-    date_vote_started: z.string({ error: "errors.invalid.date_vote_started" })
-        .nonoptional({ error: "errors.required.date_vote_started" }),
-    /** Jam's vote date finished */
-    date_vote_finished: z.string({ error: "errors.invalid.date_vote_finished" })
-        .nonoptional({ error: "errors.required.date_vote_finished" })
+    date_vote_started: DateSchema("date_vote_started")
+        .nonoptional({ error: "errors.required.date_vote_started" })
+})
+.refine((data) => dayjs(data?.date_finished)?.isAfter?.(dayjs(data?.date_started)), {
+    message: `errors.date.date_finished.date_started`,
+    path: [ "date_finished" ]
+})
+.refine((data) => dayjs(data?.date_started)?.isAfter?.(dayjs()), {
+    message: `errors.date.date_started.now`,
+    path: [ "date_started" ]
+})
+.refine((data) => dayjs(data?.date_vote_started)?.isAfter?.(dayjs(data?.date_started)), {
+    message: `errors.date.date_vote_started.date_started`,
+    path: [ "date_vote_started" ]
+})
+.refine((data) => dayjs(data?.date_vote_started)?.isBefore?.(dayjs(data?.date_finished)), {
+    message: `errors.date.date_vote_started.date_finished`,
+    path: [ "date_vote_started" ]
 });
 
 type Jam = z.infer<typeof JamSchema> & {
+    /** ID */
+    id: number;
     /** Created date */
     date_created?: string;
+    /** Vote finished date */
+    date_vote_finished: string;
 };
 
 export default Jam;
