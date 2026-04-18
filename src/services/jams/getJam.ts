@@ -7,6 +7,7 @@ import validate from "@/utils/validate";
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import getJamPlace from "./getJamPlace";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -62,6 +63,9 @@ const getJam = async (id: number): Promise<Jam & {
 
     if (data?.status == "init")
         delete data.theme;
+
+    if (data?.status == "finished")
+        data.results = await getJamPlace(id);
 
     redis.writeWithLog(cache_key, JSON.stringify(data));
     

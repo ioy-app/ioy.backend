@@ -94,6 +94,7 @@ const createVote = async (
 
   await redis.delWithLog(`vote:${id}`);
   await redis.delWithLog(`votes:${jam_id}:${source_id}:${target_id}`);
+  await redis.delWithLog(`votes:${jam_id}:global`);
   
   return id;
 }
