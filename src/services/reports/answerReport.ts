@@ -9,6 +9,7 @@ import { deleteGame, getGameById } from "../games";
 import getUserLogin from "../users/getUserLogin";
 import getUser from "../users/getUser";
 import banUser from "../users/banUser";
+import { deleteJam, getJam } from "../jams";
 
 /**
  * Answer for report
@@ -75,7 +76,8 @@ const answerReport = async (
         await banUser(comment.source_id, data?.params?.ban_instance_3d ? 3 : 30);
       } break;
       case "jam": {
-
+        const jam = await getJam(report.target_id);
+        await banUser(jam.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
       } break;
     }
   }
@@ -94,7 +96,8 @@ const answerReport = async (
         await banUser(comment.source_id, -1);
       } break;
       case "jam": {
-
+        const jam = await getJam(report.target_id);
+        await banUser(jam.creater_id, -1);
       } break;
     }
   }
@@ -109,7 +112,7 @@ const answerReport = async (
         await deleteComment(undefined, report.target_id);
       } break;
       case "jam": {
-
+        await deleteJam(report.target_id);
       } break;
     }
   }
