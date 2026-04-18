@@ -36,7 +36,6 @@ const createJam = async(req: Request, res: Response): Promise<void> => {
     date_started,
     date_finished,
     date_vote_started,
-    date_vote_finished,
     nominations,
     vote_type,
     description,

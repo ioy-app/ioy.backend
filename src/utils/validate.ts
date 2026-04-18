@@ -2,11 +2,11 @@ import { ZodError, ZodType } from "zod";
 import ValidError from "./ValidError";
 
 /**
- * Валидация входящих данных
+ * Validate schema-data
  * 
- * @param {ZodSchema} schema Схема проверки данных 
- * @param {unknown} data Данные для проверки 
- * @param {string} component Название компонента, в котором произошла ошибка
+ * @param schema - Schema or zod method
+ * @param data - Validate date
+ * @param component - Name Service/Component to validate
 */
 const validate = <T>(schema: ZodType, data: unknown, component?: string) => {
     try { schema.parse(data); }

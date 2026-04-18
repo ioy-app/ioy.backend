@@ -33,6 +33,7 @@ const deleteJam = async (id: number): Promise<boolean> => {
     await redis.delAllWithLog(`jams:user:${jam.creater_id}:*`);
     await redis.delAllWithLog(`jams:*`);
     await redis.delAllWithLog(`feed:global:*`);
+    await redis.delAllWithLog(`jams:date:*`);
 
     await deleteSubs(id, "jam");
 

@@ -15,7 +15,6 @@ const createJam = async (
     date_started: string,
     date_finished: string,
     date_vote_started: string,
-    date_vote_finished: string,
     nominations: string[],
     vote_type: "all" | "judges" | "members" = "all",
     description?: string,
@@ -28,13 +27,12 @@ const createJam = async (
         date_started,
         date_finished,
         date_vote_started,
-        date_vote_finished,
         nominations,
         vote_type,
         description,
         judges
     }
-    validate(JamSchema.omit({ id: true }), data, "createJam");
+    validate(JamSchema, data, "createJam");
 
     const result = await db.query(`
         INSERT INTO "jams" (
@@ -57,13 +55,13 @@ const createJam = async (
             $4,
             $5,
             $6,
+            $5,
             $7,
             $8,
             $9,
-            $10,
-            $11
+            $10
         )
-        RETURNING id, date_created
+        RETURNING id
     `, [
         creater_id,
         title,
@@ -71,7 +69,6 @@ const createJam = async (
         date_started,
         date_finished,
         date_vote_started,
-        date_vote_finished,
         nominations,
         vote_type,
         description,
@@ -85,6 +82,7 @@ const createJam = async (
     await redis.delWithLog(`jam:${id}`);
     await redis.delAllWithLog(`feed:global:*`);
     await redis.delAllWithLog(`jams:user:${creater_id}:*`);
+    await redis.delAllWithLog(`jams:date:*`);
     return id;
 }
 

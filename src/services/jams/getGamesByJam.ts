@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import redis from "@/lib/redis";
 import validate from "@/utils/validate";
 import z from "zod";
+import getJam from "./getJam";
 
 /**
  * Get games by jam

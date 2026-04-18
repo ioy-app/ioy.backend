@@ -4,6 +4,7 @@ import redis from "@/lib/redis";
 import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
+import { getJam, getJamPlace } from "../jams";
 
 /**
  * Get game info by ID
@@ -52,6 +53,13 @@ const getGameById = async (id: number): Promise<Game> => {
             delete game[key];
 
     game.is_avatar = await minio.checkFileExists("games", `${id}/icon.png`);
+
+    if (game?.jam_id) {
+        const jam = await getJam(game?.jam_id);
+        if (jam?.results) {
+            game.jam_result = jam?.results?.[game?.id];
+        }
+    }
 
     redis.writeWithLog(cache_key, JSON.stringify(game));
 
