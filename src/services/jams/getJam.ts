@@ -16,7 +16,9 @@ dayjs.extend(isSameOrBefore);
  * @example
  * return getJam(1)
 */
-const getJam = async (id: number): Promise<Jam> => {
+const getJam = async (id: number): Promise<Jam & {
+    status: "finished" | "init" | "in_process" | "voting";
+}> => {
     validate(IdSchemaCustom("id"), id, "getJam");
 
     const cache_key = `jam:${id}`;

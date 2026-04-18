@@ -26,6 +26,7 @@ import jobGamesSearch from "@/services/games/jobGamesSearch";
 import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
 import Search from "@/controllers/search";
+import { jobJams } from "@/services/jams";
 
 const limiter = rateLimit({
   windowMs: 1000 * 60 * 10,
@@ -65,6 +66,7 @@ app.use(errorHandler);
   await initES();
   await jobGamesSearch();
   await jobClearCodes();
+  jobJams();
 
   app.listen(port, () => {
     console.log("[server]", `is running :${port}`);
