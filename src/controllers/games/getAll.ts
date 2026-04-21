@@ -1,15 +1,13 @@
 import getGameById from "@/services/games/getGameById.js";
 import es from "@/lib/elasticsearch.js";
-const per_page = 40;
+const per_page = 10;
 
 export default async function GetAll(req, res) {
     const { hits } = await es.search({
         index: "games",
         size: per_page,
         sort: [
-            {
-                date_created: { order: "desc" }
-            }
+            { likes: { order: "desc" } }
         ]
     });
 
@@ -34,6 +32,8 @@ export default async function GetAll(req, res) {
         const data = await getGameById(Number(game._id));
         games.push(data);
     }
+
+    console.log(hits?.hits);
 
     res.status(200).json({
         games,
