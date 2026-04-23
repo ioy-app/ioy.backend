@@ -40,6 +40,13 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
         req.body.status = "public";
     }
 
+    if (req?.files?.icon?.[0]) {
+        if (req?.files?.icon?.[0]?.size > (1 * 1024 * 1024))
+            throw new AccessError("editGame", "errors.icon_limit");
+        if (req?.files?.icon?.[0]?.mimetype != "image/png")
+            throw new AccessError("editGame", "errors.icon_type");
+    }
+
     if (req?.files?.game) {
         const totalsize = req?.files?.game?.reduce((a, b) => a + b.size, 0);
         if (totalsize > (32 * 1024 * 1024))
@@ -60,9 +67,8 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
 
     const result = await createGameService(Number(user_id), req.body);
 
-    if (req?.files?.icon?.[0]) {
-        putGameFile(result.id, "icon.png", req.files.icon?.[0].buffer);
-    }
+    if (req?.files?.icon?.[0])
+        putGameFile(result?.id, "icon.png", req.files.icon?.[0]?.buffer, req.files.icon?.[0]?.size);
 
     if (req?.files?.game) {
         const files = req?.files?.game;
