@@ -10,6 +10,9 @@ import getUserLogin from "../users/getUserLogin";
 import getUser from "../users/getUser";
 import banUser from "../users/banUser";
 import { deleteJam, getJam } from "../jams";
+import kafka from "@/lib/kafka";
+import dayjs from "dayjs";
+const producer = kafka.producer();
 
 /**
  * Answer for report
@@ -59,46 +62,105 @@ const answerReport = async (
   await redis.delAllWithLog(`reports:*`);
 
   const report = await getReport(report_id);
-  console.log(data.params);
 
   // Ban instance's author to 3/30 days:
   if (data?.params?.ban_instance_3d || data?.params?.ban_instance_30d) {
+    let user_id;
     switch(report.target_type) {
       case "user": {
         await banUser(report.target_id, data?.params?.ban_instance_3d ? 3 : 30);
+        user_id = report.target_id;
       } break;
       case "game": {
         const game = await getGameById(report.target_id);
         await banUser(game.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        user_id = game.creater_id;
       } break;
       case "comment": {
         const comment = await getComment(report.target_id);
         await banUser(comment.source_id, data?.params?.ban_instance_3d ? 3 : 30);
+        user_id = comment.source_id;
       } break;
       case "jam": {
         const jam = await getJam(report.target_id);
         await banUser(jam.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        user_id = jam.creater_id;
       } break;
+    }
+
+    if (user_id) {
+      const user_result = await db.query(`SELECT email FROM "users" WHERE id = $1`, [ user_id ]);
+      if (user_result?.rowCount !== 0) {
+        await producer.connect();
+        await producer.send({
+          topic: "notify",
+          messages: [
+              {
+                  key: `block:${user_id}`,
+                  value: JSON.stringify({
+                      type: "block",
+                      subject: `Blocked!`,
+                      email: user_result?.rows?.[0]?.email,
+                      props: {
+                          date: dayjs().add(data?.params?.ban_instance_3d ? 3 : 30, "day")?.format("DD.MM.YYYY")
+                      }
+                  })
+              }
+          ]
+        });
+        console.log("sended block notify");
+        await producer.disconnect();
+      }
     }
   }
 
   if (data?.params?.unban_instance) {
+    let user_id;
     switch(report.target_type) {
       case "user": {
         await banUser(report.target_id, -1);
+        user_id = report.target_id;
       } break;
       case "game": {
         const game = await getGameById(report.target_id);
         await banUser(game.creater_id, -1);
+        user_id = game.creater_id;
       } break;
       case "comment": {
         const comment = await getComment(report.target_id);
         await banUser(comment.source_id, -1);
+        user_id = comment.source_id;
       } break;
       case "jam": {
         const jam = await getJam(report.target_id);
         await banUser(jam.creater_id, -1);
+        user_id = jam.creater_id;
       } break;
+    }
+
+    if (user_id) {
+      const user_result = await db.query(`SELECT email FROM "users" WHERE id = $1`, [ user_id ]);
+      if (user_result?.rowCount !== 0) {
+        await producer.connect();
+        await producer.send({
+          topic: "notify",
+          messages: [
+              {
+                  key: `unblock:${user_id}`,
+                  value: JSON.stringify({
+                      type: "block",
+                      subject: `Unblocked!`,
+                      email: user_result?.rows?.[0]?.email,
+                      props: {
+                          date: dayjs()?.format("DD.MM.YYYY")
+                      }
+                  })
+              }
+          ]
+        });
+        console.log("sended unblock notify");
+        await producer.disconnect();
+      }
     }
   }
 
