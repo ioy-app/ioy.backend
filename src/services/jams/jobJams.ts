@@ -47,6 +47,30 @@ export default () => {
               }
               console.log(`send notify jam started to ${users?.length}`);
             } break;
+            case "voting": {
+              const users = await getSubsByInstance(jam?.id, "jam");
+              for (const user_id of users) {
+                const email = await getEmail(user_id);
+                await producer.send({
+                  topic: "notify",
+                  messages: [
+                    {
+                      key: `voting_jam:${jam?.id}`,
+                      value: JSON.stringify({
+                        type: "jam_voting",
+                        subject: `Jam ${jam.title} start voting!`,
+                        email,
+                        props: {
+                          title: jam?.title,
+                          id: jam?.id
+                        }
+                      })
+                    }
+                  ]
+                });
+              }
+              console.log(`send notify jam voting started to ${users?.length}`);
+            } break;
             case "finished": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
