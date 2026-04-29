@@ -1,4 +1,5 @@
 import Game from "@/schemas/game";
+import { getComments } from "@/services/comments";
 import { getGameById, getGamesByUser as getGamesByUserService } from "@/services/games";
 import { status } from "@/services/games/getGamesByUser";
 import { getLikesByGame } from "@/services/likes";
@@ -26,10 +27,12 @@ const getGamesByUser = async (req: Request, res: Response): Promise<void> => {
         const game = await getGameById(Number(id));
         const likes = await getLikesByGame(Number(id));
         const saves = await getGameSubs(Number(id));
+        const [ _, comments ] = await getComments(Number(id), 0, 1, "game");
         items.push({
             ...game,
             likes,
-            saves
+            saves,
+            comments
         });
     }
 

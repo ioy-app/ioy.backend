@@ -21,6 +21,7 @@ const GameSchema = z.object({
         .optional(),
     /** Array tags */
     tags: z.array(z.string({ error: "errors.invalid.tags" }))
+        .max(10, "errors.max.tags")
         .optional(),
     /** Another authors */
     authors: z.array(z.string({ error: "errors.invalid.authors" }))
