@@ -1,44 +1,70 @@
 import db from "@/lib/db";
 import redis from "@/lib/redis";
-import IdSchema from "@/schemas/id";
-import ContentError from "@/utils/ContentError";
+import { IdSchemaCustom } from "@/schemas/id";
 import validate from "@/utils/validate";
 import { getGameById } from "../games";
 import es from "@/lib/elasticsearch";
 import getLikesByGame from "./getLikesByGame";
+import z from "zod";
 
 /**
- * Создание лайка по ID
+ * Create like by instance
  * 
- * @param {number} user_id ID Пользователя
- * @param {number} id ID Сущности
- * @param {"game" | "comment"} type Тип сущеости
- * @returns {Promise<boolean>}
+ * @param user_id - User ID
+ * @param target_id - Target ID
+ * @param target_type - Target Type
+ * @returns
 */
-const createLike = async (user_id: number, id: number, type: string = "game"): Promise<boolean> => {
-    validate(IdSchema, id);
-    validate(IdSchema, user_id);
+const createLike = async (
+    user_id: number,
+    target_id: number,
+    target_type: "game" | "comment" | "picture" = "game"
+): Promise<boolean> => {
+    validate(z.object({
+        user_id: IdSchemaCustom("user_id"),
+        target_id: IdSchemaCustom("target_id"),
+        target_type: z.enum([
+            "game",
+            "comment",
+            "picture"
+        ], "errors.invalid.target_type")
+        .nonoptional("errors.required.target_type")
+    }), {
+        user_id,
+        target_id,
+        target_type
+    }, "createLike");
 
-    if (type == "game") {
-        const game = await getGameById(id);
-        if (game.status != "public")
-            return false;
+    switch(target_type) {
+        case "game": {
+            const gamedata = await getGameById(target_id);
+            if (gamedata.status != "public")
+                return false;
 
-        await es.index({
-            index: "games",
-            id: String(game.id),
-            document: {
-                title: game.title,
-                description: game.description,
-                date_created: game.date_created,
-                date_updated: game.date_updated,
-                tags: game.tags,
-                likes: await getLikesByGame(game.id)
-            }
-        });
+            await es.index({
+                index: "games",
+                id: String(gamedata?.id),
+                document: {
+                    title: gamedata?.title,
+                    description: gamedata?.description,
+                    date_created: gamedata?.date_created,
+                    date_updated: gamedata?.date_updated,
+                    tags: gamedata?.tags,
+                    likes: await getLikesByGame(gamedata?.id)
+                }
+            });
+            await redis.delAllWithLog(`user_id:${user_id}:likes:*`);
+        } break;
+        case "comment": {
+            await redis.delWithLog(`comment:${target_id}`);
+        } break;
+        case "picture": {
+            await redis.delWithLog(`picture:${target_id}`);
+            await redis.delAllWithLog(`user_id:${user_id}:likes:*`);
+        } break;
     }
 
-    const result = await db.query(`
+    await db.query(`
         INSERT INTO "likes" (
             source_id,
             target_id,
@@ -46,19 +72,22 @@ const createLike = async (user_id: number, id: number, type: string = "game"): P
         ) SELECT $1, $2, $3
         WHERE NOT EXISTS (
             SELECT 1 FROM "likes"
-            WHERE source_id = $1 AND target_id = $2 AND target_type = $3
+            WHERE
+                source_id = $1
+                AND target_id = $2
+                AND target_type = $3
         )
-        RETURNING id, date_created
-    `, [ user_id, id, type ]);
+        RETURNING
+            id,
+            date_created
+    `, [
+        user_id,
+        target_id,
+        target_type
+    ]);
 
-    if (result.rowCount !== 0) {
-        redis.delWithLog(`likes_count:${type}:${id}`);
-        redis.delWithLog(`likes_check:${type}:${id}:${user_id}`);
-        if (type == "game")
-            redis.delAllWithLog(`user_id:${user_id}:likes:*`);
-        if (type == "comment")
-            redis.delWithLog(`comment:${id}`);
-    }
+    await redis.delWithLog(`likes_count:${target_type}:${target_id}`);
+    await redis.delWithLog(`likes_check:${target_type}:${target_id}:${user_id}`);
 
     return true;
 }
