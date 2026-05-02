@@ -5,54 +5,57 @@ import validate from "@/utils/validate";
 import z from "zod";
 
 /**
- * Get ids subs by instance
+ * Get total of subscribers by instance
  * 
  * @param target_id - Target ID
- * @param target_type - Target type
+ * @param target_type - Target Type
  * @example
- * return getSubsByInstance(10, "game")
+ * return getSubsCounterByInstance(10, "game")
 */
-const getSubsByInstance = async (
+const getSubsCounterByInstance = async (
   target_id: number,
-  target_type: "jam" | "user" | "game" | "picture"
-): Promise<number[] | null> => {
+  target_type: "game" | "jam" | "user" | "picture"
+): Promise<number> => {
   validate(z.object({
     target_id: IdSchemaCustom("target_id"),
     target_type: z.enum([
+      "game",
       "jam",
       "user",
-      "game",
       "picture"
     ], "errors.invalid.target_type")
     .nonoptional("errors.required.target_type")
-  }), "getSubsByInstance");
+  }), {
+    target_id,
+    target_type
+  }, "getSubsCounterByInstance");
 
-  const cache_key = `subs:${target_type}:${target_id}`;
+  const cache_key = `${target_type}:${target_id}:saves`;
   const cache = await redis.readWithLog(cache_key);
   if (cache) {
     try {
-      const result = JSON.parse(cache);
-      return result;
+      const total = Number(cache);
+      return total;
     }
     catch(err) { await redis.delWithLog(cache_key); }
   }
 
   const result = await db.query(`
     SELECT
-      source_id
+      COUNT(*) OVER()::INTEGER AS total
     FROM "subscribers"
     WHERE
       target_id = $1
       AND target_type = $2
-  `, [ target_id, target_type ]);
+  `, [
+    target_id,
+    target_type
+  ]);
 
-  if (result.rowCount === 0)
-    return null;
+  const total = result?.rows?.[0]?.total || 0;
+  redis.writeWithLog(cache_key, String(total));
 
-  const items: number[] = result?.rows?.map(row => row.source_id);
-  redis.writeWithLog(cache_key, JSON.stringify(items));
-
-  return items;
+  return total;
 }
 
-export default getSubsByInstance;
+export default getSubsCounterByInstance;
