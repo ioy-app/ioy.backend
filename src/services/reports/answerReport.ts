@@ -171,7 +171,7 @@ const answerReport = async (
         await deleteGame(report.target_id);
       } break;
       case "comment": {
-        await deleteComment(undefined, report.target_id);
+        await deleteComment(report.target_id);
       } break;
       case "jam": {
         await deleteJam(report.target_id);
