@@ -44,15 +44,17 @@ const editPicture = async (
       throw new AccessError("editPicture", "errors.jams_denied");
   }
 
-  try {
-      const isExists = await minio.bucketExists("pictures");
-      if (!isExists)
-          await minio.makeBucket("pictures");
-      if (!filedata?.size)
-          throw "errors.nofile";
-      await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+  if (filedata) {
+    try {
+        const isExists = await minio.bucketExists("pictures");
+        if (!isExists)
+            await minio.makeBucket("pictures");
+        if (!filedata?.size)
+            throw "errors.nofile";
+        await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+    }
+    catch(err) { console.log(err); }
   }
-  catch(err) { console.log(err); }
 
   const keys = Object.keys(props).filter(prop => [
       "title",

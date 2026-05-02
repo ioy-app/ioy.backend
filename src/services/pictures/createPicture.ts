@@ -90,15 +90,17 @@ const createPicture = async (
   await redis.delWithLog(`picture:${id}`);
   await redis.delAllWithLog(`pictures:*`);
 
-  try {
-      const isExists = await minio.bucketExists("pictures");
-      if (!isExists)
-          await minio.makeBucket("pictures");
-      if (!filedata?.size)
-          throw "errors.nofile";
-      await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+  if (filedata) {
+    try {
+        const isExists = await minio.bucketExists("pictures");
+        if (!isExists)
+            await minio.makeBucket("pictures");
+        if (!filedata?.size)
+            throw "errors.nofile";
+        await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+    }
+    catch(err) { console.log(err); }
   }
-  catch(err) { console.log(err); }
 
   return id;
 }
