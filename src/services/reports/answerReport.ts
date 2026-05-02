@@ -6,12 +6,11 @@ import z from "zod";
 import getReport from "./getReport";
 import { deleteComment, getComment } from "../comments";
 import { deleteGame, getGameById } from "../games";
-import getUserLogin from "../users/getUserLogin";
-import getUser from "../users/getUser";
 import banUser from "../users/banUser";
 import { deleteJam, getJam } from "../jams";
 import kafka from "@/lib/kafka";
 import dayjs from "dayjs";
+import { deletePicture, getPicture } from "../pictures";
 const producer = kafka.producer();
 
 /**
@@ -49,7 +48,7 @@ const answerReport = async (
     "answerReport"
   );
 
-  const result = await db.query(`
+  await db.query(`
     UPDATE "reports"
     SET
       answer=$3,
@@ -85,6 +84,11 @@ const answerReport = async (
         const jam = await getJam(report.target_id);
         await banUser(jam.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = jam.creater_id;
+      } break;
+      case "picture": {
+        const picture = await getPicture(report.target_id);
+        await banUser(picture.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        user_id = picture.creater_id;
       } break;
     }
 
@@ -125,6 +129,11 @@ const answerReport = async (
         const game = await getGameById(report.target_id);
         await banUser(game.creater_id, -1);
         user_id = game.creater_id;
+      } break;
+      case "picture": {
+        const picture = await getPicture(report.target_id);
+        await banUser(picture.creater_id, -1);
+        user_id = picture.creater_id;
       } break;
       case "comment": {
         const comment = await getComment(report.target_id);
@@ -175,6 +184,9 @@ const answerReport = async (
       } break;
       case "jam": {
         await deleteJam(report.target_id);
+      } break;
+      case "picture": {
+        await deletePicture(report.target_id);
       } break;
     }
   }
