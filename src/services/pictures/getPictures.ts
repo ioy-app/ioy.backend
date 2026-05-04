@@ -88,7 +88,7 @@ const getPictures = async (
     ...options
   ]);
 
-  const items = result?.rows?.map(item => item?.id);
+  const items = result?.rows?.map((item: { id: number, total: number }) => item?.id);
   const total = result?.rows?.[0]?.total;
   const data: [ number[], number ] = [ items, total ];
 

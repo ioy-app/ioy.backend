@@ -11,7 +11,10 @@ import z from "zod";
  * @example
  * return getReports(0, 5)
 */
-const getReports = async (offset: number = 0, limit: number = 20): Promise<[number[], number]> => {
+const getReports = async (
+    offset: number = 0,
+    limit: number = 20
+): Promise<[number[], number]> => {
     validate(z.object({
         offset: z.number("errors.invalid.offset")
             .int("errors.invalid.offset")

@@ -12,7 +12,7 @@ const deleteComment = async (req: Request, res: Response): Promise<void> => {
     if (comment.source_id != req.user_id)
         throw new AccessError("deleteComment", "errors.denied");
 
-    const is_deleted = await deleteCommentService(Number(gameid), Number(commentid));
+    const is_deleted = await deleteCommentService(Number(commentid));
     if (!is_deleted)
         throw new ContentError("deleteComment", "errors.denied");
 

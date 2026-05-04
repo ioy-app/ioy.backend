@@ -1,7 +1,9 @@
 import db from "@/lib/db";
+import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { PictureValidate } from "@/types/picture";
 import validate from "@/utils/validate";
+import { Readable } from "stream";
 
 /**
  * Create new picture
@@ -14,6 +16,7 @@ import validate from "@/utils/validate";
  * @param status - public or draft (Default: draft)
  * @param is_background - Picture maybe game reference
  * @param game_id - Game ID
+ * @param filedata - Picture file
  * @example
  * return createPicture(1, "hello world", "test", ["1", "2"], undefined, "public", false, 10);
 */
@@ -25,7 +28,12 @@ const createPicture = async (
   jam_id?: number,
   status: "draft" | "public" = "draft",
   is_background?: boolean,
-  game_id?: number
+  game_id?: number,
+  filedata?: {
+    filename: string,
+    size: number,
+    buffer: Buffer
+  }
 ): Promise<number | null> => {
   validate(
     PictureValidate.omit({ id: true }),
@@ -81,6 +89,18 @@ const createPicture = async (
   const id = result?.rows?.[0]?.id;
   await redis.delWithLog(`picture:${id}`);
   await redis.delAllWithLog(`pictures:*`);
+
+  if (filedata) {
+    try {
+        const isExists = await minio.bucketExists("pictures");
+        if (!isExists)
+            await minio.makeBucket("pictures");
+        if (!filedata?.size)
+            throw "errors.nofile";
+        await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+    }
+    catch(err) { console.log(err); }
+  }
 
   return id;
 }

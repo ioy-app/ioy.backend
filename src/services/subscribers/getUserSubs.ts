@@ -1,57 +1,61 @@
 import db from "@/lib/db";
-import Game from "@/types/game";
 import validate from "@/utils/validate";
 import z from "zod";
-import { getGameById } from "../games";
 import redis from "@/lib/redis";
-import { validObj } from ".";
-import { User } from "@/types/user";
-import getUserId from "../users/getUserId";
-import getUser from "../users/getUser";
-import getUserLogin from "../users/getUserLogin";
+import { IdSchemaCustom } from "@/schemas/id";
 
-export type Type = "game" | "user" | "jam";
-export type getUserSubsProp = Game[] | User[];
-
-enum TypePrivacy {
-    "game"="favorites",
-    "user"="subscribers",
-    "jams"="jams"
+enum OrderEnum {
+    new="DESC",
+    old="ASC"
 }
 
 /**
- * Получение подписок пользователя на игры/пользователей/джемы
+ * Get sub's list of user subscribe
  * 
- * @param user_id - ID Пользователя 
- * @param type - Тип запроса
- * @param offset - Отступ
- * @param limit - Лимит записей
+ * @param user_id - User ID
+ * @param target_type - Target type
+ * @param offset - Offset
+ * @param limit - Limit
  * @returns
 */
 const getUserSubs = async (
-    user_id: number,
-    type: Type = "game",
+    source_id: number,
+    target_type: "game" | "user" | "jam" | "picture" = "game",
     offset: number = 0,
     limit: number = 5,
     sort: "new" | "old" = "new"
-): Promise<[getUserSubsProp, number]> => {
+): Promise<[ number[], number ]> => {
     validate(z.object({
-        user_id: z.number({ error: "errors.invalid.user_id" })
-            .nonnegative({ error: "errors.invalid.user_id" })
-            .nonoptional({ error: "errors.required.user_id" }),
-        offset: z.number({ error: "errors.invalid.offset" })
-            .nonnegative({ error: "errors.invalid.offset" })
+        source_id: IdSchemaCustom("source_id"),
+        offset: z.number("errors.invalid.offset")
+            .nonnegative("errors.invalid.offset")
+            .int("errors.invalid.offset")
             .optional(),
-        limit: z.number({ error: "errors.invlaid.limit" })
-            .nonnegative({ error: "errors.invalid.limit" })
+        limit: z.number("errors.invlaid.limit")
+            .nonnegative("errors.invalid.limit")
+            .int("errors.invalid.limit")
             .optional(),
-        sort: z.enum([ "new", "old" ], { error: "errors.invalid.sort" })
-            .optional(),
-        type: z.enum([ "game", "user", "jam" ], { error: "errors.invalid.type" })
-            .optional()
-    }), { user_id, offset, limit, sort, type }, "getUserSubs");
+        sort: z.enum([
+            "new",
+            "old"
+        ], "errors.invalid.sort")
+        .optional(),
+        target_type: z.enum([
+            "game",
+            "user",
+            "jam",
+            "picture"
+        ], "errors.invalid.target_type")
+        .optional()
+    }), {
+        source_id,
+        offset,
+        limit,
+        sort,
+        target_type
+    }, "getUserSubs");
 
-    const cache_key = `subscribers:${user_id}:${type}:${offset}:${limit}:${sort}`;
+    const cache_key = `subscribers:${source_id}:${target_type}:${offset}:${limit}:${sort}`;
     let cached = await redis.readWithLog(cache_key);
     if (cached) {
         try {
@@ -61,16 +65,10 @@ const getUserSubs = async (
         catch(err) { await redis.delWithLog(cache_key); }
     }
 
-    enum OrderEnum {
-        new="DESC",
-        old="ASC"
-    }
-
-    let result;
-
-    switch(type) {
+    let sql;
+    switch(target_type) {
         case "game": {
-            result = await db.query(`
+            sql = `
                 SELECT
                     s.target_id as id,
                     COUNT(*) OVER()::INTEGER AS total
@@ -85,46 +83,39 @@ const getUserSubs = async (
                     AND g.status = 'public'
                 WHERE s.source_id = $1
                 ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
-                OFFSET $3 LIMIT $4
-            `, [ user_id, type, offset, limit ])
+                OFFSET $3
+                LIMIT $4
+            `;
         } break;
-        case "user":
-            result = await db.query(`
+        default: {
+            sql = `
                 SELECT
-                    s.target_id as id,
+                    target_id as id,
                     COUNT(*) OVER()::INTEGER AS total
-                FROM "subscribers" s
-                JOIN "users" u
-                ON
-                    u.id = s.source_id
-                    AND s.target_type = $2
-                WHERE s.source_id = $1
-                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
-                OFFSET $3 LIMIT $4
-            `, [ user_id, type, offset, limit ]);
-        break;
-        case "jam":
-            result = await db.query(`
-                SELECT
-                    s.target_id as id,
-                    COUNT(*) OVER()::INTEGER AS total
-                FROM "subscribers" s
-                JOIN "users" u
-                ON
-                    u.id = s.source_id
-                    AND s.target_type = $2
-                WHERE s.source_id = $1
-                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
-                OFFSET $3 LIMIT $4
-            `, [ user_id, type, offset, limit ]);
-        break;
+                FROM "subscribers"
+                WHERE
+                    source_id = $1
+                    AND target_type = $2
+                ORDER BY date_created ${OrderEnum[sort] || "DESC"}
+                OFFSET $3
+                LIMIT $4
+            `;
+        } break;
     }
-    
-    const data: number[] = result?.rows?.map(row => row.id);
-    const total: number = result?.rows?.[0]?.total || 0;
 
-    redis.writeWithLog(cache_key, JSON.stringify([data, total]));
-    return [ data, total ];
+    const result = await db.query(sql, [
+        source_id,
+        target_type,
+        offset,
+        limit 
+    ]);
+    
+    const ids: number[] = result?.rows?.map((row: { id: number, total: number }) => row.id);
+    const total: number = result?.rows?.[0]?.total || 0;
+    const data: [ number[], number ] = [ ids, total ];
+
+    redis.writeWithLog(cache_key, JSON.stringify(data));
+    return data;
 }
 
 export default getUserSubs;

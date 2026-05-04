@@ -2,7 +2,7 @@ import db from "@/lib/db";
 import redis from "@/lib/redis";
 import IdSchema from "@/schemas/id";
 import validate from "@/utils/validate";
-import z, { nonoptional } from "zod";
+import z from "zod";
 
 /**
  * Get comments from target

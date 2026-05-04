@@ -8,6 +8,7 @@ import { getComment } from "@/services/comments";
 import { getJam } from "@/services/jams";
 import { getRole } from "@/services/roles";
 import AccessError from "@/utils/AccessError";
+import { getPicture } from "@/services/pictures";
 
 /**
  * Get reports list
@@ -49,6 +50,9 @@ const getReports = async(req: Request, res: Response): Promise<void> => {
                 } break;
                 case "jam":
                     instance = await getJam(report.target_id);
+                break;
+                case "picture":
+                    instance = await getPicture(report.target_id);
                 break;
             }
         }

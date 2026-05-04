@@ -1,13 +1,9 @@
 import { z } from "zod";
 import IdSchema from "@/schemas/id";
-import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
-import fs from "fs";
-import path from "path";
 import minio from "@/lib/minio";
-import Stream, { Readable } from "stream";
+import { Readable } from "stream";
 import redis from "@/lib/redis";
-import mime from "mime-types";
 
 /**
  * Сохранение/изменение файла из папки игры по ID
@@ -35,10 +31,7 @@ const putGameFile = async (id: number, filename: string, buffer: Buffer, size: n
         await redis.delWithLog(`game:${id}`);
         return true;
     }
-    catch(err) {
-        console.log(err);
-        //throw new ContentError("putGameFile", "errors.exists");
-    }
+    catch(err) { console.log(err); }
 
     return false;
 }

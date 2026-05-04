@@ -3,29 +3,31 @@ import validate from "@/utils/validate";
 import z from "zod";
 import checkSubscribe from "./checkSubscribe";
 import redis from "@/lib/redis";
+import { IdSchemaCustom } from "@/schemas/id";
 
 /**
- * Подписка/отписка на получателя в зависимости от его типа
+ * Create or Remove subs by instance
  * 
- * @param source_id - Заявитель
- * @param target_id - Получатель
- * @param target_type - Тип получателя
- * @returns - Возвращает подписку/отписку
+ * @param source_id - Source ID
+ * @param target_id - Target ID
+ * @param target_type - Target type
+ * @returns
 */
 const putSubscribe = async (
     source_id: number,
     target_id: number,
-    target_type: "user" | "game" | "jam"
+    target_type: "user" | "game" | "jam" | "picture"
 ): Promise<boolean> => {
     validate(z.object({
-        source_id: z.number({ error: "errors.invalid.source_id" })
-                    .nonnegative({ error: "errors.invalid.source_id" })
-                    .nonoptional({ error: "errors.required.source_id" }),
-        target_id: z.number({ error: "errors.invalid.target_id" })
-                    .nonnegative({ error: "errors.invalid.target_id" })
-                    .nonoptional({ error: "errors.required.target_id" }),
-        target_type: z.enum([ "user", "game", "jam" ], { error: "errors.invalid.target_type" })
-                        .nonoptional({ error: "errors.required.target_type" })
+        source_id: IdSchemaCustom("source_id"),
+        target_id: IdSchemaCustom("target_id"),
+        target_type: z.enum([
+            "user",
+            "game",
+            "jam",
+            "picture"
+        ], "errors.invalid.target_type")
+        .nonoptional("errors.required.target_type")
     }), {
         source_id,
         target_id,
@@ -33,7 +35,6 @@ const putSubscribe = async (
     }, "putSubscribe");
 
     const isSubscribe = await checkSubscribe(source_id, target_id, target_type);
-
     if (!isSubscribe) {
         await db.query(`
             INSERT INTO "subscribers" (
@@ -50,7 +51,11 @@ const putSubscribe = async (
                     AND target_type = $3
             )
             RETURNING id
-        `, [ source_id, target_id, target_type ]);
+        `, [
+            source_id,
+            target_id,
+            target_type
+        ]);
     } else {
         await db.query(`
             DELETE FROM "subscribers"
@@ -58,14 +63,29 @@ const putSubscribe = async (
                 source_id = $1
                 AND target_id = $2
                 AND target_type = $3
-        `, [ source_id, target_id, target_type ]);
+        `, [
+            source_id,
+            target_id,
+            target_type
+        ]);
     }
+    
     await redis.delWithLog(`is_subscribe:${source_id}:${target_id}:${target_type}`);
-    if (target_type == "user")
-        await redis.delWithLog(`user_id:${target_id}:followers`);
-    if (target_type == "game") {
-        await redis.delWithLog(`user_id:${target_id}:subscribers`);
-        await redis.delWithLog(`game:${target_id}:saves`);
+    switch(target_type) {
+        case "user":
+            await redis.delWithLog(`user_id:${target_id}:followers`);
+        break;
+        case "game":
+            await redis.delWithLog(`user_id:${target_id}:subscribers`);
+            await redis.delWithLog(`game:${target_id}:saves`);
+        break;
+        case "jam":
+            await redis.delAllWithLog(`jams:user:${target_id}:*`);
+        break;
+        case "picture":
+            await redis.delWithLog(`user_id:${target_id}:subscribers`);
+            await redis.delWithLog(`picture:${target_id}:saves`);
+        break;
     }
     await redis.delAllWithLog(`subscribers:${source_id}:${target_type}:*`);
     await redis.delWithLog(`subs:${target_type}:${target_id}`);
