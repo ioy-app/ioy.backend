@@ -79,7 +79,8 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
         // Notify update game:
         const is_notify = await redis.readWithLog(`notify:add_game:${id}`);
         if (!is_notify) {
-            const author_subscribers = await getSubsByInstance(game_data?.creater_id, "user");
+            const author_subscribers = await getSubsByInstance(user_id, "user");
+            console.log(author_subscribers);
             if (author_subscribers) {
                 await producer.connect();
                 for (const uid of author_subscribers) {

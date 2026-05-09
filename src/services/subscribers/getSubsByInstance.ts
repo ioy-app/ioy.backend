@@ -24,7 +24,10 @@ const getSubsByInstance = async (
       "picture"
     ], "errors.invalid.target_type")
     .nonoptional("errors.required.target_type")
-  }), "getSubsByInstance");
+  }), {
+    target_id,
+    target_type
+  }, "getSubsByInstance");
 
   const cache_key = `subs:${target_type}:${target_id}`;
   const cache = await redis.readWithLog(cache_key);
