@@ -1,6 +1,4 @@
 import GetAll from "./getAll";
-import postSubscribe from "./postSubscribe";
-
 import getGameFile from "./getGameFile";
 import getGameIcon from "./getGameIcon";
 import getGamePlay from "./getGamePlay";
@@ -13,7 +11,6 @@ import deleteGame from "./deleteGame";
 
 export {
     GetAll,
-    postSubscribe,
     getGameFile,
     getGameIcon,
     getGamePlay,

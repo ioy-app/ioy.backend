@@ -14,12 +14,11 @@ import z from "zod";
 */
 const deleteSubs = async (
     id: number,
-    type: "game" | "user" | "jam" | "picture"
+    type: "user" | "jam" | "picture"
 ): Promise<boolean> => {
     validate(z.object({
         id: IdSchemaCustom("id"),
         type: z.enum([
-            "game",
             "user",
             "jam",
             "picture"
@@ -44,10 +43,6 @@ const deleteSubs = async (
         switch(target_type) {
             case "user":
                 await redis.delWithLog(`user_id:${target_id}:followers`);
-            break;
-            case "game":
-                await redis.delWithLog(`user_id:${target_id}:subscribers`);
-                await redis.delWithLog(`game:${target_id}:saves`);
             break;
             case "jam":
                 await redis.delAllWithLog(`jams:user:${target_id}:*`);

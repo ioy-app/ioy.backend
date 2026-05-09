@@ -20,7 +20,7 @@ enum OrderEnum {
 */
 const getUserSubs = async (
     source_id: number,
-    target_type: "game" | "user" | "jam" | "picture" = "game",
+    target_type: "user" | "jam" | "picture",
     offset: number = 0,
     limit: number = 5,
     sort: "new" | "old" = "new"
@@ -41,7 +41,6 @@ const getUserSubs = async (
         ], "errors.invalid.sort")
         .optional(),
         target_type: z.enum([
-            "game",
             "user",
             "jam",
             "picture"
@@ -65,45 +64,18 @@ const getUserSubs = async (
         catch(err) { await redis.delWithLog(cache_key); }
     }
 
-    let sql;
-    switch(target_type) {
-        case "game": {
-            sql = `
-                SELECT
-                    s.target_id as id,
-                    COUNT(*) OVER()::INTEGER AS total
-                FROM "subscribers" s
-                JOIN "users" u
-                ON
-                    u.id = s.source_id
-                    AND s.target_type = $2
-                JOIN "games" g
-                ON
-                    g.id = s.target_id
-                    AND g.status = 'public'
-                WHERE s.source_id = $1
-                ORDER BY s.date_created ${OrderEnum[sort] || "DESC"}
-                OFFSET $3
-                LIMIT $4
-            `;
-        } break;
-        default: {
-            sql = `
-                SELECT
-                    target_id as id,
-                    COUNT(*) OVER()::INTEGER AS total
-                FROM "subscribers"
-                WHERE
-                    source_id = $1
-                    AND target_type = $2
-                ORDER BY date_created ${OrderEnum[sort] || "DESC"}
-                OFFSET $3
-                LIMIT $4
-            `;
-        } break;
-    }
-
-    const result = await db.query(sql, [
+    const result = await db.query(`
+        SELECT
+            target_id as id,
+            COUNT(*) OVER()::INTEGER AS total
+        FROM "subscribers"
+        WHERE
+            source_id = $1
+            AND target_type = $2
+        ORDER BY date_created ${OrderEnum[sort] || "DESC"}
+        OFFSET $3
+        LIMIT $4
+    `, [
         source_id,
         target_type,
         offset,

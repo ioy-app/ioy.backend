@@ -14,14 +14,13 @@ import z from "zod";
 */
 const getSubsByInstance = async (
   target_id: number,
-  target_type: "jam" | "user" | "game" | "picture"
+  target_type: "jam" | "user" | "picture"
 ): Promise<number[] | null> => {
   validate(z.object({
     target_id: IdSchemaCustom("target_id"),
     target_type: z.enum([
       "jam",
       "user",
-      "game",
       "picture"
     ], "errors.invalid.target_type")
     .nonoptional("errors.required.target_type")
