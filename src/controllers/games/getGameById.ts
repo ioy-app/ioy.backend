@@ -64,7 +64,6 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     
 
     let is_like: boolean;
-    let is_subscribe: boolean;
     let is_me: boolean;
     let is_vote: boolean;
     let roledata = {};
@@ -73,7 +72,6 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         const login = await getUserLogin(Number(user_id));
         const userdata = await getUser(login);
         is_like = await checkLikeByGame(Number(user_id), Number(id));
-        is_subscribe = await checkSubscribe(Number(user_id), Number(id), "game");
         is_me = Boolean(Number(user_id) == Number(data.creater_id))
         const role = await getRole(userdata.role_id);
         roledata = role;
@@ -98,7 +96,6 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         ...data,
         authors_data,
         is_like,
-        is_subscribe,
         is_me,
         recommendator: recommendator_data,
         roledata,

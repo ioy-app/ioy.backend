@@ -14,12 +14,11 @@ import z from "zod";
 */
 const getSubsCounterByInstance = async (
   target_id: number,
-  target_type: "game" | "jam" | "user" | "picture"
+  target_type: "jam" | "user" | "picture"
 ): Promise<number> => {
   validate(z.object({
     target_id: IdSchemaCustom("target_id"),
     target_type: z.enum([
-      "game",
       "jam",
       "user",
       "picture"

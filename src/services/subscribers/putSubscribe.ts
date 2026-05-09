@@ -16,14 +16,13 @@ import { IdSchemaCustom } from "@/schemas/id";
 const putSubscribe = async (
     source_id: number,
     target_id: number,
-    target_type: "user" | "game" | "jam" | "picture"
+    target_type: "user" | "jam" | "picture"
 ): Promise<boolean> => {
     validate(z.object({
         source_id: IdSchemaCustom("source_id"),
         target_id: IdSchemaCustom("target_id"),
         target_type: z.enum([
             "user",
-            "game",
             "jam",
             "picture"
         ], "errors.invalid.target_type")
@@ -74,10 +73,6 @@ const putSubscribe = async (
     switch(target_type) {
         case "user":
             await redis.delWithLog(`user_id:${target_id}:followers`);
-        break;
-        case "game":
-            await redis.delWithLog(`user_id:${target_id}:subscribers`);
-            await redis.delWithLog(`game:${target_id}:saves`);
         break;
         case "jam":
             await redis.delAllWithLog(`jams:user:${target_id}:*`);

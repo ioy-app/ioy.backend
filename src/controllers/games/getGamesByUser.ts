@@ -26,12 +26,10 @@ const getGamesByUser = async (req: Request, res: Response): Promise<void> => {
     for (const id of game_ids) {
         const game = await getGameById(Number(id));
         const likes = await getLikesByInstance(Number(id), "game");
-        const saves = await getSubsCounterByInstance(Number(id), "game");
         const [ _, comments ] = await getComments(Number(id), 0, 1, "game");
         items.push({
             ...game,
             likes,
-            saves,
             comments
         });
     }

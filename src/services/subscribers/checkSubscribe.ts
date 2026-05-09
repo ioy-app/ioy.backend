@@ -15,14 +15,13 @@ import z from "zod";
 const checkSubscribe = async (
     source_id: number,
     target_id: number,
-    target_type: "user" | "game" | "jam" | "picture"
+    target_type: "user" | "jam" | "picture"
 ): Promise<boolean> => {
     validate(z.object({
         source_id: IdSchemaCustom("source_id"),
         target_id: IdSchemaCustom("target_id"),
         target_type: z.enum([
             "user",
-            "game",
             "jam",
             "picture"
         ], "errors.invalid.target_type")

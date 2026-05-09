@@ -41,7 +41,6 @@ const deleteGame = async (id: number): Promise<boolean> => {
         await redis.delAllWithLog(`jams:games:${game?.jam_id}:*`);
 
     await deleteLikes(id, "game");
-    await deleteSubs(id, "game");
     await deleteComments(id, "game");
 
     try {
