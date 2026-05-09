@@ -38,7 +38,8 @@ const getGameById = async (id: number): Promise<Game> => {
             authors,
             jam_id,
             date_created,
-            date_updated
+            date_updated,
+            is_background
         FROM "games"
         WHERE
             id = $1

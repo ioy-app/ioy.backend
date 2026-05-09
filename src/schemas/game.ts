@@ -41,7 +41,9 @@ const GameSchema = z.object({
     creater_id: z.number({ error: "errors.invalid.creater_id" })
         .nonnegative({ error: "errors.invalid.creater_id" })
         .int({ error: "errors.invalid.creater_id" })
-        .nonoptional({ error: "errors.required.creater_id" })
+        .nonoptional({ error: "errors.required.creater_id" }),
+    is_background: z.boolean("errors.invalid.is_background")
+        .optional()
 });
 
 type Game = z.infer<typeof GameSchema> & {
