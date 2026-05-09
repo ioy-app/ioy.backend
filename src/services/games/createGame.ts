@@ -35,7 +35,8 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
         "tags",
         "status",
         "creater_id",
-        "jam_id"
+        "jam_id",
+        "is_background"
     ].includes(prop));
     const values = keys.map(key => props[key]);
 
@@ -65,7 +66,8 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
             authors,
             jam_id,
             date_created,
-            date_updated
+            date_updated,
+            is_background
     `, [ ...values ]);
 
     if (result.rowCount === 0)

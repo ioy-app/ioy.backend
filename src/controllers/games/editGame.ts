@@ -70,7 +70,10 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
             putGameFile(id, `files/${path}`, file?.buffer, file.size);
         }
     }
-
+    
+    if (typeof(req?.body?.is_background) == "string")
+        req.body.is_background = Boolean(req?.body?.is_background);
+    
     const result = await editGameService(id, req.body);
 
     if (result.status == "public") {
@@ -80,7 +83,6 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
         const is_notify = await redis.readWithLog(`notify:add_game:${id}`);
         if (!is_notify) {
             const author_subscribers = await getSubsByInstance(user_id, "user");
-            console.log(author_subscribers);
             if (author_subscribers) {
                 await producer.connect();
                 for (const uid of author_subscribers) {
