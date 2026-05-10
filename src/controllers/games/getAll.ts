@@ -7,7 +7,10 @@ export default async function GetAll(req, res) {
         index: "games",
         size: per_page,
         sort: [
-            { likes: { order: "desc" } }
+            {
+                likes: { order: "desc" },
+                comments: { order: "desc" }
+            }
         ]
     });
 
@@ -32,8 +35,6 @@ export default async function GetAll(req, res) {
         const data = await getGameById(Number(game._id));
         games.push(data);
     }
-
-    console.log(hits?.hits);
 
     res.status(200).json({
         games,
