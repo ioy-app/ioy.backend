@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import cors from "cors";
+import cron from "node-cron";
 import { rateLimit } from "express-rate-limit";
 
 dotenv.config();
@@ -64,9 +65,11 @@ app.use(errorHandler);
 
 (async () => {
   await initES();
-  await jobGamesSearch();
   await jobClearCodes();
   jobJams();
+  const reindexScheduler = cron.schedule("0 * * * *", jobGamesSearch);
+  reindexScheduler.start();
+  jobGamesSearch();
 
   app.listen(port, () => {
     console.log("[server]", `is running :${port}`);

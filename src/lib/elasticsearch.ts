@@ -2,11 +2,12 @@ import { Client } from "@elastic/elasticsearch";
 import dotenv from "dotenv";
 dotenv.config();
 
+const REQUEST_TIMEOUT_MS = 5_000;
+
 const es = new Client({
     node: process.env.ES_URL,
-    requestTimeout: 5000,
-    sniffOnStart: false,
-    sniffOnConnectionError: false
+    requestTimeout: REQUEST_TIMEOUT_MS,
+    maxRetries: 3
 });
 
 export const initES = async () => {
@@ -20,21 +21,5 @@ export const initES = async () => {
         console.log(err);
     }
 }
-
-async function test() {
-  await initES();
-
-  try {
-    const res = await es.index({
-      index: "test",
-      document: { hello: "world" },
-    });
-    console.log("result:", res);
-  } catch (err) {
-    console.error("error:", err.message);
-  }
-}
-
-test();
 
 export default es;
