@@ -11,12 +11,12 @@ import createCommentService from "@/services/comments/createComment";
 const createComment = async (req: Request, res: Response): Promise<void> => {
     const { gameid, commentid } = req.params;
     const isComment = typeof(commentid) != "undefined";
-
+    const type = req?.body?.type || "game";
     const response = await createCommentService(
         Number(isComment ? commentid : gameid),
         req.user_id,
         req.body.comment,
-        isComment ? "comment" : "game"
+        isComment ? "comment" : type
     );
 
     res.status(200).json(response);

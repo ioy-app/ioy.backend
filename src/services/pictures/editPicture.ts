@@ -11,6 +11,7 @@ import es from "@/lib/elasticsearch";
 import { getLikesByInstance } from "../likes";
 import minio from "@/lib/minio";
 import { Readable } from "stream";
+import { getComments } from "../comments";
 
 /**
  * Edit picture data
@@ -51,7 +52,7 @@ const editPicture = async (
             await minio.makeBucket("pictures");
         if (!filedata?.size)
             throw "errors.nofile";
-        await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+        await minio.putObject("pictures", `${id}/image.png`, Readable.from(filedata?.buffer));
     }
     catch(err) { console.log(err); }
   }
@@ -103,18 +104,21 @@ const editPicture = async (
 
   try {
       if (picture?.status == "public") {
-          await es.index({
-              index: "pictures",
-              id: String(picture?.id),
-              document: {
-                  title: picture?.title,
-                  description: picture?.description,
-                  date_created: picture?.date_created,
-                  date_updated: picture?.date_updated,
-                  tags: picture?.tags,
-                  likes: await getLikesByInstance(picture?.id, "picture")
-              }
-          });
+        const [_, comments] = await getComments(picture?.id, 0, 1);
+        await es.index({
+            index: "pictures",
+            id: String(picture?.id),
+            document: {
+                title: picture?.title,
+                description: picture?.description,
+                date_created: picture?.date_created,
+                date_updated: picture?.date_updated,
+                tags: picture?.tags,
+                type: "picture",
+                likes: await getLikesByInstance(picture?.id, "picture"),
+                comments
+            }
+        });
       } else {
           await es.delete({
               index: "pictures",

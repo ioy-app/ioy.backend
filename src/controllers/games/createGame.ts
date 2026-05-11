@@ -65,6 +65,9 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
     if ((total_games + 1) > 5)
         throw new ContentError("createGame", "errors.draft_limit");
 
+    if (typeof(req?.body?.is_background) == "string")
+        req.body.is_background = Boolean(req?.body?.is_background);
+
     const result = await createGameService(Number(user_id), req.body);
 
     if (req?.files?.icon?.[0])

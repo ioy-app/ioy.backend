@@ -17,13 +17,17 @@ const getComments = async (
     id: number,
     offset: number = 0,
     limit: number = 10,
-    type: "game" | "comment" = "game",
+    type: "game" | "comment" | "picture" = "game",
     sort: "new" | "old" = "new"
 ): Promise<[number[], number]> => {
     validate(
         z.object({
             id: IdSchema,
-            type: z.enum([ "game", "comment" ], { error: "errors.invalid.type" })
+            type: z.enum([
+                "game",
+                "comment",
+                "picture"
+            ], { error: "errors.invalid.type" })
                 .nonoptional({ error: "errors.required.type" }),
             offset: z.number({ error: "errors.invalid.offset" })
                 .nonnegative({ error: "errors.invalid.offset" })
