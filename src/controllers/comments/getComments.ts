@@ -77,13 +77,14 @@ const getComments = async (req: Request, res: Response): Promise<void> => {
     const isComment = typeof(commentid) != "undefined";
     const offset: number = req.query.offset && Number(req.query.offset);
     const limit: number = req.query.limit && Number(req.query.limit);
+    const type: "game" | "picture" = req?.query?.type || "game";
     const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
     const [ comments, total ] = await getCommentsService(
         Number(isComment ? commentid : gameid),
         offset,
         limit,
-        isComment ? "comment" : "game",
+        isComment ? "comment" : type,
         sort
     );
 

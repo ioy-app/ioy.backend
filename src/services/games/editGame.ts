@@ -4,10 +4,11 @@ import redis from "@/lib/redis";
 import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
-import { getLikesByGame } from "../likes";
+import { getLikesByGame, getLikesByInstance } from "../likes";
 import getGameById from "./getGameById";
 import { getJam } from "../jams";
 import AccessError from "@/utils/AccessError";
+import { getComments } from "../comments";
 
 /**
  * Edit game
@@ -86,6 +87,7 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
 
     try {
         if (game.status == "public") {
+            const [ _, comments ] = await getComments(game.id, 0, 1, "game");
             await es.index({
                 index: "games",
                 id: String(game.id),
@@ -95,7 +97,8 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
                     date_created: game.date_created,
                     date_updated: game.date_updated,
                     tags: game.tags,
-                    likes: await getLikesByGame(game.id)
+                    likes: await getLikesByInstance(game.id, "game"),
+                    comments
                 }
             });
         } else {

@@ -1,4 +1,5 @@
 import db from "@/lib/db";
+import es from "@/lib/elasticsearch";
 import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { PictureValidate } from "@/types/picture";
@@ -71,7 +72,9 @@ const createPicture = async (
           $7,
           $8
       )
-      RETURNING id
+      RETURNING
+        id,
+        date_created
   `, [
       creater_id,
       title,
@@ -87,6 +90,7 @@ const createPicture = async (
     return null;
 
   const id = result?.rows?.[0]?.id;
+  const date_created = result?.rows?.[0]?.date_created;
   await redis.delWithLog(`picture:${id}`);
   await redis.delAllWithLog(`pictures:*`);
 
@@ -97,9 +101,25 @@ const createPicture = async (
             await minio.makeBucket("pictures");
         if (!filedata?.size)
             throw "errors.nofile";
-        await minio.putObject("pictures", `${id}/${filedata?.filename}`, Readable.from(filedata?.buffer));
+        await minio.putObject("pictures", `${id}/image.png`, Readable.from(filedata?.buffer));
     }
     catch(err) { console.log(err); }
+  }
+
+  if (status == "public") {
+    await es.index({
+        index: "pictures",
+        id: String(id),
+        document: {
+            title,
+            description,
+            date_created: date_created,
+            tags: tags,
+            type: "picture",
+            likes: 0,
+            comments: 0
+        }
+    });
   }
 
   return id;

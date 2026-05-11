@@ -17,7 +17,7 @@ const createComment = async (
     id: number,
     source_id: number,
     comment: string,
-    type: "game" | "comment" = "game"
+    type: "game" | "comment" | "picture" = "game"
 ): Promise<Comment> => {
     validate(IdSchema, id);
     validate(IdSchemaCustom("source_id"), source_id);
@@ -45,7 +45,6 @@ const createComment = async (
 
     await redis.delAllWithLog(`comments:${type}:${id}:*`);
     redis.writeWithLog(`comment:${data.id}`, JSON.stringify(data));
-
     return data;
 }
 

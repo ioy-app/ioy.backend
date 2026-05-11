@@ -4,9 +4,13 @@ import Game from "@/schemas/game";
 import { getLikesByInstance } from "../likes";
 import { getComments } from "../comments";
 import ContentError from "@/utils/ContentError";
+import Picture from "@/types/picture";
 
-const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]> => {
-    const result = await db.query<Game>(`
+const handleGet = async (
+  offset: number = 0,
+  limit: number = 5
+): Promise<Picture[]> => {
+    const result = await db.query<Picture>(`
         SELECT
             id,
             title,
@@ -15,7 +19,7 @@ const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]>
             date_created,
             date_updated,
             COUNT(*) OVER()::INTEGER as total
-        FROM "games"
+        FROM "pictures"
         WHERE
             status = 'public'
         OFFSET $1
@@ -28,10 +32,9 @@ const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]>
     return result.rows as Game[];
 }
 
-const jobGamesSearch = async () => {
-    console.log("[job][elasticsearch] games start indexing");
+const jobPicturesSearch = async () => {
+    console.log("[job][elasticsearch] pictures start indexing");
     let count: number = 0;
-    //let isNext: boolean = true;
     const bulkStack = [];
     const bulkSize = 400;
 
@@ -47,7 +50,7 @@ const jobGamesSearch = async () => {
 
         const failed = response?.items?.filter?.((item) => item?.index?.error);
         if (failed?.length)
-            throw new ContentError("jobGamesSearch", `[job][es] Index error, count: ${failed?.length}`);
+            throw new ContentError("jobPicturesSearch", `[job][es] Index error, count: ${failed?.length}`);
 
         
         bulkStack.length = 0;
@@ -56,20 +59,20 @@ const jobGamesSearch = async () => {
 
     try {
         while(true) {
-            const games = await handleGet(count, bulkSize);
-            if (!games?.length)
+            const pictures = await handleGet(count, bulkSize);
+            if (!pictures?.length)
                 break;
-            for (const game of games) {
-                const likes = await getLikesByInstance(game?.id, "game");
-                const [ _, comments ] = await getComments(game?.id, 0, 1, "game");
+            for (const picture of pictures) {
+                const likes = await getLikesByInstance(picture?.id, "game");
+                const [ _, comments ] = await getComments(picture?.id, 0, 1, "game");
                 
                 bulkStack.push(
-                    { index: { _index: "games", _id: String(game.id) } },
+                    { index: { _index: "pictures", _id: String(picture.id) } },
                     {
-                        ...game,
+                        ...picture,
                         likes,
                         comments,
-                        type: "game"
+                        type: "picture"
                     }
                 );
             }
@@ -82,10 +85,10 @@ const jobGamesSearch = async () => {
     }
     catch(err) {
         console.log(err);
-        return setTimeout(() => jobGamesSearch(), 5_000);
+        return setTimeout(() => jobPicturesSearch(), 5_000);
     }
 
-    console.log("[job][elasticsearch] games indexed is", count);
+    console.log("[job][elasticsearch] pictures indexed is", count);
 }
 
-export default jobGamesSearch;
+export default jobPicturesSearch;

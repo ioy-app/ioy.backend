@@ -94,7 +94,9 @@ const createGame = async (user_id: number, props: Game): Promise<Game> => {
                     description: game.description,
                     date_created: game.date_created,
                     date_updated: game.date_updated,
-                    tags: game.tags
+                    tags: game.tags,
+                    likes: 0,
+                    comments: 0
                 }
             });
         }
