@@ -51,7 +51,7 @@ const createPicture = async (
   , "createPicture");
 
   const result = await db.query(`
-      INSERT INTO "jams" (
+      INSERT INTO "pictures" (
           creater_id,
           title,
           description,
@@ -68,7 +68,6 @@ const createPicture = async (
           $4,
           $5,
           $6,
-          $5,
           $7,
           $8
       )

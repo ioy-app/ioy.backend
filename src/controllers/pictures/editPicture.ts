@@ -21,13 +21,12 @@ const editPicture = async(req: Request, res: Response): Promise<void> => {
   if (picturedata?.creater_id != Number(user_id))
     throw new AccessError("editPicture", "errors.denied");
 
-  if (!image)
-    throw new ContentError("editPicture", "errors.required.image");
-  
-  if (image?.size > (3 * 1024 * 1024))
-    throw new AccessError("editPicture", "errors.image_limit");
-  if (image?.mimetype != "image/png")
-    throw new AccessError("editPicture", "errors.image_type");
+  if (image) {
+    if (image?.size > (3 * 1024 * 1024))
+      throw new AccessError("editPicture", "errors.image_limit");
+    if (image?.mimetype != "image/png")
+      throw new AccessError("editPicture", "errors.image_type");
+  }
 
   if (req?.body?.jam_id) {
     const jam_id = Number(req?.body?.jam_id);
@@ -54,7 +53,7 @@ const editPicture = async(req: Request, res: Response): Promise<void> => {
   }
 
   if (typeof(req?.body?.is_background) == "string")
-    req.body.is_background = Boolean(req?.body?.is_background);
+    req.body.is_background = Boolean(req?.body?.is_background == "true");
 
   const obj = await editPictureService(
     Number(req?.params?.id),

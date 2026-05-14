@@ -16,6 +16,7 @@ import {
     getUserSelf
 } from "@controllers/users";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
+import { getPicturesByUser } from "@/controllers/pictures";
 
 const upload = multer();
 const Router = ExpressRouter();
@@ -29,6 +30,7 @@ Router.get("/:login/favorites", Middleware, getUserFavorites);
 Router.get("/:login/subscribers", Middleware, getUserSubscribers);
 Router.put("/:login", upload.single("avatar"), MiddlewareRequired, putUser);
 Router.get("/:login/games", Middleware, getUserGames);
+Router.get("/:login/pictures", Middleware, getPicturesByUser);
 Router.get("/:login/likes", Middleware, getUserLikes);
 Router.get("/:login/subscribe", MiddlewareRequired, getUserSubscribe);
 Router.post("/:login/subscribe", MiddlewareRequired, postUserSubscribe);

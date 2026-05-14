@@ -23,7 +23,8 @@ const createReport = async (
             "game",
             "user",
             "jam",
-            "comment"
+            "comment",
+            "picture"
         ], "errors.invalid.target_type")
         .nonoptional("errors.required.target_type"),
         message: z.string("errors.invalid.message")

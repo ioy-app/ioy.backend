@@ -5,6 +5,7 @@ import {
   getPicture,
   getPictureImage,
   getPictures,
+  getPicturesMy,
   postPictureLike
 } from "@/controllers/pictures";
 import {
@@ -23,6 +24,7 @@ Router.post("/", upload.fields([
   { name: 'image', maxCount: 1 }
 ]), MiddlewareRequired, createPicture);
 Router.get("/", getPictures);
+
 Router.get("/:id/image", getPictureImage);
 Router.get("/:id", Middleware, getPicture);
 Router.put("/:id", upload.fields([
@@ -30,5 +32,7 @@ Router.put("/:id", upload.fields([
 ]), MiddlewareRequired, editPicture);
 Router.delete("/:id", MiddlewareRequired, deletePicture);
 Router.post("/:id/like", MiddlewareRequired, postPictureLike);
+Router.post("/my", MiddlewareRequired, getPicturesMy);
+
 
 export default Router;
