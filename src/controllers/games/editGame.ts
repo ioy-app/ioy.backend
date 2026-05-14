@@ -70,9 +70,9 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
             putGameFile(id, `files/${path}`, file?.buffer, file.size);
         }
     }
-    
+
     if (typeof(req?.body?.is_background) == "string")
-        req.body.is_background = Boolean(req?.body?.is_background);
+        req.body.is_background = Boolean(req?.body?.is_background == "true");
     
     const result = await editGameService(id, req.body);
 

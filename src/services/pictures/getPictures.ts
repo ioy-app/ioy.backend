@@ -19,7 +19,8 @@ const getPictures = async (
   limit?: number,
   search?: string,
   creater_id?: number,
-  order: "new" | "old" = "new"
+  order: "new" | "old" = "new",
+  type: "public" | "draft" | "all" = "public"
 ): Promise<[ number[], number ]> => {
   validate(z.object({
     offset: z.number("errors.invalid.offset")
@@ -40,16 +41,24 @@ const getPictures = async (
       "new",
       "old"
     ], "errors.invalid.order")
-      .optional()
+      .optional(),
+    type: z.enum([
+      "public",
+      "draft",
+      "all"
+    ], "errors.invalid.type")
+      .nonoptional(),
+    
   }), {
     offset,
     limit,
     search,
     creater_id,
-    order
+    order,
+    type
   }, "getPictures");
 
-  const cache_key = `pictures:${offset}:${limit}:${search}:${creater_id}:${order}`;
+  const cache_key = `pictures:${offset}:${limit}:${search}:${creater_id}:${order}:${type}`;
   const cache = await redis.readWithLog(cache_key);
   if (cache) {
     try {
@@ -74,14 +83,22 @@ const getPictures = async (
     filters.push(`(title ILIKE $${options?.length + 3} OR description ILIKE $${options?.length + 3})`);
     options.push(search);
   }
+  if (type) {
+    if (type != "all") {
+      filters.push(`status = $${options?.length + 3}`);
+      options.push(type);
+    }
+  }
+
   const result = await db.query(`
     SELECT
       id,
       COUNT(*) OVER()::INTEGER as total
     FROM "pictures"
     ${filters?.length && `WHERE ${filters?.join(" AND ")}` || ""}
-    OFFSET $1 LIMIT $2
     ORDER BY date_created ${OrderEnum[order] || "DESC"}
+    OFFSET $1
+    LIMIT $2
   `, [
     offset,
     limit,

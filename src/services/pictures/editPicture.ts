@@ -53,6 +53,7 @@ const editPicture = async (
         if (!filedata?.size)
             throw "errors.nofile";
         await minio.putObject("pictures", `${id}/image.png`, Readable.from(filedata?.buffer));
+        console.log(id, "ok");
     }
     catch(err) { console.log(err); }
   }
@@ -62,7 +63,8 @@ const editPicture = async (
       "description",
       "tags",
       "status",
-      "game_id"
+      "game_id",
+      "is_background"
   ].includes(prop));
   const values = keys.map(key => props[key]);
 
