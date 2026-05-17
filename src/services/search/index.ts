@@ -1,5 +1,5 @@
-import searchGames from "./searchGames";
+import search from "./search";
 
 export {
-    searchGames
+    search
 }

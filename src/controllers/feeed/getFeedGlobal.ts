@@ -17,18 +17,21 @@ const getFeedGlobal = async(req: Request, res: Response): Promise<void> => {
   const items = [];
 
   for (const item of content) {
-    const data = await getFeedPost(item?.id, item?.type);
-    if (!data?.creater_id)
-      continue;
-    const author_login = await getUserLogin(data?.creater_id);
-    if (!author_login)
-      continue;
-    const author_data = await getUser(author_login);
-    items.push({
-      ...data,
-      type: item?.type,
-      author_data
-    });
+    try {
+      const data = await getFeedPost(item?.id, item?.type);
+      if (!data?.creater_id)
+        continue;
+      const author_login = await getUserLogin(data?.creater_id);
+      if (!author_login)
+        continue;
+      const author_data = await getUser(author_login);
+      items.push({
+        ...data,
+        type: item?.type,
+        author_data
+      });
+    }
+    catch(err) {  }
   }
 
   res.status(200).json({

@@ -27,7 +27,6 @@ import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
 import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
-import Search from "@/controllers/search";
 import { jobJams } from "@/services/jams";
 import jobPicturesSearch from "@/services/pictures/jobPicturesSearch";
 
@@ -57,7 +56,6 @@ RouterV1.use("/games", GamesRouter);
 RouterV1.use("/comments", CommentsRouter);
 RouterV1.use("/sessions", Sessions);
 RouterV1.use("/roles", RolesRouter);
-RouterV1.get("/search", Search);
 RouterV1.use("/jams", JamsRouter);
 RouterV1.use("/reports", ReportRouter);
 RouterV1.use("/feed", FeedRouter);

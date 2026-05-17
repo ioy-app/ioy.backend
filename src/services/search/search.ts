@@ -9,15 +9,16 @@ enum prioritySearch {
 /**
  * Get result of search by games
  * @example
- * return searchGames()
+ * return search()
 */
-const searchGames = async (
+const search = async (
+    type: "games" | "pictures",
     search?: string,
     offset: number = 0,
     limit: number = 20
 ): Promise<any> => {
     const result = await es.search({
-        index: "games",
+        index: type,
         from: offset,
         size: limit,
         query: {
@@ -62,4 +63,4 @@ const searchGames = async (
     return [ items, total ];
 }
 
-export default searchGames;
+export default search;

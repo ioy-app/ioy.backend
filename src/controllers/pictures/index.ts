@@ -7,6 +7,7 @@ import getPictureImage from "./getPictureImage";
 import postPictureLike from "./postPictureLike";
 import getPicturesMy from "./getPicturesMy";
 import getPicturesByUser from "./getPicturesByUser";
+import getPicturesTags from "./getPicturesTags";
 
 export {
   createPicture,
@@ -17,5 +18,6 @@ export {
   getPictureImage,
   postPictureLike,
   getPicturesMy,
-  getPicturesByUser
+  getPicturesByUser,
+  getPicturesTags
 }

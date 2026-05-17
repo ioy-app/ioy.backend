@@ -6,6 +6,7 @@ import {
   getPictureImage,
   getPictures,
   getPicturesMy,
+  getPicturesTags,
   postPictureLike
 } from "@/controllers/pictures";
 import {
@@ -24,6 +25,7 @@ Router.post("/", upload.fields([
   { name: 'image', maxCount: 1 }
 ]), MiddlewareRequired, createPicture);
 Router.get("/", getPictures);
+Router.get("/tags", getPicturesTags);
 
 Router.get("/:id/image", getPictureImage);
 Router.get("/:id", Middleware, getPicture);
