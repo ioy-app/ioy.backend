@@ -1,4 +1,4 @@
-import GetAll from "./getAll";
+import getGames from "./getGames";
 import getGameFile from "./getGameFile";
 import getGameIcon from "./getGameIcon";
 import getGamePlay from "./getGamePlay";
@@ -8,9 +8,10 @@ import createGame from "./createGame";
 import getGamesByUser from "./getGamesByUser";
 import editGame from "./editGame";
 import deleteGame from "./deleteGame";
+import getGamesTags from "./getGamesTags";
 
 export {
-    GetAll,
+    getGames,
     getGameFile,
     getGameIcon,
     getGamePlay,
@@ -19,5 +20,6 @@ export {
     createGame,
     getGamesByUser,
     editGame,
-    deleteGame
+    deleteGame,
+    getGamesTags
 }

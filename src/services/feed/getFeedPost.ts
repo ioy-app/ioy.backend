@@ -1,5 +1,6 @@
 import { getGameById } from "../games";
 import { getJam } from "../jams";
+import { getPicture } from "../pictures";
 
 /**
  * Get post data
@@ -8,7 +9,7 @@ import { getJam } from "../jams";
 */
 const getFeedPost = async (
   id: number,
-  type: "game" | "jam"
+  type: "game" | "jam" | "picture"
 ): Promise<any> => {
   switch(type) {
     default:
@@ -19,6 +20,9 @@ const getFeedPost = async (
     break;
     case "jam":
       return (await getJam(id));
+    break;
+    case "picture":
+      return (await getPicture(id));
     break;
   }
 }

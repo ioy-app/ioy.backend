@@ -46,12 +46,19 @@ const getFeedGlobal = async (
         date_created
       FROM "games"
       WHERE status = 'public'
-      UNION ALL
-      SELECT
-        id,
-        'jam' AS type,
-        date_created
-      FROM "jams"
+      UNION ALL (
+        SELECT
+          id,
+          'jam' AS type,
+          date_created
+        FROM "jams"
+        UNION ALL
+        SELECT
+          id,
+          'picture' AS type,
+          date_created
+        FROM "pictures"
+      )
     )
     SELECT
       id,
