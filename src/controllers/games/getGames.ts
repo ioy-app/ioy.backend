@@ -12,11 +12,12 @@ import { search } from "@/services/search";
 */
 const getGames = async(req: Request, res: Response): Promise<void> => {
     const offset = Number(req?.query?.offset || 0);
+    const count = Number(req?.query?.count || per_page);
     const query_search: string = req.query.search && String(req.query.search);
 
     // Search on games:
     if (query_search) {
-        const [ ids, total ] = await search("games", query_search, offset, per_page);
+        const [ ids, total ] = await search("games", query_search, offset, count);
         const items = [];
         for (const id of ids) {
             const data = await getGameById(Number(id));
@@ -26,7 +27,7 @@ const getGames = async(req: Request, res: Response): Promise<void> => {
         res.status(200).json({
             items,
             offset,
-            limit: per_page,
+            limit: count,
             total
         });
         return;
@@ -35,7 +36,7 @@ const getGames = async(req: Request, res: Response): Promise<void> => {
     const { hits } = await es.search({
         index: "games",
         from: offset,
-        size: per_page,
+        size: count,
         sort: [
             { likes: { order: "desc" } },
             { comments: { order: "desc" } },
@@ -52,7 +53,7 @@ const getGames = async(req: Request, res: Response): Promise<void> => {
     res.status(200).json({
         items,
         offset,
-        limit: per_page,
+        limit: count,
         total: hits?.total?.value
     });
 }
