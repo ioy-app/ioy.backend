@@ -5,6 +5,7 @@ import Game, { GameSchema } from "@/schemas/game";
 import ContentError from "@/utils/ContentError";
 import validate from "@/utils/validate";
 import { getJam, getJamPlace } from "../jams";
+import { daily } from "../search";
 
 /**
  * Get game info by ID
@@ -61,6 +62,10 @@ const getGameById = async (id: number): Promise<Game> => {
             game.jam_result = jam?.results?.[game?.id];
         }
     }
+
+    const hype_items = await daily();
+    if (Number(hype_items?.game) == id)
+        game.hype = true;
 
     redis.writeWithLog(cache_key, JSON.stringify(game));
 

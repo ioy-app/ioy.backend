@@ -3,6 +3,7 @@ import redis from "@/lib/redis";
 import { IdSchemaCustom } from "@/schemas/id";
 import Picture from "@/types/picture";
 import validate from "@/utils/validate";
+import { daily } from "../search";
 
 /**
  * Get picture data
@@ -45,6 +46,11 @@ const getPicture = async (id: number): Promise<Picture | null> => {
     return null;
 
   const data = result?.rows?.[0];
+
+  const hype_items = await daily();
+    if (Number(hype_items?.picture) == id)
+        data.hype = true;
+
   redis.writeWithLog(cache_key, JSON.stringify(data));
   return data;
 }

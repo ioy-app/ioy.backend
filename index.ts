@@ -29,6 +29,7 @@ import jobClearCodes from "@/services/codes/jobClearCodes";
 import { initES } from "@/lib/elasticsearch";
 import { jobJams } from "@/services/jams";
 import jobPicturesSearch from "@/services/pictures/jobPicturesSearch";
+import Daily from "@/controllers/daily";
 
 const limiter = rateLimit({
   windowMs: 1000 * 60 * 10,
@@ -60,6 +61,7 @@ RouterV1.use("/jams", JamsRouter);
 RouterV1.use("/reports", ReportRouter);
 RouterV1.use("/feed", FeedRouter);
 RouterV1.use("/pictures", PicturesRouter);
+RouterV1.get("/daily", Daily);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
