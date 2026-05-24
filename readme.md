@@ -1,13 +1,8 @@
-# ioy.backend
-Backend for ioy.app
 
-### Stack:
-- NodeJS
-- Typescript
-- Redis
-- ElasticSearch
-- PostgreSQL
-- Kafka
+# ioy.backend
+![Banner](./repo/banner.png)
+
+[![Stack](https://skillicons.dev/icons?i=nodejs,ts,redis,elasticsearch,postgresql,kafka,aws&perline=4)](https://skillicons.dev)
 
 ### Links:
 - Licence: [GPL-3.0 licence](./LICENCE)
