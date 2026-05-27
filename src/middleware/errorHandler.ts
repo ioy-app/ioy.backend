@@ -3,9 +3,9 @@ import CustomError from "@/utils/CustomError";
 import ContentError from "@/utils/ContentError";
 import ValidError from "@/utils/ValidError";
 import logger from "@/lib/logger";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
-const errorHandler = (err: any, req: Request, res: Response) => {
+const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
     logger.error("Express error", {
         method: req.method,
         path: req.originalUrl,
@@ -39,7 +39,8 @@ const errorHandler = (err: any, req: Request, res: Response) => {
             msg: err?.message?.toString()
         });
     }
-    return res.status(422).json({
+
+    return res.status(500).json({
         msg: "errors.unknown"
     });
 }
