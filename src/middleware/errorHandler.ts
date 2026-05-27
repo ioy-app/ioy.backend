@@ -2,9 +2,17 @@ import jwt from "jsonwebtoken";
 import CustomError from "@/utils/CustomError";
 import ContentError from "@/utils/ContentError";
 import ValidError from "@/utils/ValidError";
+import logger from "@/lib/logger";
+import { Request, Response } from "express";
 
-const errorHandler = (err, req, res, next) => {
-    console.log(err);
+const errorHandler = (err: any, req: Request, res: Response) => {
+    logger.error("Express error", {
+        method: req.method,
+        path: req.originalUrl,
+        ip: req.ip,
+        error: err?.message,
+        stack: err?.stack
+    });
     if (err instanceof jwt.TokenExpiredError)
         return res.status(401).json({
             msg: "errors.jwt.expired"

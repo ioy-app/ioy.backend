@@ -4,6 +4,7 @@ import Game from "@/schemas/game";
 import { getLikesByInstance } from "../likes";
 import { getComments } from "../comments";
 import ContentError from "@/utils/ContentError";
+import logger from "@/lib/logger";
 
 const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]> => {
     const result = await db.query<Game>(`
@@ -29,7 +30,7 @@ const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]>
 }
 
 const jobGamesSearch = async () => {
-    console.log("[job][elasticsearch] games start indexing");
+    logger.info("Games start indexing");
     let count: number = 0;
     //let isNext: boolean = true;
     const bulkStack = [];
@@ -80,12 +81,12 @@ const jobGamesSearch = async () => {
 
         count += await flushBulk();
     }
-    catch(err) {
-        console.log(err);
+    catch(err: any) {
+        logger.error("Games indexing failed", err);
         return setTimeout(() => jobGamesSearch(), 5_000);
     }
 
-    console.log("[job][elasticsearch] games indexed is", count);
+    logger.info("Games finish indexing", { count });
 }
 
 export default jobGamesSearch;

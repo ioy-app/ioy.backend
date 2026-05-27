@@ -5,6 +5,7 @@ import { getLikesByInstance } from "../likes";
 import { getComments } from "../comments";
 import ContentError from "@/utils/ContentError";
 import Picture from "@/types/picture";
+import logger from "@/lib/logger";
 
 const handleGet = async (
   offset: number = 0,
@@ -33,7 +34,7 @@ const handleGet = async (
 }
 
 const jobPicturesSearch = async () => {
-    console.log("[job][elasticsearch] pictures start indexing");
+    logger.info("Pictures start indexing");
     let count: number = 0;
     const bulkStack = [];
     const bulkSize = 400;
@@ -84,11 +85,11 @@ const jobPicturesSearch = async () => {
         count += await flushBulk();
     }
     catch(err) {
-        console.log(err);
+        logger.error("Pictures indexing failed", err);
         return setTimeout(() => jobPicturesSearch(), 5_000);
     }
 
-    console.log("[job][elasticsearch] pictures indexed is", count);
+    logger.info("Pictures finish indexing", { count });
 }
 
 export default jobPicturesSearch;

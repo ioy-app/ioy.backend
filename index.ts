@@ -30,6 +30,7 @@ import { initES } from "@/lib/elasticsearch";
 import { jobJams } from "@/services/jams";
 import jobPicturesSearch from "@/services/pictures/jobPicturesSearch";
 import Daily from "@/controllers/daily";
+import logger from "@/lib/logger";
 
 const limiter = rateLimit({
   windowMs: 1000 * 60 * 10,
@@ -79,6 +80,6 @@ app.use(errorHandler);
   jobPicturesSearch();
 
   app.listen(port, () => {
-    console.log("[server]", `is running :${port}`);
+    logger.info("Server is running", { port });
   }); 
 })();
