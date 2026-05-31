@@ -37,6 +37,7 @@ const getUser = async (login: string): Promise<UserDetails> => {
             description,
             date_created,
             date_deleted,
+            date_donut,
             date_ban,
             ban_count,
             privacy,
@@ -53,7 +54,8 @@ const getUser = async (login: string): Promise<UserDetails> => {
     const user: UserDetails = result.rows[0];
     const isAvatar = await minio.checkFileExists("users", `${login}.png`);
     user.is_avatar = isAvatar && !(user?.date_ban && dayjs(user?.date_ban).isAfter(dayjs()));
-
+    user.is_donut = dayjs().isSameOrBefore(user.date_donut);
+    
     redisClient.writeWithLog(cache_key, JSON.stringify(user));
 
     return user;

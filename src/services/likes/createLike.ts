@@ -4,8 +4,8 @@ import { IdSchemaCustom } from "@/schemas/id";
 import validate from "@/utils/validate";
 import { getGameById } from "../games";
 import es from "@/lib/elasticsearch";
-import getLikesByGame from "./getLikesByGame";
 import z from "zod";
+import getLikesByInstance from "./getLikesByInstance";
 
 /**
  * Create like by instance
@@ -50,7 +50,7 @@ const createLike = async (
                     date_created: gamedata?.date_created,
                     date_updated: gamedata?.date_updated,
                     tags: gamedata?.tags,
-                    likes: await getLikesByGame(gamedata?.id)
+                    likes: await getLikesByInstance(gamedata?.id, "game")
                 }
             });
             await redis.delAllWithLog(`user_id:${user_id}:likes:*`);

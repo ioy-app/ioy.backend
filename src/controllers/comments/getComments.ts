@@ -2,7 +2,7 @@ import { Response } from "express";
 import { getComment, getComments as getCommentsService } from "@/services/comments";
 import getUser from "@/services/users/getUser";
 import getUserLogin from "@/services/users/getUserLogin";
-import { checkLikeByComment, getLikesByComment } from "@/services/likes";
+import { checkLikeByInstance, getLikesByInstance } from "@/services/likes";
 import verify from "@/utils/verify";
 import Request from "@/types/request";
 
@@ -41,14 +41,14 @@ const funcComment = async (id: number, req: Request) => {
 
     const login = await getUserLogin(comment.source_id);
     const author = await getUser(login);
-    const likes = await getLikesByComment(id);
+    const likes = await getLikesByInstance(id, "comment");
 
     let is_like: boolean;
     let is_me: boolean;
     
     if (req.token) {
         const { id: user_id } = await verify(req.token);
-        is_like = await checkLikeByComment(Number(user_id), id);
+        is_like = await checkLikeByInstance(Number(user_id), id, "comment");
         is_me = user_id == comment.source_id;
     }
     

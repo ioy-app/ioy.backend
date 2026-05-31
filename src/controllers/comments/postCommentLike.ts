@@ -1,4 +1,4 @@
-import { checkLikeByComment } from "@/services/likes";
+import { checkLikeByInstance} from "@/services/likes";
 import createLike from "@/services/likes/createLike";
 import deleteLike from "@/services/likes/deleteLike";
 import Request from "@/types/request";
@@ -7,7 +7,7 @@ import { Response } from "express";
 const postCommentLike = async (req: Request, res: Response): Promise<void> => {
     const { commentid } = req.params;
     
-    const is_like = await checkLikeByComment(Number(req.user_id), Number(commentid));
+    const is_like = await checkLikeByInstance(Number(req.user_id), Number(commentid), "comment");
     
     let status: string;
     if (is_like) {

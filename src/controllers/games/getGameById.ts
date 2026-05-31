@@ -5,13 +5,13 @@ import getUser from "@/services/users/getUser";
 import getUserLogin from "@/services/users/getUserLogin";
 import { UserDetails } from "@/types/user";
 import verify from "@/utils/verify";
-import checkLikeByGame from "@/services/likes/checkLikeByGame";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
 import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
 import minio from "@/lib/minio";
 import { getRole } from "@/services/roles";
 import { getJam } from "@/services/jams";
+import { checkLikeByInstance } from "@/services/likes";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -71,7 +71,7 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         const { id: user_id } = await verify(req.token);
         const login = await getUserLogin(Number(user_id));
         const userdata = await getUser(login);
-        is_like = await checkLikeByGame(Number(user_id), Number(id));
+        is_like = await checkLikeByInstance(Number(user_id), Number(id), "game");
         is_me = Boolean(Number(user_id) == Number(data.creater_id))
         const role = await getRole(userdata.role_id);
         roledata = role;
