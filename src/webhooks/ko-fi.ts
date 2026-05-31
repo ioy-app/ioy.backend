@@ -11,7 +11,8 @@ dotenv.config();
  * @param req - Request
  * @param res - Response
 */
-const KoFi = async(req: Request, res: Response): Promise<void> => {
+const KoFi = async (req: Request, res: Response): Promise<void> => {
+  logger.info("Ko-fi webhook started");
   const payload = JSON.parse(req?.body?.data);
   logger.info("Ko-fi webhook", payload);
 

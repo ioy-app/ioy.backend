@@ -64,7 +64,7 @@ RouterV1.use("/reports", ReportRouter);
 RouterV1.use("/feed", FeedRouter);
 RouterV1.use("/pictures", PicturesRouter);
 RouterV1.get("/daily", Daily);
-RouterV1.get("/webhooks", WebhooksRouter);
+RouterV1.use("/webhooks", WebhooksRouter);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
