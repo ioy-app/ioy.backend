@@ -22,6 +22,7 @@ import CommentsRouter from "@/routes/comments";
 import ReportRouter from "@/routes/reports";
 import FeedRouter from "@/routes/feed";
 import PicturesRouter from "@/routes/pictures";
+import WebhooksRouter from "@/routes/webhooks";
 
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
@@ -63,6 +64,7 @@ RouterV1.use("/reports", ReportRouter);
 RouterV1.use("/feed", FeedRouter);
 RouterV1.use("/pictures", PicturesRouter);
 RouterV1.get("/daily", Daily);
+RouterV1.get("/webhooks", WebhooksRouter);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);
