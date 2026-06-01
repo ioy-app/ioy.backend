@@ -5,6 +5,7 @@ import { Response } from "express";
 import { createPicture as createPictureService, getPicture } from "@/services/pictures";
 import { getJam } from "@/services/jams";
 import { getGameById } from "@/services/games";
+import donutUser from "@/services/users/donutUser";
 
 /**
  * Add new picture
@@ -23,7 +24,7 @@ const createPicture = async(req: Request, res: Response): Promise<void> => {
   if (image?.mimetype != "image/png")
       throw new AccessError("createPicture", "errors.image_type");
 
-  if (req?.body?.jam_id) {
+  if (req?.body?.jam_id && req?.body?.jam_id != "undefined") {
       const jam_id = Number(req?.body?.jam_id);
       const jamdata = await getJam(jam_id);
 
@@ -39,7 +40,7 @@ const createPicture = async(req: Request, res: Response): Promise<void> => {
       req.body.status = "public";
   }
 
-  if (req?.body?.game_id) {
+  if (req?.body?.game_id && req?.body?.game_id != "undefined") {
     const gamedata = await getGameById(Number(req?.body?.game_id));
     if (!gamedata || gamedata?.status != "public")
       throw new ContentError("createPicture", "errors.exists");
@@ -65,6 +66,7 @@ const createPicture = async(req: Request, res: Response): Promise<void> => {
   if (!id)
     throw new ContentError("createPicture", "errors.unknown");
 
+  await donutUser(user_id, 7);
   const picturedata = await getPicture(id);
   res.status(200).json(picturedata);
 }
