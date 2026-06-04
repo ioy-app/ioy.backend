@@ -12,6 +12,7 @@ import minio from "@/lib/minio";
 import { getRole } from "@/services/roles";
 import { getJam } from "@/services/jams";
 import { checkLikeByInstance } from "@/services/likes";
+import { getPicture, getPictureByGame } from "@/services/pictures";
 
 interface GameResponse extends Game {
     /** Подробная информация о каждом авторе */
@@ -33,7 +34,6 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
 
     const data = await getGameByIdService(Number(id));
     if (data.status != "public" && req?.user_id != data.creater_id) {
-        console.log(data);
         res.status(404).end();
         return;
     }
@@ -61,7 +61,15 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         }
     }
     catch(err) {}
-    
+
+
+    let picturedata;
+    if (data.is_background) {
+        const picture_id = await getPictureByGame(Number(id));
+        if (picture_id) {
+            picturedata = await getPicture(picture_id);
+        }
+    }
 
     let is_like: boolean;
     let is_me: boolean;
@@ -100,7 +108,8 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         recommendator: recommendator_data,
         roledata,
         jamdata,
-        is_vote
+        is_vote,
+        picturedata
     }
 
     res.status(200).json(obj as GameResponse);
