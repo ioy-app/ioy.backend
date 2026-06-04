@@ -31,6 +31,7 @@ export const PictureValidate = z.object({
   game_id: z.number("errors.invalid.game_id")
     .int("errors.invalid.game_id")
     .nonnegative("errors.invalid.game_id")
+    .nullable()
     .optional()
 });
 

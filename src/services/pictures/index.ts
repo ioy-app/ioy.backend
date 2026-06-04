@@ -4,6 +4,7 @@ import createPicture from "./createPicture";
 import deletePicture from "./deletePicture";
 import editPicture from "./editPicture";
 import getPictureImage from "./getPictureImage";
+import getPictureByGame from "./getPictureByGame";
 
 export {
   getPicture,
@@ -11,5 +12,6 @@ export {
   createPicture,
   deletePicture,
   editPicture,
-  getPictureImage
+  getPictureImage,
+  getPictureByGame
 }

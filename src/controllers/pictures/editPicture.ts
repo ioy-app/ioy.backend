@@ -50,7 +50,7 @@ const editPicture = async(req: Request, res: Response): Promise<void> => {
       throw new ContentError("editPicture", "errors.exists");
 
     req.body.game_id = Number(req?.body?.game_id);
-  }
+  } else req.body.game_id = null;
 
   if (typeof(req?.body?.is_background) == "string")
     req.body.is_background = Boolean(req?.body?.is_background == "true");
