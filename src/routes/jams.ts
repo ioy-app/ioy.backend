@@ -19,12 +19,12 @@ const upload = multer({
 const Router = express.Router();
 
 Router.get("/", Middleware, getJams);
+Router.get("/my", MiddlewareRequired, getJamsByUser);
 Router.get("/:id", Middleware, getJam);
 Router.get("/:id/icon", getJamIcon);
 Router.post("/", upload.fields([
   { name: 'icon', maxCount: 1 }
 ]), MiddlewareRequired, createJam);
-Router.post("/my", MiddlewareRequired, getJamsByUser);
 Router.delete("/:id", MiddlewareRequired, deleteJam);
 Router.post("/:id/join", MiddlewareRequired, joinJam);
 Router.post("/:id/leave", MiddlewareRequired, leaveJam);

@@ -17,7 +17,6 @@ const getJamsByUser = async (req: Request, res: Response): Promise<void> => {
     const search: string = req.query?.search && String(req.query.search) || undefined;
     const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
     const jams: "author" | "join" | "judge" = (req.query.jams && req.query.jams) as ("author" | "join" | "judge");
-    
     let jams_ids, total;
     switch(jams) {
         case "author":
