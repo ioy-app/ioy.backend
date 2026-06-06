@@ -18,7 +18,7 @@ const getReportResult = async (query: string, errors: string[] = []): Promise<an
       const sql = cache;
       const result = await db.query(sql);
       return {
-        result,
+        result: result?.rows,
         sql
       }
     }
