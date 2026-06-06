@@ -2,6 +2,8 @@ import logger from "@/lib/logger";
 import getDBSchemes from "./getDBSchemes";
 import AIClient from "@/lib/openai";
 import dotenv from "dotenv";
+import ContentError from "@/utils/ContentError";
+import redis from "@/lib/redis";
 
 dotenv.config();
 
@@ -13,6 +15,9 @@ dotenv.config();
  * return getAISql("Get last user info")
 */
 const getAISql = async (query: string, errors: string[] = []): Promise<any> => {
+  if (errors?.length >= 5)
+    throw new ContentError("getAISql", "errors.ai.limit");
+
   const schemes = await getDBSchemes();
   const obj = {}
   for (const scheme of schemes) {
@@ -87,6 +92,7 @@ const getAISql = async (query: string, errors: string[] = []): Promise<any> => {
   });
 
   const sql = response.choices[0].message.content;
+
   return sql;
 }
 

@@ -17,7 +17,7 @@ import { getReportResult } from "@/services/reportsAI";
  * @param res - Response
 */
 const getAIReports = async(req: Request, res: Response): Promise<void> => {
-  const comment = req.body.comment;  
+  const comment = req.body.comment;
   const login = await getUserLogin(req?.user_id);
   const userdata = await getUser(login);
   const roledata = await getRole(userdata.role_id);
@@ -25,6 +25,7 @@ const getAIReports = async(req: Request, res: Response): Promise<void> => {
   if (!roledata.is_view_reports)
       throw new AccessError("getReports", "errors.denied");
 
+  console.log(comment);
   const {
     result,
     sql
