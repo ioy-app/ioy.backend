@@ -47,7 +47,10 @@ const getUserGames = async (id: number, offset: number = 0, limit: number = 20, 
             id,
             COUNT(*) OVER()::INTEGER as total
         FROM "games"
-        WHERE creater_id = $1
+        WHERE (
+            creater_id = $1
+            OR $1 = ANY(authors)
+        )
         AND status = 'public'
         ORDER BY date_created ${OrderEnum[sort] || "DESC"}
         OFFSET $2 LIMIT $3

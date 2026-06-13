@@ -42,9 +42,10 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
     ].includes(prop));
     const values = keys.map(key => props[key]);
 
-    if (props?.authors?.length) {
+    if (props?.authors) {
         keys.push("authors");
         values.push(props?.authors || []);
+
     }
 
     const result = await db.query<Game[]>(`
@@ -78,6 +79,12 @@ const editGame = async (id: number, props: Game): Promise<Game> => {
 
     await redis.delAllWithLog(`user_id:*`);
     await redis.delAllWithLog(`games:user:${game.creater_id}:*`);
+    for (const uid of (gamedata?.authors || [])) {
+        await redis.delAllWithLog(`games:user:${uid}:*`);
+    }
+    for (const uid of (props?.authors || [])) {
+        await redis.delAllWithLog(`games:user:${uid}:*`);
+    }
     await redis.delAllWithLog(`subscribers:*`);
     await redis.delWithLog(`game:${id}`);
     await redis.delAllWithLog(`feed:global:*`);
