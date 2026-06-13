@@ -8,7 +8,6 @@ import verify from "@/utils/verify";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
 import Game from "@/schemas/game";
 import { checkSubscribe } from "@/services/subscribers";
-import minio from "@/lib/minio";
 import { getRole } from "@/services/roles";
 import { getJam } from "@/services/jams";
 import { checkLikeByInstance } from "@/services/likes";

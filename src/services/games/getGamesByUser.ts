@@ -70,7 +70,10 @@ const getGamesByUser = async (
             COUNT(*) OVER()::INTEGER as total
         FROM "games"
         WHERE
+        (
             creater_id = $1
+            OR $1 = ANY(authors)
+        )
             ${filters?.length >= 1 && `AND ${filters.join(" AND ")}` || ""}
         ORDER BY date_created ${OrderEnum[sort] || "DESC"}
         OFFSET $2 LIMIT $3

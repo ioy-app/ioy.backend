@@ -25,7 +25,6 @@ const getAIReports = async(req: Request, res: Response): Promise<void> => {
   if (!roledata.is_view_reports)
       throw new AccessError("getReports", "errors.denied");
 
-  console.log(comment);
   const {
     result,
     sql

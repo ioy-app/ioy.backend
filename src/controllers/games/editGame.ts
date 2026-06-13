@@ -74,6 +74,9 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
     if (typeof(req?.body?.is_background) == "string")
         req.body.is_background = Boolean(req?.body?.is_background == "true");
     
+    if (!req?.body?.authors)
+        req.body.authors = [];
+
     const result = await editGameService(id, req.body);
 
     if (result.status == "public") {
