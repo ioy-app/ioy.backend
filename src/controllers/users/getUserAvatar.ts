@@ -6,16 +6,15 @@ import dayjs from "dayjs";
 import { Request, Response } from "express";
 
 /**
- * Получение пользовательского аватара
+ * Get user avatar
  * 
- * @param req - Запрос 
- * @param res - Ответ 
+ * @param req - Request 
+ * @param res - Response 
 */
 const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
     try {
-
         const data: UserDetails = await getUser(login);
 
         if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
@@ -23,7 +22,6 @@ const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
 
         const fileStream = await getUserAvatarService(login);
 
-        //res.setHeader("Content-Type", "application/octet-stream");
         res.setHeader("Content-Type", "image/png");
         res.setHeader("Cache-Control", "public, max-age=300");
         

@@ -23,6 +23,7 @@ import ReportRouter from "@/routes/reports";
 import FeedRouter from "@/routes/feed";
 import PicturesRouter from "@/routes/pictures";
 import WebhooksRouter from "@/routes/webhooks";
+import SDKRouter from "@/routes/sdk";
 
 import errorHandler from "@middleware/errorHandler";
 import jobGamesSearch from "@/services/games/jobGamesSearch";
@@ -44,7 +45,7 @@ const limiter = rateLimit({
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://ioy.app",
+  origin: "https://ioy.app", //"https://ioy.app",
   credentials: true
 }));
 app.set("trust proxy", true);
@@ -65,6 +66,7 @@ RouterV1.use("/feed", FeedRouter);
 RouterV1.use("/pictures", PicturesRouter);
 RouterV1.get("/daily", Daily);
 RouterV1.use("/webhooks", WebhooksRouter);
+RouterV1.use("/sdk", SDKRouter);
 
 app.use("/v1", RouterV1);
 app.use(errorHandler);

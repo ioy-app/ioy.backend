@@ -9,6 +9,7 @@ import getSession from "@/services/sessions/getSession.js";
 import getUserLogin from "@/services/users/getUserLogin.js";
 import getUser from "@/services/users/getUser.js";
 import dayjs from "dayjs";
+import createToken from "@/services/sessions/createToken.js";
 
 interface JWTResponse extends jwt.JwtPayload {
     /** ID */
@@ -19,7 +20,10 @@ interface JWTResponse extends jwt.JwtPayload {
 
 const Middleware = async (req: Request, res: Response, next?: NextFunction) => {
     const authHeader: string = req?.headers?.authorization;
-    const token: string = authHeader && authHeader.split(" ")[1];
+    let token: string = authHeader && authHeader.split(" ")[1] || req?.cookies?.refresh_token;
+
+    if (!authHeader && req?.cookies?.refresh_token)
+        token = await createToken(token);
 
     req.token = token;
     req.is_access = false;
@@ -32,6 +36,7 @@ const Middleware = async (req: Request, res: Response, next?: NextFunction) => {
             req.is_access = true;
         }
         catch(err) {
+            console.log(err);
             req.is_access = false;
         }
     }
@@ -41,7 +46,10 @@ const Middleware = async (req: Request, res: Response, next?: NextFunction) => {
 
 const MiddlewareRequired = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader: string = req?.headers?.authorization;
-    const token: string = authHeader && authHeader.split(" ")[1];
+    let token: string = authHeader && authHeader.split(" ")[1] || req?.cookies?.refresh_token;
+
+    if (!authHeader && req?.cookies?.refresh_token)
+        token = await createToken(token);
 
     if (!token)
         throw new AccessError("MiddlewareRequired", "errors.denied");
