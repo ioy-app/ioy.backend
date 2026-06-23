@@ -35,7 +35,7 @@ import Daily from "@/controllers/daily";
 import logger from "@/lib/logger";
 
 const limiter = rateLimit({
-  windowMs: 1000 * 60 * 10,
+  windowMs: 1000 * 60 * 1,
   limit: 2000,
   legacyHeaders: false,
   message: "errors.limit"
