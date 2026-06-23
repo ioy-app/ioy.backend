@@ -49,6 +49,7 @@ export interface UserDetails extends User {
     controls?: UserController;
     /** Есть ли файл аватарки */
     is_avatar?: boolean;
+    is_donut?: boolean;
 }
 
 export interface UserController {
