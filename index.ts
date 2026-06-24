@@ -33,6 +33,7 @@ import { jobJams } from "@/services/jams";
 import jobPicturesSearch from "@/services/pictures/jobPicturesSearch";
 import Daily from "@/controllers/daily";
 import logger from "@/lib/logger";
+import { jobWriteScoresDB } from "@/services/highscores";
 
 const limiter = rateLimit({
   windowMs: 1000 * 60 * 1,
@@ -45,7 +46,7 @@ const limiter = rateLimit({
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(cors({
-  origin: "https://ioy.app", //"https://ioy.app",
+  origin: "*", //"https://ioy.app",
   credentials: true
 }));
 app.set("trust proxy", true);
@@ -79,6 +80,12 @@ app.use(errorHandler);
     jobGamesSearch();
     jobPicturesSearch();
   });
+
+  const highScoreWriter = cron.schedule("*/1 * * * *", () => {
+    jobWriteScoresDB();
+  });
+
+  highScoreWriter.start();
   reindexScheduler.start();
   jobGamesSearch();
   jobPicturesSearch();

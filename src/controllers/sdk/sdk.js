@@ -24,3 +24,34 @@ IOY.user.avatar = async () => {
   const url = URL.createObjectURL(response);
   return url;
 }
+
+
+IOY.highscores = {};
+
+IOY.highscores.get = async () => {
+  const response = await fetch(`${IOY.api}/highscores/rank`, {
+    credentials: "include"
+  }).then(e => e?.json?.());
+  return response;
+}
+
+IOY.highscores.all = async () => {
+  const response = await fetch(`${IOY.api}/highscores/top`, {
+    credentials: "include"
+  }).then(e => e?.json?.());
+  return response;
+}
+
+IOY.highscores.set = async (score) => {
+  const response = await fetch(`${IOY.api}/highscores`, {
+    credentials: "include",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      score
+    })
+  }).then(e => e?.json?.());
+  return response;
+}
