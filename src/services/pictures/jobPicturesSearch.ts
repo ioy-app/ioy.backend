@@ -19,6 +19,7 @@ const handleGet = async (
             tags,
             date_created,
             date_updated,
+						creater_id,
             COUNT(*) OVER()::INTEGER as total
         FROM "pictures"
         WHERE

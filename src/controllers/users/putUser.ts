@@ -26,16 +26,26 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     if (userdata.id != req.user_id)
         throw new AccessError("putUser", "errors.denied");
 
-    if (req?.file && req?.file?.size > (1 * 1024 * 1024))
+		const avatar = req?.files?.find?.((file) => file?.fieldname == "avatar");
+		const banner = req?.files?.find?.((file) => file?.fieldname == "banner");
+
+    if (avatar && avatar?.size > (1 * 1024 * 1024))
         throw new AccessError("putUser", "errors.avatar_limit");
 
-    if (req?.file && req?.file?.mimetype != "image/png")
+    if (avatar && avatar?.mimetype != "image/png")
         throw new AccessError("putUser", "errors.avatar_type");
+
+		if (banner && banner?.size > (1 * 1024 * 1024))
+        throw new AccessError("putUser", "errors.banner_limit");
+
+    if (banner && banner?.mimetype != "image/png")
+        throw new AccessError("putUser", "errors.banner_type");
 
     const data = await putUserService(
         login,
         req.body,
-        req?.file && req.file.buffer || null
+        avatar && avatar?.buffer || null,
+				banner && banner?.buffer || null
     );
     res.status(200).json(data);
 }
