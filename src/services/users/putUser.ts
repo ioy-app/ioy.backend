@@ -41,7 +41,7 @@ type Params = {
  * @param file - avatar file
  * @returns 
 */
-const putUser = async (login: string, params: Params, file?: Buffer): Promise<Params> => {
+const putUser = async (login: string, params: Params, file?: Buffer, banner?: Buffer): Promise<Params> => {
     validate(LoginSchema, login, "putUser");
     validate(z.object({
         login: LoginSchema,
@@ -101,6 +101,25 @@ const putUser = async (login: string, params: Params, file?: Buffer): Promise<Pa
         if (isFile && data_updated.login != login) {
             await minio.copyObject("users", `${data_updated.login}.png`, `users/${login}.png`);
             await minio.removeObject("users", `${login}.png`);
+        }
+    }
+    catch(err) {
+        console.log(err);
+        throw new ContentError("putUser", "errors.exists");
+    }
+
+		try {
+        const isExists = await minio.bucketExists("users");
+        if (!isExists)
+            await minio.makeBucket("users");
+
+        if (banner)
+            await minio.putObject("users", `${login}_banner.png`, Readable.from(banner));
+
+        const isFile = await minio.checkFileExists("users", `${login}_banner.png`);
+        if (isFile && data_updated.login != login) {
+            await minio.copyObject("users", `${data_updated.login}_banner.png`, `users/${login}_banner.png`);
+            await minio.removeObject("users", `${login}_banner.png`);
         }
     }
     catch(err) {

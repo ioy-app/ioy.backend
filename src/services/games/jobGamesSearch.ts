@@ -15,6 +15,7 @@ const handleGet = async (offset: number = 0, limit: number = 5): Promise<Game[]>
             tags,
             date_created,
             date_updated,
+						creater_id,
             COUNT(*) OVER()::INTEGER as total
         FROM "games"
         WHERE

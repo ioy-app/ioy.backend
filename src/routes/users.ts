@@ -17,6 +17,8 @@ import {
 } from "@controllers/users";
 import { Middleware, MiddlewareRequired } from "@/middleware/middleware";
 import { getPicturesByUser } from "@/controllers/pictures";
+import getUserBanner from "@/controllers/users/getUserBanner";
+import getUserInstances from "@/controllers/users/getUserInstances";
 
 const upload = multer();
 const Router = ExpressRouter();
@@ -26,9 +28,11 @@ Router.get("/self", MiddlewareRequired, getUserSelf);
 Router.post("/delete", MiddlewareRequired, deleteUser);
 Router.get("/:login", Middleware, getUser);
 Router.get("/:login/avatar", getUserAvatar);
+Router.get("/:login/banner", getUserBanner);
+Router.get("/:login/instances", getUserInstances);
 Router.get("/:login/favorites", Middleware, getUserFavorites);
 Router.get("/:login/subscribers", Middleware, getUserSubscribers);
-Router.put("/:login", upload.single("avatar"), MiddlewareRequired, putUser);
+Router.put("/:login", upload.any(), MiddlewareRequired, putUser);
 Router.get("/:login/games", Middleware, getUserGames);
 Router.get("/:login/pictures", Middleware, getPicturesByUser);
 Router.get("/:login/likes", Middleware, getUserLikes);
