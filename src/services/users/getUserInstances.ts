@@ -26,7 +26,7 @@ const getUserInstances = async (
 	}, "getUserInstances");
 
 	const { hits } = await es.search({
-		index: [ "games", "pictures" ],
+		index: "games,pictures",
 		from: offset,
 		size: limit,
 		query: {
