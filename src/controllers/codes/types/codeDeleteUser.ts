@@ -7,7 +7,7 @@ import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import { Response } from "express";
-import deleteUserService from "@/services/users/deleteUser";
+import deleteUserService, { deleteUserId } from "@/services/users/deleteUser";
 
 /**
  * Delete user
@@ -67,7 +67,7 @@ const CodeDeleteUser = async (payload: any, req: Request, res: Response): Promis
         await putSubscribe(id, jam_id, "jam");
     }
 
-    await deleteUserService(id);
+    await deleteUserId(id);
 
     res.status(200).json({
         status: "ok"

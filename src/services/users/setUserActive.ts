@@ -1,52 +1,53 @@
-import db from "@/lib/db";
+import ContentError from "@/utils/ContentError";
 import getUser from "./getUser";
 import redis from "@/lib/redis";
-import deleteFile from "@/utils/deleteFile";
 import getUserLogin from "./getUserLogin";
+import db from "@/lib/db";
 
 /**
- * Delete user 
+ * Active new user
  *
  * @param login - Login
  * @returns
 */
-const deleteUser = async (login: string): Promise<boolean> => {
+const setUserActive = async (login: string): Promise<boolean> => {
 	const {
 		id: user_id,
+		active,
 		login: local_login
 	} = await getUser(login);
 
+	if (active)
+		return true;
+
 	const result = await db.query(`
-		DELETE 
-		FROM "users"
-		WHERE
-			id=$1
+		UPDATE
+			"users"
+		SET
+			active=true
+		WHERE id=$1
 		RETURNING 1
 	`, [ user_id ]);
 	if (result?.rowCount === 0)
-		return true;
+		throw new ContentError("setUserActive", "errors.exists");
 
 	await redis.delAllWithLog(`user:${local_login}:*`);
 	await redis.delAllWithLog(`user_id:${user_id}:*`);
-
-	await deleteFile("users", `${local_login}.png`);
-	await deleteFile("users", `${local_login}_banner.png`);
-
 	return true;
 }
 
 /**
- * Delete user (With ID)
+ * Active new user (With user ID)
  *
  * @param user_id - User ID 
  * @returns 
 */
-const deleteUserId = async (user_id: number): Promise<boolean> => {
+const setUserIdActive = async (user_id: number): Promise<boolean> => {
 	const login = await getUserLogin(user_id);
-	return (await deleteUser(login));
+	return (await setUserActive(login));
 }
 
-export default deleteUser;
+export default setUserActive;
 export {
-	deleteUserId
+	setUserIdActive
 }

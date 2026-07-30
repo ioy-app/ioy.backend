@@ -5,7 +5,7 @@ import redis from "@/lib/redis";
 import getJam from "./getJam";
 import kafka from "@/lib/kafka";
 import { getSubsByInstance } from "../subscribers";
-import getEmail from "../users/getEmail";
+import { getUserIdEmail } from "../users/getUserEmail";
 const producer = kafka.producer();
 
 export default () => {
@@ -25,7 +25,7 @@ export default () => {
             case "in_process": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getEmail(user_id);
+                const email = await getUserIdEmail(user_id);
                 await producer.send({
                   topic: "notify",
                   messages: [
@@ -50,7 +50,7 @@ export default () => {
             case "voting": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getEmail(user_id);
+                const email = await getUserIdEmail(user_id);
                 await producer.send({
                   topic: "notify",
                   messages: [
@@ -74,7 +74,7 @@ export default () => {
             case "finished": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getEmail(user_id);
+                const email = await getUserIdEmail(user_id);
                 await producer.send({
                   topic: "notify",
                   messages: [

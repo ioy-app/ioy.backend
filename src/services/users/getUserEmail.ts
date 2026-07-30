@@ -1,47 +1,56 @@
-import { z } from "zod";
-import db from "@/lib/db";
-import redisClient from "@/lib/redis";
-import { UserDetails } from "@/types/user";
-import ContentError from "@/utils/ContentError";
-import validate from "@/utils/validate";
-import UserDetailsSchema from "@/schemas/userDetails";
+import redis from "@/lib/redis";
 import getUser from "./getUser";
+import ContentError from "@/utils/ContentError";
+import getUserLogin from "./getUserLogin";
+import db from "@/lib/db";
 
 /**
- * Получение данных о пользователе по почте
- * 
- * @param email - Почта
+ * Get user email 
+ *
+ * @param login - Login
  * @returns
 */
-const getUserEmail = async (email: string): Promise<UserDetails> => {
-    validate(z.email({
-        error: "errors.invalid.email"
-    }), email);
+const getUserEmail = async (login: string): Promise<string> => {
+	const user = await getUser(login);
 
-    const cache_key: string = `user_email:${email}`;
-    let cached = await redisClient.readWithLog(cache_key);
+	const cache_key = `user:${user?.login}:email`;
+	const cache = await redis.readWithLog(cache_key);
+	if (cache) {
+		try {
+			const result = cache;
+			return result;
+		}
+		catch { await reids.delWithLog(cache_key); }
+	}
 
-    if (cached) {
-        try {
-            const parsed = JSON.parse(cached as string);
-            return (await getUser(parsed));
-        }
-        catch(err) { await redisClient.delWithLog(cache_key); }
-    }
+	const result = await db.query<{ email: string }>(`
+		SELECT
+			email
+		FROM "users"
+		WHERE
+			id = $1
+	`, [ user?.id ]);
 
-    const result = await db.query<UserDetails>(`
-        SELECT login
-        FROM "users"
-        WHERE email = $1
-    `, [ email ]);
+	if (result?.rowCount === 0)
+		throw new ContentError("getUserEmail", "errors.exists");
 
-    if (result.rowCount === 0)
-        throw new ContentError("getUserEmail", "errors.exists");
+	const { email } = result?.rows?.[0];
+	redis.writeWithLog(cache_key, email);
+	return email;
+}
 
-    const login: string = result.rows?.[0]?.login;
-    redisClient.writeWithLog(cache_key, String(login));
-
-    return getUser(login);
+/**
+ * Get user email (With user ID)
+ *
+ * @param user_id - User ID 
+ * @returns
+*/
+const getUserIdEmail = async (user_id: number): Promise<string> => {
+	const login = await getUserLogin(user_id);
+	return (await getUserEmail(login));
 }
 
 export default getUserEmail;
+export {
+	getUserIdEmail
+}

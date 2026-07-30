@@ -1,66 +1,66 @@
-import db from "@lib/db";
-import { UserDetails } from "@/types/user";
-import LoginSchema from "@schemas/login";
-import ContentError from "@utils/ContentError";
-import validate from "@utils/validate";
-import redisClient from "@lib/redis";
-import UserDetailsSchema from "@/schemas/userDetails";
+import db from "@/lib/db";
 import minio from "@/lib/minio";
+import redis from "@/lib/redis";
+import LoginSchema from "@/schemas/login";
+import UserDetailsSchema from "@/schemas/userDetails";
+import { UserDetails } from "@/types/user";
+import ContentError from "@/utils/ContentError";
+import validate from "@/utils/validate";
 import dayjs from "dayjs";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrBefore);
 
 /**
- * Получение информации о пользователе
+ * Get user by login
  * 
- * @param login - Логин 
+ * @param login - Login
  * @returns
 */
 const getUser = async (login: string): Promise<UserDetails> => {
-    validate(LoginSchema, login, "getUser");
+	validate(LoginSchema, login, "getUser");
 
-    const cache_key: string = `user:${login}`;
-    let cached = await redisClient.readWithLog(cache_key);
+	const local_login = login?.trim?.();
+	const cache_key = `user:${local_login}`;
+	const cache = await redis.readWithLog(cache_key);
+	if (cache) {
+		try {
+			const result = JSON.parse(cache);
+			validate(UserDetailsSchema, result, "getUser");
+			return result;
+		}
+		catch { await redis.delWithLog(cache_key); }
+	}
 
-    if (cached) {
-        try {
-            const parsed = JSON.parse(cached as string);
-            validate(UserDetailsSchema, parsed, "getUser");
-            return parsed as UserDetails;
-        }
-        catch(err) { await redisClient.delWithLog(cache_key); }
-    }
+	const result = await db.query<UserDetails>(`
+		SELECT
+			id,
+			login,
+			description,
+			date_created,
+			date_deleted,
+			date_donut,
+			date_ban,
+			ban_count,
+			role_id,
+			active
+		FROM "users"
+		WHERE
+			login = $1
+	`, [ local_login ]);
 
-    const result = await db.query<UserDetails>(`
-        SELECT
-            id,
-            active,
-            login,
-            description,
-            date_created,
-            date_deleted,
-            date_donut,
-            date_ban,
-            ban_count,
-            privacy,
-            role_id
-        FROM "users"
-        WHERE
-            login = $1
-            AND active = true
-    `, [ login ]);
+	if (result.rowCount === 0)
+		throw new ContentError("getUser", "errors.exists");
 
-    if (result.rowCount === 0)
-        throw new ContentError("getUser", "errors.exists");
-    
-    const user: UserDetails = result.rows[0];
-    const isAvatar = await minio.checkFileExists("users", `${login}.png`);
-		const isBanner = await minio.checkFileExists("users", `${login}_banner.png`);
-    user.is_avatar = isAvatar && !(user?.date_ban && dayjs(user?.date_ban).isAfter(dayjs()));
-		user.is_banner = isBanner;
-    user.is_donut = dayjs().isSameOrBefore(user.date_donut);
-    
-    redisClient.writeWithLog(cache_key, JSON.stringify(user));
+	const user = result?.rows?.[0];
+	const isBan = user?.date_ban && dayjs(user?.date_ban)?.isAfter?.(dayjs());
 
-    return user;
+	user.is_avatar = !isBan && (await minio.checkFileExists("users", `${local_login}.png`));
+	user.is_banner = !isBan && (await minio.checkFileExists("users", `${local_login}_banner.png`));
+	user.is_donut = user?.date_donut && dayjs?.()?.isSameOrBefore?.(user?.date_donut);
+	
+	redis.writeWithLog(cache_key, JSON.stringify(user));
+	return user;
 }
 
 export default getUser;
