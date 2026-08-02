@@ -39,7 +39,7 @@ const funcComment = async (id: number, req: Request) => {
         };
     }
 
-    const login = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: comment?.source_id });
+    const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: comment?.source_id });
     const author = await promisegRPC(serviceUsers, "GetUser", { login });
     const likes = await getLikesByInstance(id, "comment");
 
