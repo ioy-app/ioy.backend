@@ -15,6 +15,7 @@ import getUserInstances from "@/controllers/users/getUserInstances";
 import deleteAvatar from "@/controllers/users/deleteAvatar";
 import deleteBanner from "@/controllers/users/deleteBanner";
 import postUserSubscribe from "@/controllers/users/postUserSubscribe";
+import { getFollowing, getLikes } from "@/controllers/dashboard";
 
 const upload = multer();
 const Router = ExpressRouter();
@@ -30,5 +31,7 @@ Router.delete("/:login/banner", MiddlewareRequired, deleteBanner);
 Router.get("/:login/instances", getUserInstances);
 Router.put("/:login", upload.any(), MiddlewareRequired, putUser);
 Router.post("/:login/subscribe", MiddlewareRequired, postUserSubscribe);
+Router.get("/:login/subscribers", MiddlewareRequired, getFollowing);
+Router.get("/:login/likes", MiddlewareRequired, getLikes);
 
 export default Router;

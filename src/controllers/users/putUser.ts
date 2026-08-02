@@ -12,7 +12,7 @@ import { serviceUsers } from "index";
  * @param res - Ответ
 */
 const putUser = async (req: Request & { file?: Multer }, res: Response): Promise<void> => {
-    const { login } = req.params;
+	const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: req?.user_id });  
 
     if (req?.body?.privacy)
         for (const [key, value] of Object.entries(req.body.privacy))
@@ -49,7 +49,7 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
 			}
 		});
 
-		const updated = await promisegRPC(serviceUsers, "GetUser", { login });
+		const updated = await promisegRPC(serviceUsers, "GetUser", { login: req?.body?.login || login });
     res.status(200).json(updated);
 }
 
