@@ -1,0 +1,167 @@
+syntax = "proto3";
+package users.v1;
+
+service UsersService {
+  rpc GetUser(RequestLogin) returns (User);
+  rpc GetUserEmail(RequestLogin) returns (ResponseString);
+  rpc GetUserIdEmail(RequestUserId) returns (ResponseString);
+  rpc GetUserFile(RequestFile) returns (ResponseFile);
+  rpc GetUserIdFile(RequestIdFile) returns (ResponseFile);
+  rpc GetUserId(RequestLogin) returns (ResponseInt);
+  rpc GetUserLogin(RequestUserId) returns (ResponseString);
+  rpc GetUserEmailLogin(RequestEmail) returns (ResponseString);
+  rpc GetUserNotify(RequestLogin) returns (ResponseNotify);
+  rpc GetUserIdNotify(RequestUserId) returns (ResponseNotify);
+  rpc GetUserInstances(RequestInstances) returns (ResponseInstances);
+  rpc GetUserIdInstances(RequestIdInstances) returns (ResponseInstances);
+  rpc SetUserActive(RequestLogin) returns (ResponseBool);
+  rpc SetUserIdActive(RequestUserId) returns (ResponseBool);
+  rpc SetUserBan(RequestWithDays) returns (ResponseBool);
+  rpc SetUserIdBan(RequestIdWithDays) returns (ResponseBool);
+  rpc SetUserDonut(RequestWithDays) returns (ResponseBool);
+  rpc SetUserIdDonut(RequestIdWithDays) returns (ResponseBool);
+  rpc DeleteUser(RequestLogin) returns (ResponseBool);
+  rpc DeleteUserId(RequestUserId) returns (ResponseBool);
+  rpc CreateUser(RequestCreate) returns (ResponseInt);
+  rpc EditUserEmail(RequestEditEmail) returns (ResponseBool);
+  rpc EditUserIdEmail(RequestIdEditEmail) returns (ResponseBool);
+  rpc EditUser(RequestEdit) returns (ResponseBool);
+  rpc EditUserId(RequestIdEdit) returns (ResponseBool);
+}
+
+message File {
+  bytes chunk = 1;
+}
+
+message RequestEdit {
+  string login = 1;
+  Params params = 2;
+}
+
+message RequestIdEdit {
+  int32 user_id = 1;
+  Params params = 2;
+}
+
+message Params {
+  optional string login = 1;
+  optional string description = 2;
+  optional bytes avatar = 3;
+  optional bytes banner = 4;
+  optional ResponseNotify notify = 5;
+}
+
+message RequestEditEmail {
+  string login = 1;
+	string current_email = 2;
+	string new_email = 3;
+}
+
+message RequestIdEditEmail {
+  int32 user_id = 1;
+  string current_email = 2;
+  string new_email = 3;
+}
+
+message RequestCreate {
+  string login = 1;
+  string email = 2;
+}
+
+message RequestWithDays {
+  string login = 1;
+  int32 days = 2;
+}
+
+message RequestIdWithDays {
+  int32 user_id = 1;
+  int32 days = 2;
+}
+
+message ResponseBool {
+  bool value = 1;
+}
+
+message RequestInstances {
+  string login = 1;
+  optional int32 offset = 2;
+  optional int32 limit = 3;
+  repeated string include = 4;
+}
+
+message RequestIdInstances {
+  int32 user_id = 1;
+  optional int32 offset = 2;
+  optional int32 limit = 3;
+  repeated string include = 4;
+}
+
+message ResultInstance {
+  int32 id = 1;
+  string type = 2;
+}
+
+message ResponseInstances {
+  repeated ResultInstance items = 1;
+  int32 total = 2;
+}
+
+message ResponseNotify {
+  optional bool new_game = 1;
+  optional bool new_jam = 2;
+  optional bool jam_started = 3;
+  optional bool jam_ended = 4;
+  optional bool jam_finish = 5;
+}
+
+message RequestIdFile {
+  int32 user_id = 1;
+  string type = 2;
+}
+message RequestFile {
+  string login = 1;
+  string type = 2;
+}
+
+message RequestEmail {
+  string email = 1;
+}
+
+message ResponseFile {
+  bytes data = 1;
+}
+
+message RequestLogin {
+  string login = 1;
+}
+message RequestUserId {
+  int32 user_id = 1;
+}
+
+message ResponseString {
+  string value = 1;
+}
+
+message ResponseInt {
+  int32 value = 1;
+}
+
+message User {
+  int32 id = 1;
+  string login = 2;
+  string description = 3;
+
+  bool active = 4;
+  int32 role_id = 5;
+
+  bool is_avatar = 6;
+  bool is_banner = 7;
+  bool is_donut = 8;
+
+  optional string date_created = 9;
+  optional string date_deleted = 10;
+  optional string date_ban = 11;
+  optional string date_donut = 12;
+
+  int32 ban_count = 13;
+}

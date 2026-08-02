@@ -1,7 +1,8 @@
-import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
 import { Response } from "express";
-import getUserAvatarService from "@/services/users/getUserAvatar";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
+import { Readable } from "stream";
 
 /**
  * Get user avatar for sdk
@@ -10,8 +11,13 @@ import getUserAvatarService from "@/services/users/getUserAvatar";
 */
 const getUserAvatar = async(req: Request, res: Response): Promise<void> => {
   try {
-    const login = await getUserLogin(req?.user_id);
-    const fileStream = await getUserAvatarService(login);
+    const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: req?.user_id });
+    const { data: buffer } = await promisegRPC(serviceUsers, "GetUserFile", {
+			login,
+			type: "avatar"
+		});
+
+		const fileStream = Readable.from(buffer);
 
     res.setHeader("Content-Type", "image/png");
     res.setHeader("Cache-Control", "public, max-age=300");

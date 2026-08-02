@@ -1,7 +1,8 @@
 import redis from "@/lib/redis";
 import { IdSchemaCustom } from "@/schemas/id";
 import validate from "@/utils/validate";
-import getUserLogin from "../users/getUserLogin";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Get top N users
@@ -23,7 +24,7 @@ const getScoreTops = async (game_id: number, n: number=10): Promise<any> => {
   for (let i = 0; i < rows?.length; i += 2) {
     const user_id = Number(rows?.[i]);
     const score = Number(rows?.[i + 1]);
-    const login = await getUserLogin(user_id);
+    const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id });
 
     lines.push({
       user_id,

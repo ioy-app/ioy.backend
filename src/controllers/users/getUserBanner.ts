@@ -1,9 +1,10 @@
-import getUser from "@/services/users/getUser";
 import { UserDetails } from "@/types/user";
 import AccessError from "@/utils/AccessError";
-import getUserBannerService from "@services/users/getUserBanner";
+import promisegRPC from "@/utils/promisegRPC";
 import dayjs from "dayjs";
 import { Request, Response } from "express";
+import { serviceUsers } from "index";
+import { Readable } from "stream";
 
 /**
  * Get user banner
@@ -15,12 +16,17 @@ const getUserBanner = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
     try {
-        const data: UserDetails = await getUser(login);
+        const data: UserDetails = await promisegRPC(serviceUsers, "GetUser", { login });
 
         if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
             throw new AccessError("getUserBanner", "errors.denied");
 
-        const fileStream = await getUserBannerService(login);
+        const { data: buffer } = await promisegRPC(serviceUsers, "GetUserFile", {
+					login,
+					type: "banner"
+				});
+
+				const fileStream = Readable.from(buffer);
 
         res.setHeader("Content-Type", "image/png");
         res.setHeader("Cache-Control", "public, max-age=300");

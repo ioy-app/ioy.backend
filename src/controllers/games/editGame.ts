@@ -6,13 +6,11 @@ import { getGameById, putGameFile } from "@/services/games";
 import editGameService from "@/services/games/editGame";
 import { getJam } from "@/services/jams";
 import { getSubsByInstance } from "@/services/subscribers";
-import getUser from "@/services/users/getUser";
-import getUserEmail from "@/services/users/getUserEmail";
-import getUserLogin from "@/services/users/getUserLogin";
-import getUserNotify from "@/services/users/getUserNotify";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
+import promisegRPC from "@/utils/promisegRPC";
 import { Response } from "express";
+import { serviceUsers } from "index";
 
 const producer = kafka.producer();
 
@@ -80,7 +78,7 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
     const result = await editGameService(id, req.body);
 
     if (result.status == "public") {
-        const author_login = await getUserLogin(result.creater_id);
+        const { value: author_login } = await promisegRPC(serviceUsers, "GetUserLogin", { login: result?.creater_id });
 
         // Notify update game:
         const is_notify = await redis.readWithLog(`notify:add_game:${id}`);
@@ -89,9 +87,8 @@ const editGame = async (req: Request, res: Response): Promise<void> => {
             if (author_subscribers) {
                 await producer.connect();
                 for (const uid of author_subscribers) {
-                    const user_login = await getUserLogin(uid);
-                    const user_rules = await getUserNotify(user_login);
-
+                    const { value: user_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: uid });
+                    const user_rules = await promisegRPC(serviceUsers, "GetUserNotify", { login: user_login });
                     if (!user_rules.new_game)
                         continue;
 

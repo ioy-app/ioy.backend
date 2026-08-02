@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
-import getUser from "@/services/users/getUser";
 import logger from "@/lib/logger";
-import donutUser from "@/services/users/donutUser";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 dotenv.config();
 
@@ -26,8 +26,11 @@ const KoFi = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const login = payload?.message?.trim?.();
-    const userdata = await getUser(login);
-    await donutUser(userdata.id, 30);
+    const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
+    await promisegRPC(serviceUsers, "setUserIdDonut", {
+			user_id: userdata?.id,
+			days: 30
+		});
     logger.info("Ko-fi update donut status", {
       userdata,
       payload

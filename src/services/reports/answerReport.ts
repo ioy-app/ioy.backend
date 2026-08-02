@@ -6,12 +6,15 @@ import z from "zod";
 import getReport from "./getReport";
 import { deleteComment, getComment } from "../comments";
 import { deleteGame, getGameById } from "../games";
-import banUser from "../users/banUser";
 import { deleteJam, getJam } from "../jams";
 import kafka from "@/lib/kafka";
 import dayjs from "dayjs";
 import { deletePicture, getPicture } from "../pictures";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 const producer = kafka.producer();
+
+const setUserIdBan = async (user_id, days) => await promisegRPC(serviceUsers, "SetUserIdBan", { user_id, days });
 
 /**
  * Answer for report
@@ -67,27 +70,27 @@ const answerReport = async (
     let user_id;
     switch(report.target_type) {
       case "user": {
-        await banUser(report.target_id, data?.params?.ban_instance_3d ? 3 : 30);
+        await setUserIdBan(report.target_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = report.target_id;
       } break;
       case "game": {
         const game = await getGameById(report.target_id);
-        await banUser(game.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        await setUserIdBan(game.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = game.creater_id;
       } break;
       case "comment": {
         const comment = await getComment(report.target_id);
-        await banUser(comment.source_id, data?.params?.ban_instance_3d ? 3 : 30);
+        await setUserIdBan(comment.source_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = comment.source_id;
       } break;
       case "jam": {
         const jam = await getJam(report.target_id);
-        await banUser(jam.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        await setUserIdBan(jam.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = jam.creater_id;
       } break;
       case "picture": {
         const picture = await getPicture(report.target_id);
-        await banUser(picture.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
+        await setUserIdBan(picture.creater_id, data?.params?.ban_instance_3d ? 3 : 30);
         user_id = picture.creater_id;
       } break;
     }
@@ -122,27 +125,27 @@ const answerReport = async (
     let user_id;
     switch(report.target_type) {
       case "user": {
-        await banUser(report.target_id, -1);
+        await setUserIdBan(report.target_id, -1);
         user_id = report.target_id;
       } break;
       case "game": {
         const game = await getGameById(report.target_id);
-        await banUser(game.creater_id, -1);
+        await setUserIdBan(game.creater_id, -1);
         user_id = game.creater_id;
       } break;
       case "picture": {
         const picture = await getPicture(report.target_id);
-        await banUser(picture.creater_id, -1);
+        await setUserIdBan(picture.creater_id, -1);
         user_id = picture.creater_id;
       } break;
       case "comment": {
         const comment = await getComment(report.target_id);
-        await banUser(comment.source_id, -1);
+        await setUserIdBan(comment.source_id, -1);
         user_id = comment.source_id;
       } break;
       case "jam": {
         const jam = await getJam(report.target_id);
-        await banUser(jam.creater_id, -1);
+        await setUserIdBan(jam.creater_id, -1);
         user_id = jam.creater_id;
       } break;
     }

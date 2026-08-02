@@ -1,10 +1,9 @@
 import { Response } from "express";
 import { getJam as getJamService } from "@/services/jams";
 import verify from "@/utils/verify";
-import getUserLogin from "@/services/users/getUserLogin";
-import getUser from "@/services/users/getUser";
 import { checkSubscribe } from "@/services/subscribers";
-import dayjs from "dayjs";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Get jam info by id
@@ -19,8 +18,8 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
   if (data?.judges) {
     for (const judge_id of data?.judges) {
       try {
-        const login = await getUserLogin(judge_id);
-        const userdata = await getUser(login);
+        const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: judge_id });
+        const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
 
         judges_data.push(userdata);
       }
@@ -28,8 +27,8 @@ const getJam = async(req: Request, res: Response): Promise<void> => {
     }
   }
 
-  const creater_login = await getUserLogin(data?.creater_id);
-  const creater_data = await getUser(creater_login);
+  const creater_login = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: data?.creater_id });
+  const creater_data = await promisegRPC(serviceUsers, "GetUser", { login: creater_login });
 
   let is_join;
   let is_game;

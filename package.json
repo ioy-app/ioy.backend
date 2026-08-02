@@ -13,6 +13,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.4",
+    "@grpc/proto-loader": "^0.8.1",
     "@redis/client": "^5.9.0",
     "bcrypt": "^6.0.0",
     "chai": "^6.2.0",

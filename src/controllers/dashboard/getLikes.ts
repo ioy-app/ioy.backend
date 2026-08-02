@@ -5,8 +5,8 @@ import { getLikesByInstance } from "@/services/likes";
 import { getComments } from "@/services/comments";
 import { getGameById } from "@/services/games";
 import { getPicture } from "@/services/pictures";
-import getUserLogin from "@/services/users/getUserLogin";
-import getUser from "@/services/users/getUser";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Get all likes instance by user
@@ -32,8 +32,8 @@ const getLikes = async(req: Request, res: Response): Promise<void> => {
       switch(type) {
         case "game": {
           const data = await getGameById(id);
-          const author_login = await getUserLogin(data.creater_id);
-          const creater_data = await getUser(author_login);
+          const { value: author_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: data?.creater_id });
+          const creater_data = await promisegRPC(serviceUsers, "GetUser", { login: author_login });
           items.push({
             ...data,
             likes,
@@ -45,8 +45,8 @@ const getLikes = async(req: Request, res: Response): Promise<void> => {
         } break;
         case "picture": {
           const data = await getPicture(id);
-          const author_login = await getUserLogin(data.creater_id);
-          const creater_data = await getUser(author_login);
+          const { value: author_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: data?.creater_id });
+          const creater_data = await promisegRPC(serviceUsers, "GetUser", { login: author_login });
           items.push({
             ...data,
             likes,

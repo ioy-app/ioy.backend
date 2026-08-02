@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import createCode from "@services/codes/createCode";
-import { getUserEmailLogin } from "@/services/users/getUserLogin";
-import getUser from "@/services/users/getUser";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 
 /**
@@ -14,8 +14,8 @@ const Login = async (req: Request, res: Response): Promise<void> => {
 	const { email } = req.body;
 
 	try {
-		const login = await getUserEmailLogin(email);
-		const user = await getUser(login);
+		const { value: login } = await promisegRPC(serviceUsers, "GetUserEmailLogin", { email });
+		const user = await promisegRPC(serviceUsers, "GetUser", { login });
 		const code = await createCode(user?.id, { type: "login", email });
 		console.log(code);
 	}

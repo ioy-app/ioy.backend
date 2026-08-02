@@ -2,6 +2,8 @@ import ContentError from "@/utils/ContentError";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 dotenv.config();
 
 /**
@@ -15,9 +17,9 @@ const Verify = async(req: Request, res: Response): Promise<void> => {
   if (!code)
     throw new ContentError("Verify", "errors.exists");
 
-	const { id } = jwt.verify(code, process.env.SECRET);
+	const { id: user_id } = jwt.verify(code, process.env.SECRET);
 
-  await setUserIdActive(id);
+	await promisegRPC(serviceUsers, "SetUserIdActive", { user_id });
   res.status(200).end();
 }
 

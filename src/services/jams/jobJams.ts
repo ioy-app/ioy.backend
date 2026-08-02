@@ -5,7 +5,8 @@ import redis from "@/lib/redis";
 import getJam from "./getJam";
 import kafka from "@/lib/kafka";
 import { getSubsByInstance } from "../subscribers";
-import { getUserIdEmail } from "../users/getUserEmail";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 const producer = kafka.producer();
 
 export default () => {
@@ -25,7 +26,7 @@ export default () => {
             case "in_process": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getUserIdEmail(user_id);
+                const { value: email } = await promisegRPC(serviceUsers, "GetUserIdEmail", { user_id });
                 await producer.send({
                   topic: "notify",
                   messages: [
@@ -50,7 +51,7 @@ export default () => {
             case "voting": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getUserIdEmail(user_id);
+                const { value: email } = await promisegRPC(serviceUsers, "GetUserIdEmail", { user_id });
                 await producer.send({
                   topic: "notify",
                   messages: [
@@ -74,7 +75,7 @@ export default () => {
             case "finished": {
               const users = await getSubsByInstance(jam?.id, "jam");
               for (const user_id of users) {
-                const email = await getUserIdEmail(user_id);
+                const { value: email } = await promisegRPC(serviceUsers, "GetUserIdEmail", { user_id });
                 await producer.send({
                   topic: "notify",
                   messages: [

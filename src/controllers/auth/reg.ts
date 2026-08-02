@@ -1,8 +1,9 @@
 import kafka from "@/lib/kafka";
-import createUser from "@services/users/createUser";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 dotenv.config();
 
@@ -16,7 +17,10 @@ const producer = kafka.producer();
 */
 const Reg = async (req: Request, res: Response): Promise<void> => {
     const { login, email } = req.body;
-    const id = await createUser(login, email);
+		const { value: id } = await promisegRPC(serviceUsers, "CreateUser", {
+			login,
+			email
+		});
 
     const verify_code = jwt.sign({
         id,

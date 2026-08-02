@@ -1,12 +1,12 @@
 import { Response } from "express";
-import getUserFollowers from "@services/users/getUserFollowers";
-import { default as getUserService } from "@services/users/getUser";
-import getUserControls from "@services/users/getUserControls";
-import verify from "@utils/verify";
+import verify from "@/utils/verify";
 import { UserDetails } from "@/types/user";
 import Request from "@/types/request";
 import dayjs from "dayjs";
 import AccessError from "@/utils/AccessError";
+import { checkSubscribe, getSubsCounterByInstance } from "@/services/subscribers";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Получение информации о пользователе, подписчиках
@@ -18,16 +18,17 @@ import AccessError from "@/utils/AccessError";
 const getUser = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
-    const data: UserDetails = await getUserService(login);
-
-    if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
+    const data: UserDetails = await promisegRPC(serviceUsers, "GetUser", { login });
+		if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
         throw new AccessError("getUser", "errors.denied");
 
-    data.subscribers = await getUserFollowers(data.id);
-
+    data.subscribers = await getSubsCounterByInstance(data.id, "user");
     if (req.token) {
         const { id } = await verify(req.token);
-        data.controls = await getUserControls(id, data.id);
+        data.controls = {
+					is_subscribe: await checkSubscribe(id, data?.id, "user"),
+        	is_me: Boolean(id == data?.id)
+				}		
     }
 
     res.status(200).json(data);
