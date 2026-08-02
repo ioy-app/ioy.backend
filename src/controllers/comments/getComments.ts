@@ -1,10 +1,10 @@
 import { Response } from "express";
 import { getComment, getComments as getCommentsService } from "@/services/comments";
-import getUser from "@/services/users/getUser";
-import getUserLogin from "@/services/users/getUserLogin";
 import { checkLikeByInstance, getLikesByInstance } from "@/services/likes";
 import verify from "@/utils/verify";
 import Request from "@/types/request";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Get comment data to client
@@ -39,8 +39,8 @@ const funcComment = async (id: number, req: Request) => {
         };
     }
 
-    const login = await getUserLogin(comment.source_id);
-    const author = await getUser(login);
+    const login = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: comment?.source_id });
+    const author = await promisegRPC(serviceUsers, "GetUser", { login });
     const likes = await getLikesByInstance(id, "comment");
 
     let is_like: boolean;

@@ -5,7 +5,8 @@ import { Response } from "express";
 import { createPicture as createPictureService, getPicture } from "@/services/pictures";
 import { getJam } from "@/services/jams";
 import { getGameById } from "@/services/games";
-import donutUser from "@/services/users/donutUser";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Add new picture
@@ -66,7 +67,10 @@ const createPicture = async(req: Request, res: Response): Promise<void> => {
   if (!id)
     throw new ContentError("createPicture", "errors.unknown");
 
-  await donutUser(user_id, 7);
+	await promisegRPC(serviceUsers, "SetUserIdDonut", {
+		user_id,
+		days: 7
+	});
   const picturedata = await getPicture(id);
   res.status(200).json(picturedata);
 }

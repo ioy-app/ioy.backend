@@ -1,20 +1,22 @@
 import redis from "@/lib/redis";
-import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import deleteFile from "@/utils/deleteFile";
+import promisegRPC from "@/utils/promisegRPC";
 import { Response } from "express";
+import { serviceUsers } from "index";
 
 const deleteAvatar = async (req: Request, res: Response): Promise<void> => {
 	const url_login = req?.params?.login;
 	const id = req.user_id;
-	const login = await getUserLogin(Number(id));
+	const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: id });
 	if (login != url_login)
 		throw new AccessError("errors.denied");
 	const del = await deleteFile("users", `${login}.png`);
-	if (del)
-		redis.delWithLog(`users:${login}`);
-
+	if (del) {
+		await redis.delAllWithLog(`users:${login}:*`);
+		await redis.delAllWithLog(`user_id:${id}:*`);
+	}
 	res.status(200).end();
 }
 

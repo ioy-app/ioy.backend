@@ -5,11 +5,11 @@ import ContentError from "@/utils/ContentError";
 import { getJam } from "@/services/jams";
 import Role from "@/types/role";
 import verify from "@/utils/verify";
-import getUserLogin from "@/services/users/getUserLogin";
-import getUser from "@/services/users/getUser";
 import { checkLikeByInstance } from "@/services/likes";
 import { getRole } from "@/services/roles";
 import { checkSubscribe } from "@/services/subscribers";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Get picture info
@@ -33,8 +33,8 @@ const getPicture = async(req: Request, res: Response): Promise<void> => {
       jamdata = await getJam(data?.jam_id);
   }
 
-  const login = await getUserLogin(data?.creater_id);
-  data.creater_data = await getUser(login);
+  const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: data?.creater_id });
+  data.creater_data = await promisegRPC(serviceUsers, "GetUser", { login });
 
   let is_like: boolean;
   let is_me: boolean;
@@ -43,8 +43,8 @@ const getPicture = async(req: Request, res: Response): Promise<void> => {
 
   if (req?.token) {
     const { id: user_id } = await verify(req?.token);
-    const login = await getUserLogin(Number(user_id));
-    const userdata = await getUser(login);
+		const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id });
+    const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
 
     is_like = await checkLikeByInstance(Number(user_id), id, "picture");
     is_me = Boolean(Number(user_id) == Number(data?.creater_id));

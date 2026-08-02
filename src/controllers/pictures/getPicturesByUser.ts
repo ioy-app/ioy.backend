@@ -1,10 +1,9 @@
-import { getComments } from "@/services/comments";
-import { getLikesByInstance } from "@/services/likes";
 import { getPicture, getPictures } from "@/services/pictures";
-import getUser from "@/services/users/getUser";
 import Picture from "@/types/picture";
 import Request from "@/types/request";
+import promisegRPC from "@/utils/promisegRPC";
 import { Response } from "express";
+import { serviceUsers } from "index";
 
 /**
  * Get all pictures by author
@@ -19,7 +18,7 @@ const getPicturesByUser = async (req: Request, res: Response): Promise<void> => 
   const search: string = req.query?.search && String(req.query.search) || undefined;
   const sort: "new" | "old" = (req.query.sort && req.query.sort) as ("new" | "old");
 
-  const userdata = await getUser(login);
+  const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
   const [ ids, total ] = await getPictures(
     offset,
     limit,

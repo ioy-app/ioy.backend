@@ -1,9 +1,6 @@
 import Request from "@/types/request";
 import { Response } from "express";
 import getGameByIdService from "@/services/games/getGameById";
-import getUser from "@/services/users/getUser";
-import getUserLogin from "@/services/users/getUserLogin";
-import { UserDetails } from "@/types/user";
 import verify from "@/utils/verify";
 import getGamesRecommendsByGame from "@/services/games/getGamesRecommendsByGame";
 import Game from "@/schemas/game";
@@ -12,13 +9,12 @@ import { getRole } from "@/services/roles";
 import { getJam } from "@/services/jams";
 import { checkLikeByInstance } from "@/services/likes";
 import { getPicture, getPictureByGame } from "@/services/pictures";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 interface GameResponse extends Game {
-    /** Подробная информация о каждом авторе */
-    authors_data: UserDetails[];
-    /** Поставлен ли лайк на игру */
+    authors_data: Record<string, unknown>[];
     is_like?: boolean;
-    /** Рекомендации */
     recomendator: Game[];
 }
 
@@ -42,11 +38,11 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
         jamdata = await getJam(data?.jam_id);
     }
 
-    const authors_data: UserDetails[] = [];
+    const authors_data = [];
     for (const uid of Array.from(new Set([data.creater_id, ...(data?.authors || [])]))) {
         try {
-            const login = await getUserLogin(uid);
-            authors_data.push(await getUser(login));
+						const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: uid });
+            authors_data.push(await promisegRPC(serviceUsers, "GetUser", { login }));
         }
         catch(err) {}
     }
@@ -76,8 +72,8 @@ const getGameById = async (req: Request, res: Response): Promise<void> => {
     let roledata = {};
     if (req.token) {
         const { id: user_id } = await verify(req.token);
-        const login = await getUserLogin(Number(user_id));
-        const userdata = await getUser(login);
+        const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id });
+        const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
         is_like = await checkLikeByInstance(Number(user_id), Number(id), "game");
         is_me = Boolean(Number(user_id) == Number(data.creater_id))
         const role = await getRole(userdata.role_id);

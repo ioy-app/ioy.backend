@@ -1,7 +1,8 @@
+import promisegRPC from "@/utils/promisegRPC";
 import createSession from "@services/sessions/createSession";
 import createToken from "@services/sessions/createToken";
-import getUserEmail from "@services/users/getUserEmail";
 import { Request, Response } from "express";
+import { serviceUsers } from "index";
 
 /**
  * Вход в систему
@@ -11,9 +12,9 @@ import { Request, Response } from "express";
  * @param {Response} res 
 */
 const CodeLogin = async (payload: any, req: Request, res: Response): Promise<void> => {
-    const user = await getUserEmail(payload?.email);
-    const { id, login, is_avatar } = user;
-    const session = await createSession(id, req.ip?.split(":")?.at(-1), req.get("User-Agent"));
+		const { value: login } = await promisegRPC(serviceUsers, "GetUserEmailLogin", { email: payload?.email });
+		const user = await promisegRPC(serviceUsers, "GetUser", { login });
+    const session = await createSession(user?.id, req.ip?.split(":")?.at(-1), req.get("User-Agent"));
 
     res.cookie("refresh_token", session.token, {
         httpOnly: true,
@@ -25,9 +26,11 @@ const CodeLogin = async (payload: any, req: Request, res: Response): Promise<voi
     const token = await createToken(session.token);
     res.status(200).json({
         token,
-        id,
-        login,
-        is_avatar
+        id: user?.id,
+        login: user?.login,
+        is_avatar: user?.is_avatar,
+				is_banner: user?.is_banner,
+				is_donut: user?.is_donut
     });
 }
 

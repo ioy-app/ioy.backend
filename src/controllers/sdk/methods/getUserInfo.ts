@@ -1,7 +1,7 @@
-import getUser from "@/services/users/getUser";
-import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
+import promisegRPC from "@/utils/promisegRPC";
 import { Response } from "express";
+import { serviceUsers } from "index";
 
 /**
  * Get current user info for sdk
@@ -15,8 +15,8 @@ const getUserInfo = async(req: Request, res: Response): Promise<void> => {
   let login = null;
   
   try {
-    const userLogin = await getUserLogin(req?.user_id);
-    const userData = await getUser(userLogin);
+    const { value: userLogin } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: req?.user_id });
+    const userData = await promisegRPC(serviceUsers, "GetUser", { login: userLogin });
     is_avatar = Boolean(userData?.is_avatar);
     is_donut = Boolean(userData?.is_donut);
     login = userLogin;

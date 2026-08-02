@@ -1,9 +1,9 @@
 import Game from "@/schemas/game";
 import { getGameById } from "@/services/games";
 import { getGamesByJam as getGamesByJamService } from "@/services/jams";
-import getUser from "@/services/users/getUser";
-import getUserLogin from "@/services/users/getUserLogin";
+import promisegRPC from "@/utils/promisegRPC";
 import { Request, Response } from "express";
+import { serviceUsers } from "index";
 
 /**
  * Get games by jam
@@ -26,8 +26,8 @@ const getGamesByJam = async(req: Request, res: Response): Promise<void> => {
   const items: Game[] = [];
   for (const id of games_ids) {
       const game = await getGameById(Number(id));
-      const creater_login = await getUserLogin(game.creater_id);
-      const creater_data = await getUser(creater_login);
+      const { value: creater_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: game?.creater_id });
+      const creater_data = await promisegRPC(serviceUsers, "GetUser", { login: creater_login });
       items.push({
           ...game,
           creater_data

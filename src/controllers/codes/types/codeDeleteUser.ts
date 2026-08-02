@@ -1,13 +1,11 @@
 import { deleteCommentsByUser } from "@/services/comments";
 import { deleteGame, getGameById, getGamesByUser } from "@/services/games";
-import { deleteLikes } from "@/services/likes";
 import { deleteSubs, getUserSubs, putSubscribe } from "@/services/subscribers";
-import getUserGames from "@/services/users/getUserGames";
-import getUserLogin from "@/services/users/getUserLogin";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import { Response } from "express";
-import deleteUserService from "@/services/users/deleteUser";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Delete user
@@ -67,7 +65,7 @@ const CodeDeleteUser = async (payload: any, req: Request, res: Response): Promis
         await putSubscribe(id, jam_id, "jam");
     }
 
-    await deleteUserService(id);
+		await promisegRPC(serviceUsers, "DeleteUserId", { user_id: id });
 
     res.status(200).json({
         status: "ok"

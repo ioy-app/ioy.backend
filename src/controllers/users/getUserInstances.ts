@@ -1,15 +1,22 @@
 import { getGameById } from "@/services/games";
 import { getPicture } from "@/services/pictures";
-import getUserId from "@/services/users/getUserId";
-import getUserInstancesService from "@/services/users/getUserInstances";
+import promisegRPC from "@/utils/promisegRPC";
 import { Request, Response } from "express";
+import { serviceUsers } from "index";
 
 const getUserInstances = async (req: Request, res: Response) => {
 	const login = req?.params?.login;
-	const { offset, limit } = req.query;
+	const { offset, limit, includes } = req.query;
 	
-	const user_id = await getUserId(login);
-	const [ content, total ] = await getUserInstancesService(user_id, Number(offset || 0), Number(limit || 40));
+	const {
+		items: content,
+		total
+	} = await promisegRPC(serviceUsers, "GetUserInstances", {
+		login,
+		offset,
+		limit,
+		includes
+	});
 	const items = [];
 
 	for (const item of content) {

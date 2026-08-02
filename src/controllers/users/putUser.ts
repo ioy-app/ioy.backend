@@ -1,10 +1,9 @@
 import Request from "@/types/request.js";
-import { Request as RequestExpress, Response } from "express";
-import putUserService from "@/services/users/putUser.js";
+import { Request, Response } from "express";
 import { Multer } from "multer";
-import getUser from "@/services/users/getUser";
 import AccessError from "@/utils/AccessError";
-import ContentError from "@/utils/ContentError";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Редактирование пользовательских данных
@@ -13,7 +12,7 @@ import ContentError from "@/utils/ContentError";
  * @param res - Ответ
 */
 const putUser = async (req: Request & { file?: Multer }, res: Response): Promise<void> => {
-    const { login } = req.params;
+	const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: req?.user_id });  
 
     if (req?.body?.privacy)
         for (const [key, value] of Object.entries(req.body.privacy))
@@ -22,7 +21,7 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
         for (const [key, value] of Object.entries(req.body.notify))
             req.body.notify[key]= Boolean(value == "true");
 
-    const userdata = await getUser(login);
+    const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
     if (userdata.id != req.user_id)
         throw new AccessError("putUser", "errors.denied");
 
@@ -41,13 +40,17 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
     if (banner && banner?.mimetype != "image/png")
         throw new AccessError("putUser", "errors.banner_type");
 
-    const data = await putUserService(
-        login,
-        req.body,
-        avatar && avatar?.buffer || null,
-				banner && banner?.buffer || null
-    );
-    res.status(200).json(data);
+    await promisegRPC(serviceUsers, "EditUser", {
+			login,
+			params: {
+				...(req?.body || {}),
+				avatar: avatar && avatar?.buffer || undefined,
+				banner: banner && banner?.buffer || undefined
+			}
+		});
+
+		const updated = await promisegRPC(serviceUsers, "GetUser", { login: req?.body?.login || login });
+    res.status(200).json(updated);
 }
 
 export default putUser;

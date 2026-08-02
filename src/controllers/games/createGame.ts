@@ -1,18 +1,17 @@
 import db from "@/lib/db";
 import kafka from "@/lib/kafka";
-import minio from "@/lib/minio";
 import redis from "@/lib/redis";
 import { getGamesByUser, putGameFile } from "@/services/games";
 import createGameService from "@/services/games/createGame";
 import { getJam } from "@/services/jams";
 import { getSubsByInstance } from "@/services/subscribers";
-import donutUser from "@/services/users/donutUser";
-import getUserLogin from "@/services/users/getUserLogin";
-import getUserNotify from "@/services/users/getUserNotify";
 import Request from "@/types/request";
 import AccessError from "@/utils/AccessError";
 import ContentError from "@/utils/ContentError";
+import promisegRPC from "@/utils/promisegRPC";
 import { Response } from "express";
+import { serviceUsers } from "index";
+import { uuidv7 } from "zod";
 
 const producer = kafka.producer();
 
@@ -83,8 +82,11 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
     }
 
     if (result.status == "public") {
-        const author_login = await getUserLogin(result.creater_id);
-        await donutUser(result?.creater_id, 7);
+        const { value: author_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: result.creater_id });
+				await promisegRPC(serviceUsers, "SetUserIdDonut", {
+					user_id: result?.creater_id,
+					days: 7 
+				});
         // Notify new game:
         const is_notify = await redis.readWithLog(`notify:add_game:${result.id}`);
         if (!is_notify) {
@@ -92,8 +94,8 @@ const createGame = async (req: Request, res: Response): Promise<void> => {
             if (author_subscribers) {
                 await producer.connect();
                 for (const uid of author_subscribers) {
-                    const user_login = await getUserLogin(uid);
-                    const user_rules = await getUserNotify(user_login);
+                    const { value: user_login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: uid });
+                    const user_rules = await promisegRPC(serviceUsers, "GetUserNotify", { login: user_login });
 
                     if (!user_rules.new_game)
                         continue;

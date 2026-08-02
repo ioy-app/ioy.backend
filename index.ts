@@ -4,8 +4,27 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cron from "node-cron";
 import { rateLimit } from "express-rate-limit";
+import * as grpc from "@grpc/grpc-js";
+import * as protoLoader from "@grpc/proto-loader";
 
 dotenv.config();
+
+const packageDefinition = protoLoader.loadSync(
+  "./src/proto/users.proto",
+  {
+    keepCase: true,
+    longs: Number,
+    enums: String,
+    defaults: true,
+    oneofs: true
+  }
+);
+const proto = grpc.loadPackageDefinition(packageDefinition) as any;
+
+export const serviceUsers = new proto.users.v1.UsersService(
+  process.env.SERVICE_USERS,
+  grpc.credentials.createInsecure()
+);
 
 export const app = express();
 export const secret = process.env.SECRET;
@@ -20,7 +39,6 @@ import CodesRouter from "@routes/codes";
 import JamsRouter from "@routes/jams";
 import CommentsRouter from "@/routes/comments";
 import ReportRouter from "@/routes/reports";
-import FeedRouter from "@/routes/feed";
 import PicturesRouter from "@/routes/pictures";
 import WebhooksRouter from "@/routes/webhooks";
 import SDKRouter from "@/routes/sdk";
@@ -63,7 +81,6 @@ RouterV1.use("/sessions", Sessions);
 RouterV1.use("/roles", RolesRouter);
 RouterV1.use("/jams", JamsRouter);
 RouterV1.use("/reports", ReportRouter);
-RouterV1.use("/feed", FeedRouter);
 RouterV1.use("/pictures", PicturesRouter);
 RouterV1.get("/daily", Daily);
 RouterV1.use("/webhooks", WebhooksRouter);

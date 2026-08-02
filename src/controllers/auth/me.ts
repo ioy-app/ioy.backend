@@ -1,8 +1,8 @@
-import getUser from "@services/users/getUser";
-import getUserLogin from "@services/users/getUserLogin";
 import Request from "@/types/request";
 import { Response } from "express";
 import { getRole } from "@/services/roles";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * User info
@@ -13,8 +13,8 @@ import { getRole } from "@/services/roles";
 const Me = async (req: Request, res: Response): Promise<void> => {
     const { user_id } = req;
 
-    const login = await getUserLogin(Number(user_id));
-    const data = await getUser(login);
+		const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id });
+    const data = await promisegRPC(serviceUsers, "GetUser", { login });
     const roledata = await getRole(data.role_id);
     
     res.status(200).json({

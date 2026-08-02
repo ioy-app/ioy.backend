@@ -1,15 +1,11 @@
-import { secret } from "../../index.js";
-import CustomError from "../utils/CustomError.js";
+import { secret, serviceUsers } from "../../index.js";
 import jwt from "jsonwebtoken";
-import db from "@lib/db";
 import { NextFunction, Response } from "express";
 import Request from "@/types/request.js";
 import AccessError from "@/utils/AccessError.js";
-import getSession from "@/services/sessions/getSession.js";
-import getUserLogin from "@/services/users/getUserLogin.js";
-import getUser from "@/services/users/getUser.js";
 import dayjs from "dayjs";
 import createToken from "@/services/sessions/createToken.js";
+import promisegRPC from "@/utils/promisegRPC.js";
 
 interface JWTResponse extends jwt.JwtPayload {
     /** ID */
@@ -64,8 +60,8 @@ const MiddlewareRequired = async (req: Request, res: Response, next: NextFunctio
     req.is_access = true;
     req.refresh_id = refresh_id;
 
-    const login = await getUserLogin(id);
-    const userdata = await getUser(login);
+    const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: id });
+    const userdata = await promisegRPC(serviceUsers, "GetUser", { login });
     if (userdata?.date_ban && dayjs(userdata?.date_ban).isAfter(dayjs())) {
         throw new AccessError("MiddlewareRequired", "errors.denied");
     }

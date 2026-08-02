@@ -4,6 +4,8 @@ import z from "zod";
 import checkSubscribe from "./checkSubscribe";
 import redis from "@/lib/redis";
 import { IdSchemaCustom } from "@/schemas/id";
+import promisegRPC from "@/utils/promisegRPC";
+import { serviceUsers } from "index";
 
 /**
  * Create or Remove subs by instance
@@ -71,9 +73,10 @@ const putSubscribe = async (
     
     await redis.delWithLog(`is_subscribe:${source_id}:${target_id}:${target_type}`);
     switch(target_type) {
-        case "user":
-            await redis.delWithLog(`user_id:${target_id}:followers`);
-        break;
+        case "user": {
+        	const { value: login } = await promisegRPC(serviceUsers, "GetUserLogin", { user_id: target_id });
+					await redis.delWithLog(`user:${login}:followers`);
+				} break;
         case "jam":
             await redis.delAllWithLog(`jams:user:${target_id}:*`);
         break;
