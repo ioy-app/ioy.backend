@@ -41,13 +41,16 @@ const putUser = async (req: Request & { file?: Multer }, res: Response): Promise
         throw new AccessError("putUser", "errors.banner_type");
 
     await promisegRPC(serviceUsers, "EditUser", {
-			...(req?.body || {}),
-			avatar: avatar && avatar?.buffer || undefined,
-			banner: banner && banner?.buffer || undefined
+			login,
+			params: {
+				...(req?.body || {}),
+				avatar: avatar && avatar?.buffer || undefined,
+				banner: banner && banner?.buffer || undefined
+			}
 		});
-    res.status(200).json({
-			status: "ok"
-		});
+
+		const updated = await promisegRPC(serviceUsers, "GetUser", { login });
+    res.status(200).json(updated);
 }
 
 export default putUser;

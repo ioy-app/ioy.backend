@@ -1,4 +1,3 @@
-import { UserDetails } from "@/types/user";
 import AccessError from "@/utils/AccessError";
 import promisegRPC from "@/utils/promisegRPC";
 import dayjs from "dayjs";
@@ -16,7 +15,7 @@ const getUserAvatar = async (req: Request, res: Response): Promise<void> => {
     const { login } = req.params;
 
     try {
-        const data: UserDetails = await promisegRPC(serviceUsers, "GetUser", { login });
+        const data = await promisegRPC(serviceUsers, "GetUser", { login });
 
         if (data?.date_ban && dayjs(data?.date_ban).isAfter(dayjs()))
             throw new AccessError("getUserAvatar", "errors.denied");
